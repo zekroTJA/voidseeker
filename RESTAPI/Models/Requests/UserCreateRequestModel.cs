@@ -8,6 +8,9 @@ namespace RESTAPI.Models.Requests
         [JsonPropertyName("password")]
         public string Password { get; set; }
 
+        [JsonPropertyName("oldpassword")]
+        public string? OldPassword { get; set; }
+
         [JsonPropertyName("emailaddress")]
         public new string EmailAddress { get; set; }
 

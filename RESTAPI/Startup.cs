@@ -5,8 +5,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using RESTAPI.Authorization;
+using RESTAPI.Cache;
 using RESTAPI.Database;
 using RESTAPI.Hashing;
+using RESTAPI.Storage;
+using System;
 
 namespace RESTAPI
 {
@@ -26,8 +29,10 @@ namespace RESTAPI
 
             services
                 .AddSingleton<IDatabaseAccess, ElasticDatabaseAccess>()
+                .AddSingleton<IStorageProvider, MinioStorageProvider>()
                 .AddSingleton<IAuthorization, JWTAuthorization>()
                 .AddSingleton<IHasher, Argon2Hasher>()
+                .AddSingleton<ICacheProvider>(new InternalCacheProvider(TimeSpan.FromMinutes(10)))
                 ;
 
             services.AddSwaggerGen(options =>

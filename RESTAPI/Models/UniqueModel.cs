@@ -6,15 +6,27 @@ namespace RESTAPI.Models
     public class UniqueModel
     {
         [JsonPropertyName("uid")]
-        public Guid UID { get; set; }
+        public Guid Uid { get; set; }
 
         [JsonPropertyName("index")]
-        public string Index { get; set; }
+        public string Index { get; private set; }
+
+        [JsonPropertyName("created")]
+        public DateTime Created { get; set; }
 
         public UniqueModel(string index)
         {
-            UID = Guid.NewGuid();
+            Uid = Guid.NewGuid();
+            Created = DateTime.Now;
             Index = index;
+        }
+
+        public UniqueModel AfterCreate()
+        {
+            Uid = Guid.NewGuid();
+            Created = DateTime.Now;
+
+            return this;
         }
     }
 }

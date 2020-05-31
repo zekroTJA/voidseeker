@@ -17,7 +17,7 @@ namespace RESTAPI.Database
         public ElasticDatabaseAccess(IConfiguration configuration)
         {
             var nodeUrls = new List<string>();
-            configuration.GetSection("Elasticsearch:Nodes").Bind(nodeUrls);
+            configuration.GetSection("Database:Elasticsearch:Nodes").Bind(nodeUrls);
 
             var settings = new ConnectionSettings(
                     new StaticConnectionPool(
@@ -28,7 +28,7 @@ namespace RESTAPI.Database
         }
 
         public Task Put<T>(T obj) where T : UniqueModel => 
-            client.IndexAsync(obj, idx => idx.Index(obj.Index).Id(obj.UID));
+            client.IndexAsync(obj, idx => idx.Index(obj.Index).Id(obj.Uid));
 
         public async Task<T> Get<T>(Guid uid) where T : UniqueModel, new()
         {
@@ -46,7 +46,7 @@ namespace RESTAPI.Database
         }
 
         public Task Update<T>(T obj) where T : UniqueModel =>
-            client.UpdateAsync<T, object>(obj.UID, s => s
+            client.UpdateAsync<T, object>(obj.Uid, s => s
                 .Index(obj.Index)
                 .Doc(obj)
                 .RetryOnConflict(3));
@@ -59,7 +59,7 @@ namespace RESTAPI.Database
                     .Query(q =>
                         q.Term(t => t.Field(f => f.UserName).Value(username))));
 
-            return res?.Hits.First()?.Source;
+            return res?.Hits.DefaultIfEmpty(null).First()?.Source;
         }
 
         public async Task<List<UserModel>> SearchUsers(int offset, int size, string filter)

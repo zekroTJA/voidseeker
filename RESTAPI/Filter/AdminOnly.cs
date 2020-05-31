@@ -11,7 +11,7 @@ namespace RESTAPI.Filter
             var controller = ctx.Controller as IAuthorizedController;
 
             var claims = controller.GetAuthClaims();
-            if (claims == null || claims.User == null || !claims.User.IsAdmin)
+            if (claims == null || claims.User == null || !claims.User.IsAdmin.Equals(true))
             {
                 SetUnauthorized(ctx);
                 return;

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RESTAPI.Database;
+using RESTAPI.Extensions;
 using RESTAPI.Filter;
 using RESTAPI.Hashing;
 using RESTAPI.Models;
@@ -27,6 +28,9 @@ namespace RESTAPI.Controllers
             hasher = _hasher;
         }
 
+        // -------------------------------------------------------------------------
+        // --- GET /api/instance/status ---
+
         [HttpGet("[action]")]
         public async Task<InstanceStatusModel> Status()
         {
@@ -38,6 +42,9 @@ namespace RESTAPI.Controllers
             };
         }
 
+        // -------------------------------------------------------------------------
+        // --- POST /api/instance/initialize ---
+
         [HttpPost("[action]")]
         public async Task<ActionResult<UserModel>> Initialize([FromBody] UserCreateRequestModel user)
         {
@@ -48,9 +55,10 @@ namespace RESTAPI.Controllers
             if (!user.Verify())
                 return BadRequest(new ErrorModel(400, "invalid user model"));
 
-            user.Created = DateTime.Now;
+            user.AfterCreate();
             user.LastLogin = default;
             user.IsAdmin = true;
+            user.DisplayName = user.DisplayName.NullOrEmpty() ? user.UserName : user.DisplayName;
             user.PasswordHash = hasher.Create(user.Password);
 
             await database.Put(user);

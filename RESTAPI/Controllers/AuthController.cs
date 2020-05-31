@@ -30,6 +30,9 @@ namespace RESTAPI.Controllers
             hasher = _hasher;
         }
 
+        // -------------------------------------------------------------------------
+        // --- POST /api/auth/login ---
+
         [HttpPost("[action]")]
         public async Task<ActionResult<UserModel>> Login([FromBody] LoginModel login)
         {
@@ -46,7 +49,7 @@ namespace RESTAPI.Controllers
 
             var claims = new AuthClaims()
             {
-                UserId = user.UID,
+                UserId = user.Uid,
                 UserName = user.UserName,
             };
 

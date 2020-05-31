@@ -9,23 +9,20 @@ namespace RESTAPI.Models
         public string UserName { get; set; }
 
         [JsonPropertyName("displayname")]
-        public string? DisplayName { get; set; }
+        public string DisplayName { get; set; }
 
         [JsonPropertyName("description")]
-        public string? Description { get; set; }
-
-        [JsonPropertyName("created")]
-        public DateTime Created { get; set; }
+        public string Description { get; set; }
 
         [JsonPropertyName("lastlogin")]
         public DateTime? LastLogin { get; set; }
 
         [JsonPropertyName("isadmin")]
-        public bool IsAdmin { get; set; }
+        public bool? IsAdmin { get; set; }
 
 
         [JsonIgnore]
-        public string? EmailAddress { get; set; }
+        public string EmailAddress { get; set; }
 
         [JsonIgnore]
         public byte[] PasswordHash { get; set; }
@@ -36,7 +33,7 @@ namespace RESTAPI.Models
 
         public UserModel(UserModel user) : base("users")
         {
-            UID = user.UID;
+            Uid = user.Uid;
             UserName = user.UserName;
             DisplayName = user.DisplayName;
             Description = user.Description;
