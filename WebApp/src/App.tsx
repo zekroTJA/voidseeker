@@ -7,11 +7,14 @@ import { RestAPI } from './api/restapi';
 import InitRoute from './routes/init/init';
 
 import './App.scss';
+import GlobalState from './util/globalstate';
 
 export default class App extends Component {
   public state = {
     redirect: '',
   };
+
+  private globalState = new GlobalState();
 
   public componentDidMount() {
     RestAPI.events.on('authentication-error', () =>
@@ -29,7 +32,11 @@ export default class App extends Component {
     return (
       <div className="router-outlet">
         <Router>
-          <Route exact path="/login" render={() => <LoginRoute />}></Route>
+          <Route
+            exact
+            path="/login"
+            render={() => <LoginRoute globalState={this.globalState} />}
+          ></Route>
           <Route exact path="/init" render={() => <InitRoute />}></Route>
           {this.state.redirect && <Redirect to={this.state.redirect} />}
         </Router>

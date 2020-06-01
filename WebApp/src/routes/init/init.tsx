@@ -9,7 +9,7 @@ import { withRouter, RouteComponentProps } from 'react-router-dom';
 
 import './init.scss';
 
-class _InitRoute extends Component<RouteComponentProps> {
+class InitRoute extends Component<RouteComponentProps> {
   public state = {
     user: {} as UserCreateModel,
   };
@@ -64,4 +64,4 @@ class _InitRoute extends Component<RouteComponentProps> {
   }
 }
 
-export default withRouter(_InitRoute);
+export default withRouter(InitRoute);

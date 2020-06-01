@@ -1,3 +1,5 @@
+@import './styles/colors.scss';
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -37,6 +39,22 @@ button {
     cursor: not-allowed;
     border: solid 1px rgba(0, 0, 0, 0.5);
     opacity: 0.75;
+  }
+}
+
+input[type=checkbox] {
+  display: inline-block;
+  height: 16px;
+  width: 16px;
+  transition: .2s ease;
+  -webkit-appearance: none;
+  border: 1px solid #ccc;
+  margin: 0px 8px 0px 0px;
+
+  &:checked {
+    border-color: transparent;
+    background: url(data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2214%22%20height%3D%2211%22%20viewBox%3D%220%200%2014%2011%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%20%20%3Cpolygon%20fill%3D%22%23fff%22%20points%3D%2212%201%205%207.5%202%205%201%205.5%205%2010%2013%201.5%22%20%2F%3E%0A%3C%2Fsvg%3E%0A) 50% 50% no-repeat;
+    background-color: $c-accent;
   }
 }
 

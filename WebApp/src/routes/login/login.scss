@@ -1,0 +1,22 @@
+.login-container {
+  max-width: 300px;
+  margin: 0 auto;
+
+  input[type=text],
+  input[type=password],
+  button,
+  .login-remember-container {
+    display: block;
+    width: 100%;
+    margin-bottom: 8px;
+
+    &:last-child {
+      margin-bottom: 0px;
+    }
+  }
+
+  .login-remember-container {
+    display: flex;
+    align-items: center;
+  }
+}
