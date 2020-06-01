@@ -20,6 +20,7 @@ namespace RESTAPI.Controllers
     [ProxyAddress]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(401)]
     [TypeFilter(typeof(AuthorizationRequired))]
     public class ImagesController : ControllerBase, IAuthorizedController
     {
@@ -44,21 +45,33 @@ namespace RESTAPI.Controllers
         // --- GET /api/images ---
 
         [HttpGet]
-        public ActionResult<PageModel<ImageModel>> Get(
+        [ProducesResponseType(200)]
+        public async Task<ActionResult<PageModel<ImageModel>>> Get(
             [FromQuery] int offset = 0,
             [FromQuery] int size = 50,
-            [FromQuery] string filter = "")
+            [FromQuery] string filter = "",
+            [FromQuery] string[] exclude = default,
+            [FromQuery] bool includePublic = false)
         {
-            return Ok();
+            var res = await database.SearchImages(offset, size, filter, exclude, authClaims.UserId, includePublic);
+
+            return Ok(new PageModel<ImageModel>(res, offset));
         }
 
         // -------------------------------------------------------------------------
         // --- PUT /api/images ---
 
         [HttpPut]
+        [ProducesResponseType(201)]
+        [ProducesResponseType(400)]
         public ActionResult<CompletionWrapperModel<ImageModel>> Put([FromBody] ImageModel image)
         {
             image.AfterCreate();
+            image.LowercaseTags();
+
+            if (!image.ValidateTags())
+                return BadRequest(new ErrorModel(400, "duplicate tags"));
+
             image.OwnerUid = authClaims.UserId;
             image.BlobName = null;
             image.Bucket = null;
@@ -85,6 +98,9 @@ namespace RESTAPI.Controllers
         [HttpPut("{uid}")]
         [RequestSizeLimit(100 * 1024 * 1024)]
         [Consumes("multipart/form-data")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult<ImageModel>> PutImageData(IFormFile file, [FromRoute] Guid uid)
         {
             if (file == null)
@@ -116,6 +132,9 @@ namespace RESTAPI.Controllers
         // --- POST /api/images/:uid ---
 
         [HttpPost("{uid}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult<ImageModel>> UpdateImage([FromRoute] Guid uid, [FromBody] ImageModel newImage)
         {
             var image = await database.Get<ImageModel>(uid);
@@ -138,7 +157,12 @@ namespace RESTAPI.Controllers
                 image.Grade = newImage.Grade;
 
             if (newImage.TagsCombined != null)
+            {
                 image.TagsCombined = newImage.TagsCombined;
+                image.LowercaseTags();
+                if (!image.ValidateTags())
+                    return BadRequest(new ErrorModel(400, "duplicate tags"));
+            }
 
             await database.Update(image);
 
@@ -150,6 +174,8 @@ namespace RESTAPI.Controllers
 
         [HttpGet("{uid}")]
         [ResponseCache(Duration = 30 * 24 * 3600, Location = ResponseCacheLocation.Any, NoStore = false)]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult> GetImage([FromRoute] Guid uid)
         {
             var image = await database.Get<ImageModel>(uid);
@@ -171,6 +197,8 @@ namespace RESTAPI.Controllers
         // --- GET /api/images/:uid/info ---
 
         [HttpGet("{uid}/info")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult<ImageModel>> GetImageInfo([FromRoute] Guid uid)
         {
             var image = await database.Get<ImageModel>(uid);
@@ -179,6 +207,27 @@ namespace RESTAPI.Controllers
 
             return Ok(image);
         }
+
+        // -------------------------------------------------------------------------
+        // --- DELETE /api/images/:uid/info ---
+
+        [HttpDelete("{uid}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<ImageModel>> DeleteImage([FromRoute] Guid uid)
+        {
+            var image = await database.Get<ImageModel>(uid);
+            if (image == null || (image.OwnerUid != authClaims.UserId && !authClaims.User.IsAdmin.Equals(true)))
+                return NotFound();
+
+            await database.Delete<ImageModel>(uid);
+            await storage.Delete(image.Bucket, image.BlobName);
+
+            return Ok();
+        }
+
+        // -------------------------------------------------------------------------
+        // --- HELPER FUNCTIONS ---
 
         private string GetCacheImageKey(Guid uid) =>
             $"image:create:{uid.ToString()}";

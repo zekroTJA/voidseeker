@@ -47,6 +47,8 @@ namespace RESTAPI
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseCors(c =>
+                    c.WithOrigins("http://localhost:3000").AllowAnyMethod().AllowAnyHeader().AllowCredentials());
             }
 
             app.UseHttpsRedirection();

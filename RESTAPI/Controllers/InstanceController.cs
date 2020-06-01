@@ -32,6 +32,7 @@ namespace RESTAPI.Controllers
         // --- GET /api/instance/status ---
 
         [HttpGet("[action]")]
+        [ProducesResponseType(200)]
         public async Task<InstanceStatusModel> Status()
         {
             var usersCount = await database.Count<UserModel>();
@@ -46,6 +47,9 @@ namespace RESTAPI.Controllers
         // --- POST /api/instance/initialize ---
 
         [HttpPost("[action]")]
+        [ProducesResponseType(201)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
         public async Task<ActionResult<UserModel>> Initialize([FromBody] UserCreateRequestModel user)
         {
             var usersCount = await database.Count<UserModel>();
@@ -65,7 +69,7 @@ namespace RESTAPI.Controllers
 
             var resUser = new UserModel(user);
 
-            return resUser;
+            return Created("user", resUser);
         }
     }
 }

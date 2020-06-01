@@ -8,5 +8,6 @@ namespace RESTAPI.Storage
     {
         Task Put(string bucket, string objectName, Stream data, long size, string contentType, string location = null);
         Task Get(string bucket, string objectName, Action<Stream> cb);
+        Task Delete(string bucket, string objectName);
     }
 }

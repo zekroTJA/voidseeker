@@ -64,15 +64,13 @@ namespace RESTAPI.Database
 
         public async Task<List<UserModel>> SearchUsers(int offset, int size, string filter)
         {
+            filter = filter.ToLower();
+
             ISearchResponse<UserModel> res;
             
             if (filter.NullOrEmpty())
             {
-                res = await SearchOrNullAsync<UserModel>(s => s
-                    .Index(new UserModel().Index)
-                    .Skip(offset)
-                    .Size(size)
-                    .Query(q => q.MatchAll()));
+                res = await SearchMatchAll<UserModel>(offset, size);
             }
             else
             {
@@ -93,6 +91,64 @@ namespace RESTAPI.Database
             return res.Hits.Select(x => x.Source).ToList();
         }
 
+        public async Task<List<ImageModel>> SearchImages(
+            int offset, int size, string filter, string[] exclude, Guid ownerId, bool includePublic = false)
+        {
+            filter = filter.ToLower();
+            
+            ISearchResponse<ImageModel> res;
+
+            if (filter.NullOrEmpty())
+            {
+                res = await SearchOrNullAsync<ImageModel>(s => s
+                    .Index(new ImageModel().Index)
+                    .Skip(offset)
+                    .Size(size)
+                    .Query(q => q
+                        .Bool(b => b
+                            .Should(m =>
+                                   m.MatchPhrase(term => term.Field(f => f.OwnerUid).Query(ownerId.ToString()))
+                                || (includePublic ? m.Term(term => term.Field(f => f.Public).Value(true)) : null)
+                            )
+                            .MustNot(m =>
+                                   m.Fuzzy(match => match.Field(f => f.TagsCombined).Value(string.Join(" ", exclude).ToLower()))
+                            )
+                    )));
+            }
+            else
+            {
+                res = await SearchOrNullAsync<ImageModel>(s => s
+                    .Index(new ImageModel().Index)
+                    .Skip(offset)
+                    .Size(size)
+                    .Query(q => q
+                        .Bool(b => b
+                            .Must(m =>
+                                   (
+                                          m.Fuzzy(match => match.Field(f => f.TagsCombined).Value(filter).Boost(1.5))
+                                       || m.Fuzzy(match => match.Field(f => f.Title).Value(filter).Boost(1.3))
+                                       || m.Fuzzy(match => match.Field(f => f.Description).Value(filter).Boost(1))
+                                   )
+                                && (
+                                          m.MatchPhrase(term => term.Field(f => f.OwnerUid).Query(ownerId.ToString()))
+                                       || (includePublic ? m.Term(term => term.Field(f => f.Public).Value(true)) : null)
+                                   )
+                            )
+                            .MustNot(m =>
+                                   m.Fuzzy(match => match.Field(f => f.TagsCombined).Value(string.Join(" ", exclude).ToLower()))
+                            )
+                    )));
+            }
+
+            if (res == null)
+                return new List<ImageModel>();
+
+            return res.Hits.Select(x => x.Source).ToList();
+        }
+
+        // ------------------------------------------------------------------------------
+        // --- HELPER FUNCTIONS ---
+
         private async Task<ISearchResponse<T>?> SearchOrNullAsync<T>(Func<SearchDescriptor<T>, ISearchRequest> selector)
             where T : class
         {
@@ -105,5 +161,12 @@ namespace RESTAPI.Database
                 return null;
             }
         }
+
+        private Task<ISearchResponse<T>?> SearchMatchAll<T>(int offset, int size) where T : UniqueModel, new() =>
+            SearchOrNullAsync<T>(s => s
+                .Index(new T().Index)
+                .Skip(offset)
+                .Size(size)
+                .Query(q => q.MatchAll()));
     }
 }

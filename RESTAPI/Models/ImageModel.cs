@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json.Serialization;
 
 namespace RESTAPI.Models
@@ -61,5 +63,21 @@ namespace RESTAPI.Models
         public ImageModel() : base("images")
         {
         }
+        
+        public bool ValidateTags()
+        {
+            var dict = new Dictionary<string, object>();
+            foreach (var v in TagsArray)
+            {
+                if (dict.ContainsKey(v))
+                    return false;
+                dict[v] = null;
+            }
+
+            return true;
+        }
+
+        public void LowercaseTags() =>
+            TagsCombined = TagsCombined.ToLower();
     }
 }

@@ -55,5 +55,8 @@ namespace RESTAPI.Storage
             if (!exists)
                 await client.MakeBucketAsync(bucket, location ?? "is-east-1");
         }
+
+        public Task Delete(string bucket, string objectName) =>
+            client.RemoveObjectAsync(bucket, objectName);
     }
 }

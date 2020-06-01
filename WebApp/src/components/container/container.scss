@@ -1,0 +1,18 @@
+.container-element {
+  border: solid 1px black;
+
+  > * {
+    padding: 8px 8px;
+  }
+
+  .container-header {
+    border-bottom: solid 1px black;
+    > * {
+      margin: 0;
+    }
+  }
+
+  // .container-content {
+
+  // }
+}

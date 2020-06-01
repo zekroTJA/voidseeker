@@ -10,20 +10,13 @@ namespace RESTAPI.Authorization
     public interface IAuthorization
     {
         /// <summary>
-        /// Returns the defined time span until a session
-        /// key must have been expired.
-        /// </summary>
-        /// <returns></returns>
-        TimeSpan GetExpiration();
-
-        /// <summary>
         /// Creates a session key which can be used to
         /// securely authenticate a users HTTP session and
         /// get the passed AuthClaims back.
         /// </summary>
         /// <param name="properties">AuthClaims to generate session key with</param>
         /// <returns>session key</returns>
-        string GetSessionKey(AuthClaims properties);
+        string GetSessionKey(AuthClaims properties, TimeSpan expires);
 
         /// <summary>
         /// Validates the passed session key string.

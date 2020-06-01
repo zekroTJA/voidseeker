@@ -18,6 +18,7 @@ namespace RESTAPI.Controllers
     [ProxyAddress]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(401)]
     [TypeFilter(typeof(AuthorizationRequired))]
     public class UsersController : ControllerBase, IAuthorizedController
     {
@@ -41,6 +42,8 @@ namespace RESTAPI.Controllers
 
         [HttpPut]
         [AdminOnly]
+        [ProducesResponseType(201)]
+        [ProducesResponseType(400)]
         public async Task<ActionResult<UserModel>> Create([FromBody] UserCreateRequestModel user)
         {
             if (!user.Verify())
@@ -66,6 +69,7 @@ namespace RESTAPI.Controllers
 
         [HttpGet]
         [AdminOnly]
+        [ProducesResponseType(200)]
         public async Task<ActionResult<PageModel<UserModel>>> Get(
             [FromQuery] int offset = 0, [FromQuery] int size = 20, [FromQuery] string filter = "")
         {
@@ -77,6 +81,8 @@ namespace RESTAPI.Controllers
         // --- GET /api/users/:ident ---
 
         [HttpGet("{ident}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult<UserModel>> GetUser([FromRoute] string ident)
         {
             UserModel user;
@@ -99,6 +105,8 @@ namespace RESTAPI.Controllers
         // --- GET /api/users/@me ---
 
         [HttpGet("@me")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
         public Task<ActionResult<UserModel>> GetSelfUser() =>
             GetUser(authClaims.User?.Uid.ToString());
 
@@ -107,6 +115,8 @@ namespace RESTAPI.Controllers
 
         [HttpPost("{uid}")]
         [AdminOnly]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult<UserModel>> UpdateUser(
             [FromRoute] Guid? uid, [FromBody] UserCreateRequestModel newUser)
         {
@@ -158,6 +168,9 @@ namespace RESTAPI.Controllers
         // --- POST /api/users/@me ---
 
         [HttpPost("@me")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public Task<ActionResult<UserModel>> UpdateSelfUser([FromBody] UserCreateRequestModel newUser) =>
             UpdateUser(authClaims.User?.Uid, newUser);
 
@@ -166,6 +179,7 @@ namespace RESTAPI.Controllers
 
         [HttpDelete("{uid}")]
         [AdminOnly]
+        [ProducesResponseType(200)]
         public async Task<IActionResult> DeleteUser([FromRoute] Guid uid)
         {
             await database.Delete<UserModel>(uid);
@@ -176,6 +190,7 @@ namespace RESTAPI.Controllers
         // --- DELETE /api/users/@me ---
 
         [HttpDelete("@me")]
+        [ProducesResponseType(200)]
         public Task<IActionResult> DeleteSelfUser() =>
             DeleteUser(authClaims.User.Uid);
     }

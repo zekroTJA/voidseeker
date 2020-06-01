@@ -15,8 +15,7 @@ namespace RESTAPI.Authorization
     /// </summary>
     public class JWTAuthorization : IAuthorization
     {
-        private static readonly TimeSpan expires = TimeSpan.FromHours(1);
-        private static readonly string issuer = "HCES REST API";
+        private static readonly string issuer = "voidsearch API";
         private static readonly int keyLen = 32;
         private static readonly string securityAlgorithm = SecurityAlgorithms.HmacSha256Signature;
 
@@ -38,9 +37,7 @@ namespace RESTAPI.Authorization
             tokenHandler = new JwtSecurityTokenHandler();
         }
 
-        public TimeSpan GetExpiration() => expires;
-
-        public string GetSessionKey(AuthClaims properties)
+        public string GetSessionKey(AuthClaims properties, TimeSpan expires)
         {
             var claims = new ClaimsIdentity();
             claims.AddClaim(new Claim(ClaimTypes.NameIdentifier, properties.UserId.ToString()));
