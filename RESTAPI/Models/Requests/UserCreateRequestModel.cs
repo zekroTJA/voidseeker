@@ -1,5 +1,6 @@
 ﻿using RESTAPI.Extensions;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 
 namespace RESTAPI.Models.Requests
 {
@@ -14,8 +15,10 @@ namespace RESTAPI.Models.Requests
         [JsonPropertyName("emailaddress")]
         public new string EmailAddress { get; set; }
 
-        public bool Verify() => 
-            !( UserName.NullOrEmpty() 
-            || Password.NullOrEmpty() );
+        public bool ValidateUsername() =>
+            Regex.IsMatch(UserName, @"^[a-z0-9-_\.]{1,32}$");
+
+        public bool ValidatePassword() =>
+            !Password.NullOrEmpty();
     }
 }

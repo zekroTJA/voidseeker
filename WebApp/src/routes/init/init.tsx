@@ -14,12 +14,11 @@ class InitRoute extends Component<RouteComponentProps> {
     user: {} as UserCreateModel,
   };
 
-  public componentDidMount() {
-    RestAPI.instanceStatus().then((val) => {
-      if (val.initialized) {
-        this.props.history.push('/login');
-      }
-    });
+  public async componentDidMount() {
+    const val = await RestAPI.instanceStatus();
+    if (val.initialized) {
+      this.props.history.push('/login');
+    }
   }
 
   public render() {

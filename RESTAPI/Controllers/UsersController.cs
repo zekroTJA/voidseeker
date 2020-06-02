@@ -46,8 +46,11 @@ namespace RESTAPI.Controllers
         [ProducesResponseType(400)]
         public async Task<ActionResult<UserModel>> Create([FromBody] UserCreateRequestModel user)
         {
-            if (!user.Verify())
-                return BadRequest(new ErrorModel(400, "invalid user model"));
+            if (!user.ValidateUsername())
+                return BadRequest(new ErrorModel(400, "invalid username"));
+
+            if (!user.ValidatePassword())
+                return BadRequest(new ErrorModel(400, "invalid new password"));
 
             if (await database.GetUserByUserName(user.UserName) != null)
                 return BadRequest(new ErrorModel(400, "username already taken"));
@@ -125,8 +128,16 @@ namespace RESTAPI.Controllers
 
             var user = await database.Get<UserModel>(uid.Value);
 
-            if (!newUser.UserName.NullOrEmpty())
+            if (user.UserName != newUser.UserName && !newUser.UserName.NullOrEmpty())
+            {
+                if (!newUser.ValidateUsername())
+                    return BadRequest(new ErrorModel(400, "invalid username"));
+
+                if (await database.GetUserByUserName(user.UserName) != null)
+                    return BadRequest(new ErrorModel(400, "username already taken"));
+
                 user.UserName = newUser.UserName;
+            }
 
             if (!newUser.DisplayName.NullOrEmpty())
                 user.DisplayName = newUser.DisplayName;
@@ -150,6 +161,9 @@ namespace RESTAPI.Controllers
 
             if (!newUser.Password.NullOrEmpty())
             {
+                if (!newUser.ValidatePassword())
+                    return BadRequest(new ErrorModel(400, "invalid new password"));
+
                 if (newUser.OldPassword.NullOrEmpty())
                     return BadRequest(new ErrorModel(400, "old password is required"));
 

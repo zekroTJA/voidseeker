@@ -1,13 +1,17 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Minio.Exceptions;
 using RESTAPI.Authorization;
 using RESTAPI.Cache;
 using RESTAPI.Database;
+using RESTAPI.Extensions;
 using RESTAPI.Filter;
 using RESTAPI.Models;
 using RESTAPI.Models.Responses;
 using RESTAPI.Storage;
 using System;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Net.Mime;
 using System.Threading;
@@ -191,6 +195,53 @@ namespace RESTAPI.Controllers
             });
 
             return File(data, image.MimeType);
+        }
+
+
+        // -------------------------------------------------------------------------
+        // --- GET /api/images/:uid/thumbnail ---
+
+        [HttpGet("{uid}/thumbnail")]
+        [ResponseCache(Duration = 30 * 24 * 3600, Location = ResponseCacheLocation.Any, NoStore = false)]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult> GetImageThumbnail([FromRoute] Guid uid, [FromQuery] int size = 200)
+        {
+            byte[] imageDataArray;
+            var fileBlobName = $"{uid}_{size}";
+
+            try
+            {
+                var memStream = new MemoryStream();
+                await storage.Get(Constants.THUMBNAIL_STORAGE_BUCKET, fileBlobName, (stream) =>
+                {
+                    stream.CopyTo(memStream);
+                });
+                imageDataArray = memStream.ToArray();
+            } 
+            catch (ObjectNotFoundException) 
+            {
+                var image = await database.Get<ImageModel>(uid);
+                if (image == null || (!image.Public.Equals(true) && image.OwnerUid != authClaims.UserId && !authClaims.User.IsAdmin.Equals(true)))
+                    return NotFound();
+
+                var oriImageMemStream = new MemoryStream();
+                await storage.Get(image.Bucket, image.BlobName, (stream) =>
+                {
+                    stream.CopyTo(oriImageMemStream);
+                });
+
+                var oriImage = Image.FromStream(oriImageMemStream);
+                var (width, height) = oriImage.ShrinkSize(size);
+                var thumbImage = oriImage.GetThumbnailImage(width, height, () => false, IntPtr.Zero);
+
+                var thumbMemStream = new MemoryStream();
+                thumbImage.Save(thumbMemStream, ImageFormat.Png);
+                imageDataArray = thumbMemStream.ToArray();
+                await storage.Put(Constants.THUMBNAIL_STORAGE_BUCKET, fileBlobName, new MemoryStream(imageDataArray), imageDataArray.Length, "image/png");
+            }
+
+            return File(imageDataArray, "image/png");
         }
 
         // -------------------------------------------------------------------------

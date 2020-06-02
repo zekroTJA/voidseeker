@@ -35,7 +35,7 @@ class LoginRoute extends Component<LoginRouteProps> {
             value={this.state.password}
             onChange={(e) => this.setState({ password: e.target.value })}
           />
-          <div className="login-remember-container">
+          <div className="cb-container">
             <input
               id="input-remember"
               type="checkbox"
@@ -55,13 +55,15 @@ class LoginRoute extends Component<LoginRouteProps> {
     );
   }
 
-  private onLogin() {
-    RestAPI.authLogin(this.state.username, this.state.password)
-      .then((user) => {
-        this.props.globalState.selfUser = user;
-        this.props.history.push('/');
-      })
-      .catch();
+  private async onLogin() {
+    try {
+      const user = await RestAPI.authLogin(
+        this.state.username,
+        this.state.password
+      );
+      this.props.globalState.setSelfUser(user);
+      this.props.history.push('/images');
+    } catch (e) {}
   }
 }
 

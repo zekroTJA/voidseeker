@@ -1,0 +1,21 @@
+.image-details-container {
+  display: flex;
+  flex-wrap: wrap;
+
+  > .container-element {
+    margin-bottom: 20px;
+  }
+}
+
+.image-details-table {
+  th {
+    padding-right: 10px;
+    text-align: left;
+  }
+}
+
+.image-details-preview {
+  max-height: calc(100vh - 50px);
+  max-width: calc(100vw - 50px);
+  margin: 0 20px 20px 0;
+}

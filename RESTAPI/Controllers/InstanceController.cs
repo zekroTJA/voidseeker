@@ -56,8 +56,11 @@ namespace RESTAPI.Controllers
             if (usersCount > 0L)
                 return BadRequest(new ErrorModel(400, "already initialized"));
 
-            if (!user.Verify())
-                return BadRequest(new ErrorModel(400, "invalid user model"));
+            if (!user.ValidateUsername())
+                return BadRequest(new ErrorModel(400, "invalid username"));
+
+            if (!user.ValidatePassword())
+                return BadRequest(new ErrorModel(400, "invalid new password"));
 
             user.AfterCreate();
             user.LastLogin = default;
