@@ -170,6 +170,10 @@ export class RestAPI {
       throw new Error(res.statusText);
     }
 
+    if (res.headers.get('content-length') === '0') {
+      return {} as T;
+    }
+
     return res.json();
   }
 }

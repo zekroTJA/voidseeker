@@ -10,6 +10,7 @@ import { RestAPI } from '../../api/restapi';
 import moment from 'moment';
 
 import './admin.scss';
+import Modal from '../../components/modal/modal';
 
 interface AdminRouteProps extends RouteComponentProps {
   globalState: GlobalState;
@@ -18,6 +19,7 @@ interface AdminRouteProps extends RouteComponentProps {
 class AdminRoute extends Component<AdminRouteProps> {
   public state = {
     users: { size: 0, offset: 0, data: [] } as PageModel<UserModel>,
+    deleteUser: (null as any) as UserModel,
   };
 
   public async componentDidMount() {
@@ -25,15 +27,12 @@ class AdminRoute extends Component<AdminRouteProps> {
       this.props.history.push('/images');
     }
 
-    try {
-      const users = await RestAPI.users();
-      this.setState({ users });
-    } catch {}
+    await this.fetchUsers();
   }
 
   public render() {
     const users = this.state.users.data.map((u) => (
-      <tr>
+      <tr key={u.uid}>
         <td>{u.username}</td>
         <td>{u.displayname || <i>Not set.</i>}</td>
         <td>
@@ -49,13 +48,19 @@ class AdminRoute extends Component<AdminRouteProps> {
           <NavLink to={`/users/${u.uid}/edit`}>
             <button className="admin-ctrl-btn">Edit</button>
           </NavLink>
-          <button className="admin-ctrl-btn">Delete</button>
+          <button
+            className="admin-ctrl-btn"
+            onClick={() => this.onDeleteUser(u)}
+          >
+            Delete
+          </button>
         </td>
       </tr>
     ));
 
     return (
       <div>
+        {this.state.deleteUser && this.deleteModal}
         <h2>Admin Panel</h2>
         <Container
           title={
@@ -83,6 +88,53 @@ class AdminRoute extends Component<AdminRouteProps> {
         </Container>
       </div>
     );
+  }
+
+  private async fetchUsers() {
+    try {
+      const users = await RestAPI.users();
+      this.setState({ users });
+    } catch {}
+  }
+
+  private get deleteModal(): JSX.Element {
+    return (
+      <Modal onClose={() => this.setState({ deleteUser: null })}>
+        <span>
+          Do you really want to delete the user&nbsp;
+          <strong>
+            {this.state.deleteUser.username} (
+            {this.state.deleteUser.displayname})
+          </strong>
+          ?<br />
+          Deleting a user will not delete the content uploaded by this user!
+          <br />
+          <div className="highlight-red mt-5">
+            <strong>This action is permanent and can not be undone!</strong>
+          </div>
+          <div className="modal-control-buttons">
+            <button onClick={() => this.setState({ deleteUser: null })}>
+              Cancel
+            </button>
+            <button onClick={this.onDeleteUserConfirm.bind(this)}>
+              <strong>Delete</strong>
+            </button>
+          </div>
+        </span>
+      </Modal>
+    );
+  }
+
+  private onDeleteUser(deleteUser: UserModel) {
+    this.setState({ deleteUser });
+  }
+
+  private async onDeleteUserConfirm() {
+    try {
+      await RestAPI.deleteUser(this.state.deleteUser.uid);
+      this.setState({ deleteUser: null });
+      await this.fetchUsers();
+    } catch {}
   }
 }
 
