@@ -502,4 +502,6 @@ psd
 thumb
 sketch
 
+appsettings.Development.json
+
 # End of https://www.gitignore.io/api/react,csharp,dotnetcore,aspnetcore
