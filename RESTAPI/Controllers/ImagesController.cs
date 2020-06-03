@@ -293,7 +293,7 @@ namespace RESTAPI.Controllers
         {
             foreach (var t in image.TagsArray)
             {
-                if ((await database.GetTagByName(t)) != null)
+                if ((await database.GetTagByName(t)) == null)
                 {
                     await database.Put(new TagModel() { Name = t });
                 }

@@ -51,7 +51,7 @@ namespace RESTAPI.Controllers
         // -------------------------------------------------------------------------
         // --- GET /api/tags/:ident ---
 
-        [HttpGet]
+        [HttpGet("{ident}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         public async Task<ActionResult<TagModel>> Get([FromRoute] string ident)
