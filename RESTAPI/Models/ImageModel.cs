@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 
 namespace RESTAPI.Models
 {
@@ -64,16 +64,27 @@ namespace RESTAPI.Models
         {
         }
         
-        public bool ValidateTags()
+        public bool ValidateTags(out string reason)
         {
             var dict = new Dictionary<string, object>();
             foreach (var v in TagsArray)
             {
-                if (dict.ContainsKey(v))
+                if (!Regex.IsMatch(v, @"^[a-z0-9_-]+$"))
+                {
+                    reason = "invalid tag format - must be lowercase and can only contain letters, numbers, underscores and minuses";
                     return false;
+                }
+
+                if (dict.ContainsKey(v))
+                {
+                    reason = "duplicate tags";
+                    return false;
+                }
+
                 dict[v] = null;
             }
 
+            reason = null;
             return true;
         }
 

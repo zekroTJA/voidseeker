@@ -73,8 +73,8 @@ namespace RESTAPI.Controllers
             image.AfterCreate();
             image.LowercaseTags();
 
-            if (!image.ValidateTags())
-                return BadRequest(new ErrorModel(400, "duplicate tags"));
+            if (!image.ValidateTags(out var reason))
+                return BadRequest(new ErrorModel(400, reason));
 
             image.OwnerUid = authClaims.UserId;
             image.BlobName = null;
@@ -97,9 +97,9 @@ namespace RESTAPI.Controllers
         }
 
         // -------------------------------------------------------------------------
-        // --- PUT /api/images/:uid ---
+        // --- POST /api/images/:uid/upload ---
 
-        [HttpPut("{uid}")]
+        [HttpPost("{uid}/upload")]
         [RequestSizeLimit(100 * 1024 * 1024)]
         [Consumes("multipart/form-data")]
         [ProducesResponseType(200)]
@@ -164,8 +164,8 @@ namespace RESTAPI.Controllers
             {
                 image.TagsCombined = newImage.TagsCombined;
                 image.LowercaseTags();
-                if (!image.ValidateTags())
-                    return BadRequest(new ErrorModel(400, "duplicate tags"));
+                if (!image.ValidateTags(out var reason))
+                    return BadRequest(new ErrorModel(400, reason));
             }
 
             await database.Update(image);

@@ -81,14 +81,6 @@ export class RestAPI {
     return this.delete(`users/${uid}`);
   }
 
-  public static imageUrl(uid: string): string {
-    return `${PREFIX}/images/${uid}`;
-  }
-
-  public static imageThumbnailUrl(uid: string, size = 180): string {
-    return `${PREFIX}/images/${uid}/thumbnail?size=${size}`;
-  }
-
   // ------------------------------------------------------------
   // --- IMAGES ---
 
@@ -125,6 +117,18 @@ export class RestAPI {
 
   public static deleteImage(uid: string): Promise<any> {
     return this.delete(`images/${uid}`);
+  }
+
+  public static imageUrl(uid: string): string {
+    return `${PREFIX}/images/${uid}`;
+  }
+
+  public static imageThumbnailUrl(uid: string, size = 180): string {
+    return `${PREFIX}/images/${uid}/thumbnail?size=${size}`;
+  }
+
+  public static imageUploadUrl(uid: string): string {
+    return `${PREFIX}/images/${uid}/upload`;
   }
 
   // ------------------------------------------------------------

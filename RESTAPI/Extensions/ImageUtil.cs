@@ -16,7 +16,7 @@ namespace RESTAPI.Extensions
             }
             else
             {
-                height = 200;
+                height = maxSize;
                 width = (int)Math.Floor((double)maxSize / img.Height * img.Width);
             }
 
