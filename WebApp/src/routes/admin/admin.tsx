@@ -11,6 +11,7 @@ import moment from 'moment';
 
 import './admin.scss';
 import Modal from '../../components/modal/modal';
+import SnackBarNotifier, { SnackBarType } from '../../util/snackbar-notifier';
 
 interface AdminRouteProps extends RouteComponentProps {
   globalState: GlobalState;
@@ -133,6 +134,11 @@ class AdminRoute extends Component<AdminRouteProps> {
     try {
       await RestAPI.deleteUser(this.state.deleteUser.uid);
       this.setState({ deleteUser: null });
+      SnackBarNotifier.show(
+        'User successfully deleted.',
+        SnackBarType.SUCCESS,
+        4000
+      );
       await this.fetchUsers();
     } catch {}
   }

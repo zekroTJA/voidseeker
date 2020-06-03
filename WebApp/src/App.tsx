@@ -13,6 +13,8 @@ import AdminRoute from './routes/admin/admin';
 import UserEditRoute from './routes/user-edit/user-edit';
 
 import './App.scss';
+import SnackBar from './components/snackbar/snackbar';
+import SnackBarNotifier, { SnackBarType } from './util/snackbar-notifier';
 
 export default class App extends Component {
   public state = {
@@ -26,6 +28,27 @@ export default class App extends Component {
       this.setState({ redirect: '/login' })
     );
 
+    RestAPI.events.on('error', (err: Response) => {
+      if (err.headers.get('content-length') !== '0') {
+        err.json().then((v) => {
+          SnackBarNotifier.show(
+            <span>
+              API Error <code>[{err.status}]</code>:&nbsp;
+              <strong>{v.message || 'unknown error'}</strong>
+            </span>,
+            SnackBarType.ERROR
+          );
+        });
+      } else {
+        SnackBarNotifier.show(
+          <span>
+            API Error <code>[{err.status}]</code>:&nbsp;Unknown error.
+          </span>,
+          SnackBarType.ERROR
+        );
+      }
+    });
+
     RestAPI.instanceStatus().then((val) => {
       if (!val.initialized) {
         this.setState({ redirect: '/init' });
@@ -36,6 +59,8 @@ export default class App extends Component {
   public render() {
     return (
       <div className="router-outlet">
+        <SnackBar />
+
         <Router>
           <Route exact path="/init" render={() => <InitRoute />}></Route>
           <Route

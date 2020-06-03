@@ -1,0 +1,38 @@
+.snackbar-outlet {
+  display: flex;
+  justify-content: center;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 10px;
+  opacity: 0;
+  pointer-events: none;
+
+  transition: all 0.5s ease;
+}
+
+.snackbar-container {
+  padding: 10px 20px;
+  color: white;
+}
+
+.snackbar-show {
+  bottom: 50px;
+  opacity: 1;
+}
+
+.snackbar-type-error {
+  background-color: #f44336;
+}
+
+.snackbar-type-info {
+  background-color: #03A9F4;
+}
+
+.snackbar-type-success {
+  background-color: #8BC34A;
+}
+
+.snackbar-type-warn {
+  background-color: #FF9800;
+}

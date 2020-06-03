@@ -9,6 +9,7 @@ import { RestAPI } from '../../api/restapi';
 import './user-edit.scss';
 import Container from '../../components/container/container';
 import UserEditor from '../../components/usereditor/usereditor';
+import SnackBarNotifier, { SnackBarType } from '../../util/snackbar-notifier';
 
 interface UserEditRouteProps extends RouteComponentProps {
   globalState: GlobalState;
@@ -121,6 +122,13 @@ class UserEditRoute extends Component<UserEditRouteProps> {
       } else {
         await RestAPI.updateUser(this.state.user.uid, this.state.user);
       }
+      SnackBarNotifier.show(
+        `User ${this.state.user.username} successfully ${
+          this.state.isNew ? 'created' : 'updated'
+        }.`,
+        SnackBarType.SUCCESS,
+        4000
+      );
     } catch {}
   }
 }
