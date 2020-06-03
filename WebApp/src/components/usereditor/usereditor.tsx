@@ -51,7 +51,7 @@ export default class UserEditor extends Component<UserEditorProperties> {
 
         <label htmlFor="user-editor-description">Description:</label>
         <textarea
-          id="user-editor-passwdescriptionord"
+          id="user-editor-description"
           value={user.description}
           onChange={(v) =>
             this.onChange(() => (user.description = v.target.value))

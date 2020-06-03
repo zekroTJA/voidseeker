@@ -1,0 +1,21 @@
+.image-editor-container {
+  input, textarea, select {
+    display: block;
+    width: 100%;
+  }
+}
+
+.image-editor-checkboxes {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-items: left;
+
+  > label {
+    margin-right: 20px;
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}

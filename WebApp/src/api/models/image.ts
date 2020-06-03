@@ -29,7 +29,7 @@ export default interface ImageModel extends UniqueModel {
   size: number;
   explicit: boolean;
   public: boolean;
-  grade: Grade;
+  grade?: Grade;
   tagscombined: string;
   tagsarray: string[];
   index: string;
