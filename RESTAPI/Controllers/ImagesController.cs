@@ -13,8 +13,8 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Net.Mime;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace RESTAPI.Controllers
@@ -126,6 +126,7 @@ namespace RESTAPI.Controllers
             await storage.Put(image.Bucket, image.BlobName, stream, image.Size, image.MimeType);
 
             await database.Put(image);
+            await SaveTags(image);
 
             cache.Delete(GetCacheImageKey(uid));
 
@@ -141,6 +142,8 @@ namespace RESTAPI.Controllers
         [ProducesResponseType(404)]
         public async Task<ActionResult<ImageModel>> UpdateImage([FromRoute] Guid uid, [FromBody] ImageModel newImage)
         {
+            bool tagsUpdated = false;
+
             var image = await database.Get<ImageModel>(uid);
             if (image.OwnerUid != authClaims.UserId && !authClaims.User.IsAdmin.Equals(true))
                 return NotFound();
@@ -160,15 +163,18 @@ namespace RESTAPI.Controllers
             if (newImage.Grade != null)
                 image.Grade = newImage.Grade;
 
-            if (newImage.TagsCombined != null)
+            if (newImage.TagsCombined != null && !newImage.TagsArray.SequenceEqual(image.TagsArray))
             {
                 image.TagsCombined = newImage.TagsCombined;
                 image.LowercaseTags();
                 if (!image.ValidateTags(out var reason))
                     return BadRequest(new ErrorModel(400, reason));
+                tagsUpdated = true;
             }
 
             await database.Update(image);
+            if (tagsUpdated)
+                await SaveTags(image);
 
             return Ok(image);
         }
@@ -282,5 +288,16 @@ namespace RESTAPI.Controllers
 
         private string GetCacheImageKey(Guid uid) =>
             $"image:create:{uid.ToString()}";
+
+        private async Task SaveTags(ImageModel image)
+        {
+            foreach (var t in image.TagsArray)
+            {
+                if ((await database.GetTagByName(t)) != null)
+                {
+                    await database.Put(new TagModel() { Name = t });
+                }
+            }
+        }
     }
 }

@@ -5,6 +5,7 @@ import { InstanceStatusModel } from './models/instancestatus';
 import { UserCreateModel, UserModel } from './models/user';
 import PageModel from './models/page';
 import ImageModel from './models/image';
+import { TagModel } from './models/tag';
 
 const PREFIX =
   process.env.NODE_ENV === 'development'
@@ -66,8 +67,8 @@ export class RestAPI {
     return this.get(`users?offset=${offset}&size=${size}${filterQuery}`);
   }
 
-  public static user(uid: string): Promise<UserModel> {
-    return this.get(`users/${uid}`);
+  public static user(ident: string): Promise<UserModel> {
+    return this.get(`users/${ident}`);
   }
 
   public static updateUser(
@@ -129,6 +130,22 @@ export class RestAPI {
 
   public static imageUploadUrl(uid: string): string {
     return `${PREFIX}/images/${uid}/upload`;
+  }
+
+  // ------------------------------------------------------------
+  // --- TAGS ---
+
+  public static tags(
+    offset = 0,
+    size = 20,
+    filter = ''
+  ): Promise<PageModel<TagModel>> {
+    const filterQuery = !!filter ? `&filter=${filter}` : '';
+    return this.get(`tags?offset=${offset}&size=${size}${filterQuery}`);
+  }
+
+  public static tag(ident: string): Promise<TagModel> {
+    return this.get(`tags/${ident}`);
   }
 
   // ------------------------------------------------------------

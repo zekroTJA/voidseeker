@@ -32,6 +32,4 @@ export default interface ImageModel extends UniqueModel {
   grade?: Grade;
   tagscombined: string;
   tagsarray: string[];
-  index: string;
-  created: Date;
 }

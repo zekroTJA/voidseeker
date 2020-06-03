@@ -62,6 +62,17 @@ namespace RESTAPI.Database
             return res?.Hits.DefaultIfEmpty(null).First()?.Source;
         }
 
+        public async Task<TagModel?> GetTagByName(string name)
+        {
+            var res = await SearchOrNullAsync<TagModel>(s => s
+                    .Index(new TagModel().Index)
+                    .Size(1)
+                    .Query(q =>
+                        q.Term(t => t.Field(f => f.Name).Value(name))));
+
+            return res?.Hits.DefaultIfEmpty(null).First()?.Source;
+        }
+
         public async Task<List<UserModel>> SearchUsers(int offset, int size, string filter)
         {
             filter = filter.ToLower();
@@ -142,6 +153,33 @@ namespace RESTAPI.Database
 
             if (res == null)
                 return new List<ImageModel>();
+
+            return res.Hits.Select(x => x.Source).ToList();
+        }
+
+        public async Task<List<TagModel>> SearchTags(int offset, int size, string filter)
+        {
+            filter = filter.ToLower();
+
+            ISearchResponse<TagModel> res;
+
+            if (filter.NullOrEmpty())
+            {
+                res = await SearchMatchAll<TagModel>(offset, size);
+            }
+            else
+            {
+                res = await SearchOrNullAsync<TagModel>(s => s
+                    .Index(new TagModel().Index)
+                    .Skip(offset)
+                    .Size(size)
+                    .Query(q =>
+                           q.Fuzzy(m => m.Field(x => x.Name).Value(filter).Boost(1))
+                    ));
+            }
+
+            if (res == null)
+                return new List<TagModel>();
 
             return res.Hits.Select(x => x.Source).ToList();
         }
