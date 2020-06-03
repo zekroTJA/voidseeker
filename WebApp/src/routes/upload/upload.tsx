@@ -6,9 +6,9 @@ import ImageEditor from '../../components/imageeditor/imageeditor';
 import ImageModel from '../../api/models/image';
 import Container from '../../components/container/container';
 import { RestAPI } from '../../api/restapi';
+import SnackBarNotifier, { SnackBarType } from '../../util/snackbar-notifier';
 
 import './upload.scss';
-import SnackBarNotifier, { SnackBarType } from '../../util/snackbar-notifier';
 
 interface UploadRouteProps extends RouteComponentProps {}
 

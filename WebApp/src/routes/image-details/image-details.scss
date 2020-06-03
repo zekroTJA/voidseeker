@@ -19,3 +19,17 @@
   max-width: calc(100vw - 50px);
   margin: 0 20px 20px 0;
 }
+
+.image-detail-control-btns {
+  display: flex;
+  margin-top: 10px;
+
+  > * {
+    width: 100%;
+    margin-right: 10px;
+
+    &:last-child {
+      margin-right: 0px;
+    }
+  }
+}

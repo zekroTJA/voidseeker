@@ -27,7 +27,7 @@ class MainRoute extends Component<MainRouteProps> {
 
   public render() {
     const imgs = this.props.globalState.images.data.map((i) => (
-      <span>
+      <span key={i.uid}>
         <NavLink to={`/images/${i.uid}`}>
           <img
             src={RestAPI.imageThumbnailUrl(i.uid)}

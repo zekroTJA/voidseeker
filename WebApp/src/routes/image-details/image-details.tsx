@@ -11,6 +11,8 @@ import moment from 'moment';
 import { byteFormatter } from 'byte-formatter';
 
 import './image-details.scss';
+import Modal from '../../components/modal/modal';
+import SnackBarNotifier, { SnackBarType } from '../../util/snackbar-notifier';
 
 interface ImageDetailsRouteProps extends RouteComponentProps {
   globalState: GlobalState;
@@ -21,6 +23,7 @@ class ImageDetailsRoute extends Component<ImageDetailsRouteProps> {
   public state = {
     image: (null as any) as ImageModel,
     owner: (null as any) as UserModel,
+    deleteModal: false,
   };
 
   public async componentDidMount() {
@@ -45,6 +48,7 @@ class ImageDetailsRoute extends Component<ImageDetailsRouteProps> {
     const owner = this.state.owner;
     return (
       <div>
+        {this.state.deleteModal && this.deleteModal}
         {img && (
           <div className="image-details-container">
             <img
@@ -107,10 +111,38 @@ class ImageDetailsRoute extends Component<ImageDetailsRouteProps> {
                   </tr>
                 </tbody>
               </table>
+              <div className="image-detail-control-btns">
+                <NavLink to={`/images/${img.uid}/edit`}>
+                  <button className="w-100">Edit</button>
+                </NavLink>
+                <button onClick={this.onDelete.bind(this)}>Delete</button>
+              </div>
             </Container>
           </div>
         )}
       </div>
+    );
+  }
+
+  private get deleteModal(): JSX.Element {
+    return (
+      <Modal onClose={() => this.setState({ deleteModal: false })}>
+        <span>
+          Do you really want to delete this image?
+          <br />
+          <div className="highlight-red mt-5">
+            <strong>This action is permanent and can not be undone!</strong>
+          </div>
+          <div className="modal-control-buttons">
+            <button onClick={() => this.setState({ deleteModal: false })}>
+              Cancel
+            </button>
+            <button onClick={this.onDeleteConfirm.bind(this)}>
+              <strong>Delete</strong>
+            </button>
+          </div>
+        </span>
+      </Modal>
     );
   }
 
@@ -120,6 +152,23 @@ class ImageDetailsRoute extends Component<ImageDetailsRouteProps> {
       return owner.username;
     }
     return `${owner.displayname} (${owner.username})`;
+  }
+
+  private onDelete() {
+    this.setState({ deleteModal: true });
+  }
+
+  private async onDeleteConfirm() {
+    try {
+      await RestAPI.deleteImage(this.state.image.uid);
+      SnackBarNotifier.show(
+        'Image successfully deleted.',
+        SnackBarType.SUCCESS,
+        4000
+      );
+      this.props.history.goBack();
+    } catch {}
+    this.setState({ deleteModal: false });
   }
 }
 
