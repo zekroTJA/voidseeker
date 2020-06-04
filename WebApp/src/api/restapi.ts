@@ -138,10 +138,13 @@ export class RestAPI {
   public static tags(
     offset = 0,
     size = 20,
-    filter = ''
+    filter = '',
+    fuzziness = -1
   ): Promise<PageModel<TagModel>> {
     const filterQuery = !!filter ? `&filter=${filter}` : '';
-    return this.get(`tags?offset=${offset}&size=${size}${filterQuery}`);
+    return this.get(
+      `tags?offset=${offset}&size=${size}&fuzziness=${fuzziness}${filterQuery}`
+    );
   }
 
   public static tag(ident: string): Promise<TagModel> {

@@ -15,12 +15,14 @@ interface UploadRouteProps extends RouteComponentProps {}
 class UploadRoute extends Component<UploadRouteProps> {
   public state = {
     image: {} as ImageModel,
+    tagSuggestions: (null as any) as string[],
   };
 
   public render() {
     return (
       <div>
         <iframe
+          title="summyframe"
           width="0"
           height="0"
           frameBorder="0"
@@ -31,7 +33,9 @@ class UploadRoute extends Component<UploadRouteProps> {
         <Container title="Image Information">
           <ImageEditor
             image={this.state.image}
+            tagSuggestions={this.state.tagSuggestions}
             onChange={(image) => this.setState({ image })}
+            onTagsInput={(v) => this.onTagsInput(v)}
           />
           <form
             method="post"
@@ -71,6 +75,25 @@ class UploadRoute extends Component<UploadRouteProps> {
         4000
       );
     } catch {}
+  }
+
+  private async onTagsInput(val: string) {
+    const valSplit = val.split(' ');
+    const lastVal = valSplit[valSplit.length - 1];
+    if (lastVal.length > 0) {
+      try {
+        const res = await RestAPI.tags(0, 10, lastVal, 10);
+        this.setState({
+          tagSuggestions: res.data
+            .map((t) => t.name)
+            .filter((t) => !this.state.image.tagsarray.includes(t)),
+        });
+      } catch {}
+    } else {
+      this.setState({
+        tagSuggestions: null,
+      });
+    }
   }
 }
 
