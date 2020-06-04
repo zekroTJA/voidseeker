@@ -7,9 +7,11 @@ import Container from '../../components/container/container';
 
 import './login.scss';
 import GlobalState from '../../util/globalstate';
+import SnackBarNotifier, { SnackBarType } from '../../util/snackbar-notifier';
 
 interface LoginRouteProps extends RouteComponentProps {
   globalState: GlobalState;
+  onLoginSuccess?: () => void;
 }
 
 class LoginRoute extends Component<LoginRouteProps> {
@@ -18,6 +20,15 @@ class LoginRoute extends Component<LoginRouteProps> {
     password: '',
     remember: false,
   };
+
+  public async componentDidMount() {
+    try {
+      const user = await this.props.globalState.selfUser();
+      if (user) {
+        this.props.history.push('/images');
+      }
+    } catch {}
+  }
 
   public render() {
     return (
@@ -35,7 +46,7 @@ class LoginRoute extends Component<LoginRouteProps> {
             value={this.state.password}
             onChange={(e) => this.setState({ password: e.target.value })}
           />
-          <div className="cb-container">
+          <div className="cb-container mb-10">
             <input
               id="input-remember"
               type="checkbox"
@@ -62,8 +73,15 @@ class LoginRoute extends Component<LoginRouteProps> {
         this.state.password
       );
       this.props.globalState.setSelfUser(user);
+      this.props.onLoginSuccess?.call(this);
       this.props.history.push('/images');
-    } catch (e) {}
+    } catch (e) {
+      SnackBarNotifier.show(
+        'Invalid login credentials.',
+        SnackBarType.ERROR,
+        4000
+      );
+    }
   }
 }
 

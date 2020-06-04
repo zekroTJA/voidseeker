@@ -112,7 +112,11 @@ class ImageDetailsRoute extends Component<ImageDetailsRouteProps> {
                 </tbody>
               </table>
               <div>
-                <a href={RestAPI.imageUrl(img.uid)} target="_blank">
+                <a
+                  href={RestAPI.imageUrl(img.uid)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   Open in original size
                 </a>
                 <br />

@@ -1,0 +1,51 @@
+@import '../../styles/colors.scss';
+
+.header-container {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  background-color: lighten($c-accent, $amount: 40);
+  padding: 7px 10px;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  height: 100%;
+  transition: all 0.25s ease;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+}
+
+.header-version {
+  margin-left: 10px;
+  font-size: 13px;
+}
+
+.header-right-control {
+  margin-left: auto;
+  display: flex;
+  height: 100%;
+
+  > * {
+    margin-right: 10px;
+
+    &:last-child {
+      margin-right: 0px;
+    }
+  }
+}
+
+.header-spacer {
+  height: 100%;
+  width: 1px;
+  background-color: rgba(0, 0, 0, 0.5);
+  margin: 0 15px 0 5px;
+}

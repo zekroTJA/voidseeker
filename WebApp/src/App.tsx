@@ -12,22 +12,24 @@ import ImageEditRoute from './routes/image-edit/image-edit';
 import UploadRoute from './routes/upload/upload';
 import AdminRoute from './routes/admin/admin';
 import UserEditRoute from './routes/user-edit/user-edit';
-
-import './App.scss';
 import SnackBar from './components/snackbar/snackbar';
 import SnackBarNotifier, { SnackBarType } from './util/snackbar-notifier';
+import Header from './components/header/header';
+
+import './App.scss';
 
 export default class App extends Component {
   public state = {
-    redirect: '',
+    redirect: (null as any) as string,
+    loggedIn: true,
   };
 
   private globalState = new GlobalState();
 
   public componentDidMount() {
-    RestAPI.events.on('authentication-error', () =>
-      this.setState({ redirect: '/login' })
-    );
+    RestAPI.events.on('authentication-error', () => {
+      this.redirect('/login');
+    });
 
     RestAPI.events.on('error', (err: Response) => {
       if (err.headers.get('content-length') !== '0') {
@@ -52,77 +54,114 @@ export default class App extends Component {
 
     RestAPI.instanceStatus().then((val) => {
       if (!val.initialized) {
-        this.setState({ redirect: '/init' });
+        this.redirect('/init');
+      } else {
+        this.globalState.instance = val;
+        this.setState({});
       }
     });
   }
 
   public render() {
     return (
-      <div className="router-outlet">
+      <div>
         <SnackBar />
+        {this.state.loggedIn && (
+          <Header
+            version={this.globalState.instance?.version}
+            onLogout={this.onLogout.bind(this)}
+            onHome={this.onHome.bind(this)}
+            onUpload={this.onUpload.bind(this)}
+          />
+        )}
 
-        <Router>
-          <Route exact path="/init" render={() => <InitRoute />}></Route>
-          <Route
-            exact
-            path="/login"
-            render={() => <LoginRoute globalState={this.globalState} />}
-          />
-          <Route
-            exact
-            path="/images"
-            render={() => <MainRoute globalState={this.globalState} />}
-          />
-          <Route
-            exact
-            path="/images/:uid"
-            render={({ match }) => (
-              <ImageDetailsRoute
-                globalState={this.globalState}
-                imageUid={match.params.uid}
-              />
-            )}
-          />
-          <Route
-            exact
-            path="/images/:uid/edit"
-            render={({ match }) => (
-              <ImageEditRoute
-                globalState={this.globalState}
-                imageUid={match.params.uid}
-              />
-            )}
-          />
-          <Route exact path="/upload" render={() => <UploadRoute />} />
-          <Route
-            exact
-            path="/users/new"
-            render={() => (
-              <UserEditRoute globalState={this.globalState} userId="new" />
-            )}
-          />
-          <Route
-            exact
-            path="/users/:uid/edit"
-            render={({ match }) => (
-              <UserEditRoute
-                globalState={this.globalState}
-                userId={match.params.uid}
-              />
-            )}
-          />
-          <Route
-            exact
-            path="/admin"
-            render={() => <AdminRoute globalState={this.globalState} />}
-          />
+        <div className="router-outlet">
+          <Router>
+            <Route exact path="/init" render={() => <InitRoute />}></Route>
+            <Route
+              exact
+              path="/login"
+              render={() => (
+                <LoginRoute
+                  globalState={this.globalState}
+                  onLoginSuccess={() => this.setState({ loggedIn: true })}
+                />
+              )}
+            />
+            <Route
+              exact
+              path="/images"
+              render={() => <MainRoute globalState={this.globalState} />}
+            />
+            <Route
+              exact
+              path="/images/:uid"
+              render={({ match }) => (
+                <ImageDetailsRoute
+                  globalState={this.globalState}
+                  imageUid={match.params.uid}
+                />
+              )}
+            />
+            <Route
+              exact
+              path="/images/:uid/edit"
+              render={({ match }) => (
+                <ImageEditRoute
+                  globalState={this.globalState}
+                  imageUid={match.params.uid}
+                />
+              )}
+            />
+            <Route exact path="/upload" render={() => <UploadRoute />} />
+            <Route
+              exact
+              path="/users/new"
+              render={() => (
+                <UserEditRoute globalState={this.globalState} userId="new" />
+              )}
+            />
+            <Route
+              exact
+              path="/users/:uid/edit"
+              render={({ match }) => (
+                <UserEditRoute
+                  globalState={this.globalState}
+                  userId={match.params.uid}
+                />
+              )}
+            />
+            <Route
+              exact
+              path="/admin"
+              render={() => <AdminRoute globalState={this.globalState} />}
+            />
 
-          <Route exact path="/" render={() => <Redirect to="/images" />} />
+            <Route exact path="/" render={() => <Redirect to="/images" />} />
 
-          {this.state.redirect && <Redirect to={this.state.redirect} />}
-        </Router>
+            {this.state.redirect && <Redirect to={this.state.redirect} />}
+          </Router>
+        </div>
       </div>
     );
+  }
+
+  private redirect(to: string) {
+    this.setState({ redirect: to });
+    setTimeout(() => this.setState({ redirect: null }), 10);
+  }
+
+  private async onLogout() {
+    await RestAPI.authLogout();
+    this.globalState.clearSelfUser();
+    this.redirect('/login');
+  }
+
+  private onHome() {
+    this.redirect('/images');
+  }
+
+  private onUpload() {
+    this.redirect('/upload');
   }
 }

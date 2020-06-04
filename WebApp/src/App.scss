@@ -1,3 +1,9 @@
 .router-outlet {
-  padding: 10px 20px;
+
+  margin-top: 60px;
+  width: 100vw;
+  height: calc(100vh - 60px);
+  padding: 0px 20px;
+
+  overflow-y: auto;
 }

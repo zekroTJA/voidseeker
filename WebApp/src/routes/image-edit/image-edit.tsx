@@ -50,6 +50,7 @@ class ImageEditRoute extends Component<ImageEditRouteProps> {
             <img
               className="image-edit-preview"
               src={RestAPI.imageUrl(this.state.image.uid)}
+              alt={this.state.image.title || this.state.image.filename}
             />
             <Container title="Edit Image">
               <ImageEditor
