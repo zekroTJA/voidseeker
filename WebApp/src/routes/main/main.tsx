@@ -19,7 +19,7 @@ class MainRoute extends Component<MainRouteProps> {
     includeExplicit: true,
     includePublic: true,
     offset: 0,
-    size: 5,
+    size: 100,
   };
 
   private searchLimiter = new InputLimiter(300);

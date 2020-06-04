@@ -69,7 +69,7 @@ namespace RESTAPI.Models
             var dict = new Dictionary<string, object>();
             foreach (var v in TagsArray)
             {
-                if (!Regex.IsMatch(v, @"^[a-z0-9_-]+$"))
+                if (!Regex.IsMatch(v, @"^[a-z0-9_\-']+$"))
                 {
                     reason = "invalid tag format - must be lowercase and can only contain letters, numbers, underscores and minuses";
                     return false;
