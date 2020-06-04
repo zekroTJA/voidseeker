@@ -63,7 +63,7 @@ namespace RESTAPI.Models
         public ImageModel() : base("images")
         {
         }
-        
+
         public bool ValidateTags(out string reason)
         {
             var dict = new Dictionary<string, object>();
@@ -88,7 +88,7 @@ namespace RESTAPI.Models
             return true;
         }
 
-        public void LowercaseTags() =>
-            TagsCombined = TagsCombined.ToLower();
+        public void LowercaseTags()  =>
+            TagsCombined = TagsCombined?.ToLower();
     }
 }

@@ -130,11 +130,15 @@ namespace RESTAPI.Database
 
                     if (!filter.NullOrEmpty())
                     {
-                        filter.Split(" ").ToList().ForEach(tag =>
-                            result = result && query.Fuzzy(match => match.Field(f => f.TagsCombined).Value(tag.ToLower()).Boost(1.5)));
+                        QueryContainer metaResult, tagResult = null;
 
-                        result = query.Fuzzy(match => match.Field(f => f.Title).Value(filter).Boost(1.3));
-                        result = query.Fuzzy(match => match.Field(f => f.Description).Value(filter).Boost(1.0));
+                        metaResult = query.Fuzzy(match => match.Field(f => f.Title).Value(filter).Boost(1.3));
+                        metaResult = metaResult || query.Fuzzy(match => match.Field(f => f.Description).Value(filter).Boost(1.0));
+
+                        filter.Split(" ").ToList().ForEach(tag =>
+                            tagResult = tagResult && query.Fuzzy(match => match.Field(f => f.TagsCombined).Value(tag.ToLower()).Boost(1.5)));
+
+                        result = result && (metaResult || tagResult);
                     }
 
                     return result;
