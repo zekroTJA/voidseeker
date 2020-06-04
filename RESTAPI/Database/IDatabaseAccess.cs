@@ -18,6 +18,6 @@ namespace RESTAPI.Database
 
         Task<List<UserModel>> SearchUsers(int offset, int size, string filter);
         Task<List<ImageModel>> SearchImages(int offset, int size, string filter, string[] exclude, Guid ownerId, bool includePublic = false);
-        Task<List<TagModel>> SearchTags(int offset, int size, string filter);
+        Task<List<TagModel>> SearchTags(int offset, int size, string filter, int fuzziness = -1);
     }
 }

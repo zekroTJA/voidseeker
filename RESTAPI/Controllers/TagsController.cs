@@ -42,9 +42,10 @@ namespace RESTAPI.Controllers
         public async Task<ActionResult<PageModel<TagModel>>> Get(
             [FromQuery] int offset = 0,
             [FromQuery] int size = 50,
-            [FromQuery] string filter = "")
+            [FromQuery] string filter = "",
+            [FromQuery] int fuzziness = -1)
         {
-            var tags = await database.SearchTags(offset, size, filter);
+            var tags = await database.SearchTags(offset, size, filter, fuzziness);
             return Ok(new PageModel<TagModel>(tags, offset));
         }
 

@@ -157,7 +157,7 @@ namespace RESTAPI.Database
             return res.Hits.Select(x => x.Source).ToList();
         }
 
-        public async Task<List<TagModel>> SearchTags(int offset, int size, string filter)
+        public async Task<List<TagModel>> SearchTags(int offset, int size, string filter, int fuzziness = -1)
         {
             filter = filter.ToLower();
 
@@ -169,12 +169,13 @@ namespace RESTAPI.Database
             }
             else
             {
+                var fuzz = fuzziness < 0 ? Fuzziness.Auto : Fuzziness.EditDistance(fuzziness);
                 res = await SearchOrNullAsync<TagModel>(s => s
                     .Index(new TagModel().Index)
                     .Skip(offset)
                     .Size(size)
                     .Query(q =>
-                           q.Fuzzy(m => m.Field(x => x.Name).Value(filter).Boost(1))
+                           q.Fuzzy(m => m.Field(x => x.Name).Fuzziness(fuzz).Value(filter).Boost(1))
                     ));
             }
 

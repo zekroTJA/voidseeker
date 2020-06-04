@@ -158,7 +158,7 @@ namespace RESTAPI.Controllers
                 image.Explicit = newImage.Explicit;
 
             if (newImage.Public != null)
-                image.Explicit = newImage.Public;
+                image.Public = newImage.Public;
 
             if (newImage.Grade != null)
                 image.Grade = newImage.Grade;
