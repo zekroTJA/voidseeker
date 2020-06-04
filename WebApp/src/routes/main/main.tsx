@@ -16,8 +16,10 @@ class MainRoute extends Component<MainRouteProps> {
   public state = {
     filter: '',
     excludes: [],
-    includeExplicit: false,
+    includeExplicit: true,
     includePublic: true,
+    offset: 0,
+    size: 5,
   };
 
   private searchLimiter = new InputLimiter(300);
@@ -29,7 +31,9 @@ class MainRoute extends Component<MainRouteProps> {
   }
 
   public render() {
-    const imgs = this.props.globalState.images.data.map((i) => (
+    const gs = this.props.globalState;
+
+    const imgs = gs.images.data.map((i) => (
       <span key={i.uid}>
         <NavLink to={`/images/${i.uid}`}>
           <img
@@ -65,6 +69,23 @@ class MainRoute extends Component<MainRouteProps> {
               onChange={() => this.onIncludePublicChange()}
             />
             <label htmlFor="main-control-public">Display public</label>
+          </div>
+          <div className="main-page-dialer">
+            <button
+              disabled={this.state.offset === 0}
+              onClick={() => this.dialPage(-1)}
+            >
+              ◄
+            </button>
+            <span>
+              {this.state.offset + 1} - {gs.images.size + this.state.offset}
+            </span>
+            <button
+              disabled={this.state.size > gs.images.size}
+              onClick={() => this.dialPage(1)}
+            >
+              ►
+            </button>
           </div>
         </div>
         <div className="main-image-grid">{imgs}</div>
@@ -105,8 +126,8 @@ class MainRoute extends Component<MainRouteProps> {
       this.props.globalState.images = await RestAPI.images(
         this.state.includePublic, // include public
         this.state.includeExplicit, // include explicit
-        0, // oofset
-        100, // limit
+        this.state.offset, // oofset
+        this.state.size, // limit
         this.state.filter, // filter
         this.state.excludes, // excludes
         'created', // sort by
@@ -114,6 +135,17 @@ class MainRoute extends Component<MainRouteProps> {
       );
       this.setState({});
     } catch {}
+  }
+
+  private dialPage(n: number) {
+    let offset = this.state.offset + n * this.state.size;
+    if (offset < 0) {
+      offset = 0;
+    }
+
+    this.setState({ offset }, () => {
+      this.fetchImages();
+    });
   }
 }
 

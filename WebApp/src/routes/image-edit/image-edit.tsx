@@ -44,7 +44,7 @@ class ImageEditRoute extends Component<ImageEditRouteProps> {
   public render() {
     return (
       <div>
-        <h2>Image Upload</h2>
+        <h2>Edit Image</h2>
         {this.state.image && (
           <div className="image-edit-container">
             <img

@@ -95,7 +95,7 @@ export class RestAPI {
     sortBy = 'created',
     ascending = false
   ): Promise<PageModel<ImageModel>> {
-    const excludesQuery = excludes.map((v) => `&exclude=${v}`).join();
+    const excludesQuery = excludes.map((v) => `&exclude=${v}`).join('');
     const filterQuery = !!filter ? `&filter=${filter}` : '';
     return this.get(
       `images?offset=${offset}&size=${size}${filterQuery}&includePublic=${includePublic}&includeExplicit=${includeExplicit}&sortBy=${sortBy}&ascending=${ascending}${excludesQuery}`

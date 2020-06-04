@@ -1,6 +1,7 @@
 .image-details-container {
   display: flex;
   flex-wrap: wrap;
+  margin-top: 20px;
 
   > .container-element {
     margin-bottom: 20px;
@@ -17,8 +18,9 @@
 }
 
 .image-details-preview {
-  max-height: calc(100vh - 50px);
+  max-height: calc(100vh - 50px - 30px);
   max-width: calc(100vw - 50px);
+  height: fit-content;
   margin: 0 20px 20px 0;
 }
 
