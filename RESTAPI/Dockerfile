@@ -10,6 +10,7 @@ FROM build AS publish
 RUN dotnet publish "RESTAPI.csproj" -c Release -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-buster-slim AS final
+RUN apt-get update && apt-get install -y libgdiplus
 WORKDIR /app
 COPY --from=publish /app/publish .
 EXPOSE 80
