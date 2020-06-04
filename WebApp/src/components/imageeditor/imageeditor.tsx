@@ -108,6 +108,8 @@ class ImageEditor extends Component<ImageEditorProperties> {
 
   private onChange(cb: () => void) {
     cb();
+    console.log('explicit: ', this.props.image.explicit);
+    console.log('public: ', this.props.image.public);
     if (this.props.onChange) {
       this.props.onChange(this.props.image);
     }

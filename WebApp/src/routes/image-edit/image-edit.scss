@@ -1,0 +1,14 @@
+.image-edit-container {
+  display: flex;
+  flex-wrap: wrap;
+
+  > .container-element {
+    margin-bottom: 20px;
+  }
+}
+
+.image-edit-preview {
+  max-height: calc(100vh - 50px);
+  max-width: calc(100vw - 50px);
+  margin: 0 20px 20px 0;
+}

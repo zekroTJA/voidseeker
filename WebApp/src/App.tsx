@@ -8,6 +8,7 @@ import GlobalState from './util/globalstate';
 import InitRoute from './routes/init/init';
 import MainRoute from './routes/main/main';
 import ImageDetailsRoute from './routes/image-details/image-details';
+import ImageEditRoute from './routes/image-edit/image-edit';
 import UploadRoute from './routes/upload/upload';
 import AdminRoute from './routes/admin/admin';
 import UserEditRoute from './routes/user-edit/user-edit';
@@ -78,6 +79,16 @@ export default class App extends Component {
             path="/images/:uid"
             render={({ match }) => (
               <ImageDetailsRoute
+                globalState={this.globalState}
+                imageUid={match.params.uid}
+              />
+            )}
+          />
+          <Route
+            exact
+            path="/images/:uid/edit"
+            render={({ match }) => (
+              <ImageEditRoute
                 globalState={this.globalState}
                 imageUid={match.params.uid}
               />
