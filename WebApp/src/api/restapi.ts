@@ -87,17 +87,18 @@ export class RestAPI {
 
   public static images(
     includePublic = false,
+    includeExplicit = false,
     offset = 0,
     size = 20,
     filter = '',
-    excludes: string[] = []
+    excludes: string[] = [],
+    sortBy = 'created',
+    ascending = false
   ): Promise<PageModel<ImageModel>> {
     const excludesQuery = excludes.map((v) => `&exclude=${v}`).join();
     const filterQuery = !!filter ? `&filter=${filter}` : '';
     return this.get(
-      `images?offset=${offset}&size=${size}${filterQuery}&includePublic=${
-        includePublic ? 'true' : 'false'
-      }${excludesQuery}`
+      `images?offset=${offset}&size=${size}${filterQuery}&includePublic=${includePublic}&includeExplicit=${includeExplicit}&sortBy=${sortBy}&ascending=${ascending}${excludesQuery}`
     );
   }
 

@@ -28,6 +28,7 @@ export default class App extends Component {
 
   public componentDidMount() {
     RestAPI.events.on('authentication-error', () => {
+      this.setState({ loggedIn: false });
       this.redirect('/login');
     });
 
@@ -154,6 +155,7 @@ export default class App extends Component {
   private async onLogout() {
     await RestAPI.authLogout();
     this.globalState.clearSelfUser();
+    this.setState({ loggedIn: false });
     this.redirect('/login');
   }
 
