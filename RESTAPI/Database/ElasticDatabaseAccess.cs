@@ -108,57 +108,90 @@ namespace RESTAPI.Database
         {
             filter = filter.ToLower();
             
-            ISearchResponse<ImageModel> res;
+            var res = await SearchOrNullAsync<ImageModel>(desc =>
+            {
+                desc.Index(new ImageModel().Index)
+                    .Sort(s => ascending ? s.Ascending(sortBy) : s.Descending(sortBy))
+                    .Skip(offset)
+                    .Size(size);
 
-            if (filter.NullOrEmpty())
-            {
-                res = await SearchOrNullAsync<ImageModel>(s => s
-                    .Index(new ImageModel().Index)
-                    .Sort(s => ascending ? s.Ascending(sortBy) : s.Descending(sortBy))
-                    .Skip(offset)
-                    .Size(size)
-                    .Query(q => q
-                        .Bool(b => b
-                            .Should(m =>
-                                   m.MatchPhrase(term => term.Field(f => f.OwnerUid).Query(ownerId.ToString()))
-                                || (includePublic ? m.Term(term => term.Field(f => f.Public).Value(true)) : m)
-                            )
-                            .MustNot(m => m
-                                .Bool(b => b
-                                    .Should(s => 
-                                           s.Fuzzy(match => match.Field(f => f.TagsCombined).Value(string.Join(" ", exclude).ToLower()))
-                                        || (!includeExplicit ? s.Term(term => term.Field(f => f.Explicit).Value(true)) : s)
-                                    )))
-                    )));
-            }
-            else
-            {
-                res = await SearchOrNullAsync<ImageModel>(s => s
-                    .Index(new ImageModel().Index)
-                    .Sort(s => ascending ? s.Ascending(sortBy) : s.Descending(sortBy))
-                    .Skip(offset)
-                    .Size(size)
-                    .Query(q => q
-                        .Bool(b => b
-                            .Must(m =>
-                                   (
-                                          m.Fuzzy(match => match.Field(f => f.TagsCombined).Value(filter).Boost(1.5))
-                                       || m.Fuzzy(match => match.Field(f => f.Title).Value(filter).Boost(1.3))
-                                       || m.Fuzzy(match => match.Field(f => f.Description).Value(filter).Boost(1))
-                                   )
-                                && (
-                                          m.MatchPhrase(term => term.Field(f => f.OwnerUid).Query(ownerId.ToString()))
-                                       || (includePublic ? m.Term(term => term.Field(f => f.Public).Value(true)) : m)
-                                   )
-                            )
-                            .MustNot(m => m
-                                .Bool(b => b
-                                    .Should(s =>
-                                           s.Fuzzy(match => match.Field(f => f.TagsCombined).Value(string.Join(" ", exclude).ToLower()))
-                                        || (!includeExplicit ? s.Term(term => term.Field(f => f.Explicit).Value(true)) : s)
-                                    )))
-                    )));
-            }
+                desc.Query(query =>
+                {
+                    QueryContainer result = query.MatchPhrase(term => term.Field(f => f.OwnerUid).Query(ownerId.ToString()));
+
+                    if (includePublic)
+                        result = result || query.Term(term => term.Field(f => f.Public).Value(true));
+
+                    if (!includeExplicit)
+                        result = result && query.Term(term => term.Field(f => f.Explicit).Value(false));
+
+                    exclude.ToList().ForEach(ex =>
+                        result = result && !query.Fuzzy(match => match.Field(f => f.TagsCombined).Value(ex.ToLower())));
+
+                    if (!filter.NullOrEmpty())
+                    {
+                        filter.Split(" ").ToList().ForEach(tag =>
+                            result = result && query.Fuzzy(match => match.Field(f => f.TagsCombined).Value(tag.ToLower()).Boost(1.5)));
+
+                        result = query.Fuzzy(match => match.Field(f => f.Title).Value(filter).Boost(1.3));
+                        result = query.Fuzzy(match => match.Field(f => f.Description).Value(filter).Boost(1.0));
+                    }
+
+                    return result;
+                });
+
+                return desc;
+            });
+
+            //if (filter.NullOrEmpty())
+            //{
+            //    res = await SearchOrNullAsync<ImageModel>(s => s
+            //        .Index(new ImageModel().Index)
+            //        .Sort(s => ascending ? s.Ascending(sortBy) : s.Descending(sortBy))
+            //        .Skip(offset)
+            //        .Size(size)
+            //        .Query(q => q
+            //            .Bool(b => b
+            //                .Should(m =>
+            //                       m.MatchPhrase(term => term.Field(f => f.OwnerUid).Query(ownerId.ToString()))
+            //                    || (includePublic ? m.Term(term => term.Field(f => f.Public).Value(true)) : m)
+            //                )
+            //                .MustNot(m => m
+            //                    .Bool(b => b
+            //                        .Should(s => 
+            //                               s.Fuzzy(match => match.Field(f => f.TagsCombined).Value(string.Join(" ", exclude).ToLower()))
+            //                            || (!includeExplicit ? s.Term(term => term.Field(f => f.Explicit).Value(true)) : s)
+            //                        )))
+            //        )));
+            //}
+            //else
+            //{
+            //    res = await SearchOrNullAsync<ImageModel>(s => s
+            //        .Index(new ImageModel().Index)
+            //        .Sort(s => ascending ? s.Ascending(sortBy) : s.Descending(sortBy))
+            //        .Skip(offset)
+            //        .Size(size)
+            //        .Query(q => q
+            //            .Bool(b => b
+            //                .Must(m =>
+            //                       (
+            //                              m.Fuzzy(match => match.Field(f => f.TagsCombined).Value(filter).Boost(1.5))
+            //                           || m.Fuzzy(match => match.Field(f => f.Title).Value(filter).Boost(1.3))
+            //                           || m.Fuzzy(match => match.Field(f => f.Description).Value(filter).Boost(1))
+            //                       )
+            //                    && (
+            //                              m.MatchPhrase(term => term.Field(f => f.OwnerUid).Query(ownerId.ToString()))
+            //                           || (includePublic ? m.Term(term => term.Field(f => f.Public).Value(true)) : m)
+            //                       )
+            //                )
+            //                .MustNot(m => m
+            //                    .Bool(b => b
+            //                        .Should(s =>
+            //                               s.Fuzzy(match => match.Field(f => f.TagsCombined).Value(string.Join(" ", exclude).ToLower()))
+            //                            || (!includeExplicit ? s.Term(term => term.Field(f => f.Explicit).Value(true)) : s)
+            //                        )))
+            //        )));
+            //}
 
             if (res == null)
                 return new List<ImageModel>();
