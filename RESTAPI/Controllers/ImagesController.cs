@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 
 namespace RESTAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     [ProxyAddress]
     [Produces(MediaTypeNames.Application.Json)]

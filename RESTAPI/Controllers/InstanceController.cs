@@ -6,13 +6,12 @@ using RESTAPI.Hashing;
 using RESTAPI.Models;
 using RESTAPI.Models.Requests;
 using RESTAPI.Models.Responses;
-using System;
 using System.Net.Mime;
 using System.Threading.Tasks;
 
 namespace RESTAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     [ProxyAddress]
     [Produces(MediaTypeNames.Application.Json)]
