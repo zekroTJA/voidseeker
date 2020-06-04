@@ -1,0 +1,7 @@
+/* input[type=checkbox]:checked {
+  background: url(./assets/check.svg) 50% 50% no-repeat;
+} */
+
+:root {
+  --cb-background: url(./assets/check.svg) 50% 50% no-repeat;
+}
