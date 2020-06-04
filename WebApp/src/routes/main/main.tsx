@@ -7,6 +7,7 @@ import { RestAPI } from '../../api/restapi';
 
 import './main.scss';
 import InputLimiter from '../../util/inputlimier';
+import LocalStorage from '../../util/localstorage';
 
 interface MainRouteProps extends RouteComponentProps {
   globalState: GlobalState;
@@ -16,18 +17,26 @@ class MainRoute extends Component<MainRouteProps> {
   public state = {
     filter: '',
     excludes: [],
-    includeExplicit: true,
-    includePublic: true,
+    includeExplicit: false,
+    includePublic: false,
     offset: 0,
     size: 100,
   };
 
   private searchLimiter = new InputLimiter(300);
 
-  public async componentDidMount() {
+  public componentDidMount() {
     this.props.globalState.selfUser();
 
-    await this.fetchImages();
+    this.setState(
+      {
+        includeExplicit: LocalStorage.get<boolean>('include_explicit', false),
+        includePublic: LocalStorage.get<boolean>('include_public', false),
+      },
+      () => {
+        this.fetchImages();
+      }
+    );
   }
 
   public render() {
@@ -111,12 +120,14 @@ class MainRoute extends Component<MainRouteProps> {
 
   private async onIncludeExplicitChange() {
     this.setState({ includeExplicit: !this.state.includeExplicit }, () => {
+      LocalStorage.set<boolean>('include_explicit', this.state.includeExplicit);
       this.fetchImages();
     });
   }
 
   private async onIncludePublicChange() {
     this.setState({ includePublic: !this.state.includePublic }, () => {
+      LocalStorage.set<boolean>('include_public', this.state.includePublic);
       this.fetchImages();
     });
   }
