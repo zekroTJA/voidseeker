@@ -7,7 +7,7 @@ export interface UserModel extends UniqueModel {
   displayname: string;
   description: string;
   lastlogin: Date;
-  isadmin: boolean;
+  isadmin?: boolean;
 }
 
 export interface UserCreateModel extends UserModel {

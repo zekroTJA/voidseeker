@@ -6,8 +6,11 @@ import './header.scss';
 
 interface HeaderPorps {
   version?: string;
+  isAdmin?: boolean;
   onLogout?: () => void;
   onUpload?: () => void;
+  onUpdateProfile?: () => void;
+  onAdmin?: () => void;
   onHome?: () => void;
 }
 
@@ -28,6 +31,14 @@ export default class Header extends Component<HeaderPorps> {
           <button onClick={() => this.props.onUpload?.call(this)}>
             Upload image
           </button>
+          <button onClick={() => this.props.onUpdateProfile?.call(this)}>
+            Update Profile
+          </button>
+          {this.props.isAdmin && (
+            <button onClick={() => this.props.onAdmin?.call(this)}>
+              Admin Interface
+            </button>
+          )}
           <div className="header-spacer"></div>
           <button onClick={() => this.props.onLogout?.call(this)}>
             Logout

@@ -20,15 +20,12 @@ class UserEditRoute extends Component<UserEditRouteProps> {
   public state = {
     user: (null as any) as UserCreateModel,
     isNew: false,
+    isMe: false,
     isAdmin: false,
   };
 
   public async componentDidMount() {
     const selfUser = await this.props.globalState.selfUser();
-
-    if (!selfUser.isadmin && this.props.userId !== selfUser.uid) {
-      this.props.history.goBack();
-    }
 
     this.setState({ isAdmin: selfUser.isadmin });
 
@@ -37,6 +34,9 @@ class UserEditRoute extends Component<UserEditRouteProps> {
         isNew: true,
         user: {} as UserCreateModel,
       });
+    } else if (this.props.userId === 'me') {
+      const user = await this.props.globalState.selfUser();
+      this.setState({ user, isMe: true });
     } else {
       try {
         const user = await RestAPI.user(this.props.userId);
@@ -119,6 +119,11 @@ class UserEditRoute extends Component<UserEditRouteProps> {
       if (this.state.isNew) {
         await RestAPI.createUser(this.state.user);
         this.props.history.push('/admin');
+      } else if (this.state.isMe) {
+        this.state.user.isadmin = undefined;
+        const user = await RestAPI.updateUser('@me', this.state.user);
+        this.props.globalState.setSelfUser(user);
+        this.props.history.goBack();
       } else {
         await RestAPI.updateUser(this.state.user.uid, this.state.user);
       }

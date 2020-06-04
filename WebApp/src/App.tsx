@@ -22,6 +22,7 @@ export default class App extends Component {
   public state = {
     redirect: (null as any) as string,
     loggedIn: true,
+    isAdmin: false,
   };
 
   private globalState = new GlobalState();
@@ -61,6 +62,12 @@ export default class App extends Component {
         this.setState({});
       }
     });
+
+    this.globalState.selfUser().then((u) => {
+      if (u && u.isadmin) {
+        this.setState({ isAdmin: true });
+      }
+    });
   }
 
   public render() {
@@ -70,9 +77,12 @@ export default class App extends Component {
         {this.state.loggedIn && (
           <Header
             version={this.globalState.instance?.version}
+            isAdmin={this.state.isAdmin}
             onLogout={this.onLogout.bind(this)}
             onHome={this.onHome.bind(this)}
             onUpload={this.onUpload.bind(this)}
+            onUpdateProfile={this.onUpdateProfile.bind(this)}
+            onAdmin={this.onAdmin.bind(this)}
           />
         )}
 
@@ -165,5 +175,13 @@ export default class App extends Component {
 
   private onUpload() {
     this.redirect('/upload');
+  }
+
+  private onUpdateProfile() {
+    this.redirect('/users/me/edit');
+  }
+
+  private onAdmin() {
+    this.redirect('/admin');
   }
 }
