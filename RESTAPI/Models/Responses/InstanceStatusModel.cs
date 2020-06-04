@@ -9,5 +9,11 @@ namespace RESTAPI.Models.Responses
 
         [JsonPropertyName("userscount")]
         public long UsersCount { get; set; }
+
+        [JsonPropertyName("imagescount")]
+        public long ImagesCount { get; set; }
+
+        [JsonPropertyName("version")]
+        public string Version { get; set; }
     }
 }

@@ -17,7 +17,9 @@ namespace RESTAPI.Database
         Task<TagModel?> GetTagByName(string name);
 
         Task<List<UserModel>> SearchUsers(int offset, int size, string filter);
-        Task<List<ImageModel>> SearchImages(int offset, int size, string filter, string[] exclude, Guid ownerId, bool includePublic = false);
+        Task<List<ImageModel>> SearchImages(
+            int offset, int size, string filter, string[] exclude, Guid ownerId, bool includePublic = false,
+            bool includeExplicit = false, string sortBy = "created", bool ascending = false);
         Task<List<TagModel>> SearchTags(int offset, int size, string filter, int fuzziness = -1);
     }
 }

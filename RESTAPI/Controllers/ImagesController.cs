@@ -55,9 +55,13 @@ namespace RESTAPI.Controllers
             [FromQuery] int size = 50,
             [FromQuery] string filter = "",
             [FromQuery] string[] exclude = default,
-            [FromQuery] bool includePublic = false)
+            [FromQuery] bool includePublic = false,
+            [FromQuery] bool includeExplicit = false,
+            [FromQuery] string sortBy = "created",
+            [FromQuery] bool ascending = false)
         {
-            var res = await database.SearchImages(offset, size, filter, exclude, authClaims.UserId, includePublic);
+            var res = await database.SearchImages(
+                offset, size, filter, exclude, authClaims.UserId, includePublic, includeExplicit, sortBy, ascending);
 
             return Ok(new PageModel<ImageModel>(res, offset));
         }

@@ -103,7 +103,8 @@ namespace RESTAPI.Database
         }
 
         public async Task<List<ImageModel>> SearchImages(
-            int offset, int size, string filter, string[] exclude, Guid ownerId, bool includePublic = false)
+            int offset, int size, string filter, string[] exclude, Guid ownerId, bool includePublic = false,
+            bool includeExplicit = false, string sortBy = "created", bool ascending = false)
         {
             filter = filter.ToLower();
             
@@ -113,23 +114,28 @@ namespace RESTAPI.Database
             {
                 res = await SearchOrNullAsync<ImageModel>(s => s
                     .Index(new ImageModel().Index)
+                    .Sort(s => ascending ? s.Ascending(sortBy) : s.Descending(sortBy))
                     .Skip(offset)
                     .Size(size)
                     .Query(q => q
                         .Bool(b => b
                             .Should(m =>
                                    m.MatchPhrase(term => term.Field(f => f.OwnerUid).Query(ownerId.ToString()))
-                                || (includePublic ? m.Term(term => term.Field(f => f.Public).Value(true)) : null)
+                                || (includePublic ? m.Term(term => term.Field(f => f.Public).Value(true)) : m)
                             )
-                            .MustNot(m =>
-                                   m.Fuzzy(match => match.Field(f => f.TagsCombined).Value(string.Join(" ", exclude).ToLower()))
-                            )
+                            .MustNot(m => m
+                                .Bool(b => b
+                                    .Should(s => 
+                                           s.Fuzzy(match => match.Field(f => f.TagsCombined).Value(string.Join(" ", exclude).ToLower()))
+                                        || (!includeExplicit ? s.Term(term => term.Field(f => f.Explicit).Value(true)) : s)
+                                    )))
                     )));
             }
             else
             {
                 res = await SearchOrNullAsync<ImageModel>(s => s
                     .Index(new ImageModel().Index)
+                    .Sort(s => ascending ? s.Ascending(sortBy) : s.Descending(sortBy))
                     .Skip(offset)
                     .Size(size)
                     .Query(q => q
@@ -142,12 +148,15 @@ namespace RESTAPI.Database
                                    )
                                 && (
                                           m.MatchPhrase(term => term.Field(f => f.OwnerUid).Query(ownerId.ToString()))
-                                       || (includePublic ? m.Term(term => term.Field(f => f.Public).Value(true)) : null)
+                                       || (includePublic ? m.Term(term => term.Field(f => f.Public).Value(true)) : m)
                                    )
                             )
-                            .MustNot(m =>
-                                   m.Fuzzy(match => match.Field(f => f.TagsCombined).Value(string.Join(" ", exclude).ToLower()))
-                            )
+                            .MustNot(m => m
+                                .Bool(b => b
+                                    .Should(s =>
+                                           s.Fuzzy(match => match.Field(f => f.TagsCombined).Value(string.Join(" ", exclude).ToLower()))
+                                        || (!includeExplicit ? s.Term(term => term.Field(f => f.Explicit).Value(true)) : s)
+                                    )))
                     )));
             }
 

@@ -36,10 +36,15 @@ namespace RESTAPI.Controllers
         public async Task<InstanceStatusModel> Status()
         {
             var usersCount = await database.Count<UserModel>();
+            var imageCount = await database.Count<ImageModel>();
+            var version = GetType().Assembly.GetName().Version.ToString();
+
             return new InstanceStatusModel()
             {
                 Initialized = usersCount > 0L,
                 UsersCount = usersCount,
+                ImagesCount = imageCount,
+                Version = version,
             };
         }
 
