@@ -111,6 +111,18 @@ class ImageDetailsRoute extends Component<ImageDetailsRouteProps> {
                   </tr>
                 </tbody>
               </table>
+              <div>
+                <a href={RestAPI.imageUrl(img.uid)} target="_blank">
+                  Open in original size
+                </a>
+                <br />
+                <a
+                  href={RestAPI.imageUrl(img.uid)}
+                  download={img.title || img.filename}
+                >
+                  Download image
+                </a>
+              </div>
               <div className="image-detail-control-btns">
                 <NavLink to={`/images/${img.uid}/edit`}>
                   <button className="w-100">Edit</button>

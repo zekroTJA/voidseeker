@@ -8,6 +8,8 @@
 }
 
 .image-details-table {
+  margin-bottom: 10px;
+
   th {
     padding-right: 10px;
     text-align: left;
@@ -41,9 +43,15 @@
   }
 }
 
+.image-details-links-container {
+  > * {
+    width: 100%;
+  }
+}
+
 .image-detail-control-btns {
   display: flex;
-  margin-top: 10px;
+  margin-top: 15px;
 
   > * {
     width: 100%;
