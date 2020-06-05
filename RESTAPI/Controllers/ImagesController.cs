@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Minio.Exceptions;
 using RESTAPI.Authorization;
-using RESTAPI.Cache;
 using RESTAPI.Database;
 using RESTAPI.Extensions;
 using RESTAPI.Filter;
@@ -31,13 +30,11 @@ namespace RESTAPI.Controllers
         private AuthClaims authClaims;
         private readonly IDatabaseAccess database;
         private readonly IStorageProvider storage;
-        private readonly ICacheProvider cache;
 
-        public ImagesController(IDatabaseAccess _database, IStorageProvider _storage, ICacheProvider _cache)
+        public ImagesController(IDatabaseAccess _database, IStorageProvider _storage)
         {
             database = _database;
             storage = _storage;
-            cache = _cache;
         }
 
         public AuthClaims GetAuthClaims() => authClaims;
@@ -69,58 +66,75 @@ namespace RESTAPI.Controllers
         // -------------------------------------------------------------------------
         // --- PUT /api/images ---
 
-        [HttpPut]
-        [ProducesResponseType(201)]
-        [ProducesResponseType(400)]
-        public ActionResult<CompletionWrapperModel<ImageModel>> Put([FromBody] ImageModel image)
-        {
-            image.AfterCreate();
-            image.LowercaseTags();
+        //[HttpPut]
+        //[ProducesResponseType(201)]
+        //[ProducesResponseType(400)]
+        //public ActionResult<CompletionWrapperModel<ImageModel>> Put([FromBody] ImageModel image)
+        //{
+        //    image.AfterCreate();
+        //    image.LowercaseTags();
 
-            if (!image.ValidateTags(out var reason))
-                return BadRequest(new ErrorModel(400, reason));
+        //    if (!image.ValidateTags(out var reason))
+        //        return BadRequest(new ErrorModel(400, reason));
 
-            image.OwnerUid = authClaims.UserId;
-            image.BlobName = null;
-            image.Bucket = null;
-            image.Filename = null;
-            image.MimeType = null;
-            image.Size = -1;
+        //    image.OwnerUid = authClaims.UserId;
+        //    image.BlobName = null;
+        //    image.Bucket = null;
+        //    image.Filename = null;
+        //    image.MimeType = null;
+        //    image.Size = -1;
 
-            var deadlineUntil = TimeSpan.FromMinutes(15);
-            cache.Put(GetCacheImageKey(image.Uid), image, deadlineUntil);
+        //    var deadlineUntil = TimeSpan.FromMinutes(15);
+        //    cache.Put(GetCacheImageKey(image.Uid), image, deadlineUntil);
 
-            return Created("image-placeholder", new CompletionWrapperModel<ImageModel>()
-            {
-                Uid = image.Uid,
-                Initialized = DateTime.Now,
-                Deadline = DateTime.Now.Add(deadlineUntil),
-                CompletionResource = $"/api/images/{image.Uid.ToString()}",
-                Data = image,
-            });
-        }
+        //    return Created("image-placeholder", new CompletionWrapperModel<ImageModel>()
+        //    {
+        //        Uid = image.Uid,
+        //        Initialized = DateTime.Now,
+        //        Deadline = DateTime.Now.Add(deadlineUntil),
+        //        CompletionResource = $"/api/images/{image.Uid.ToString()}",
+        //        Data = image,
+        //    });
+        //}
 
         // -------------------------------------------------------------------------
-        // --- POST /api/images/:uid/upload ---
+        // --- PUT /api/images ---
 
-        [HttpPost("{uid}/upload")]
+        [HttpPut]
         [RequestSizeLimit(100 * 1024 * 1024)]
         [Consumes("multipart/form-data")]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(201)]
         [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
-        public async Task<ActionResult<ImageModel>> PutImageData(IFormFile file, [FromRoute] Guid uid)
+        public async Task<ActionResult<ImageModel>> PutImageData(IFormFile file)
         {
             if (file == null)
                 return BadRequest(new ErrorModel(400, "no image attached"));
 
-            if (!cache.Contains(GetCacheImageKey(uid)) || !cache.TryGet<ImageModel>(GetCacheImageKey(uid), out var image))
-                return NotFound(new ErrorModel(404, "not found or deadline has expired"));
+            //if (!cache.Contains(GetCacheImageKey(uid)) || !cache.TryGet<ImageModel>(GetCacheImageKey(uid), out var image))
+            //    return NotFound(new ErrorModel(404, "not found or deadline has expired"));
 
-            if (image.OwnerUid != authClaims.UserId)
-                return NotFound(new ErrorModel(404, "not found or deadline has expired"));
+            //if (image.OwnerUid != authClaims.UserId)
+            //    return NotFound(new ErrorModel(404, "not found or deadline has expired"));
 
-            image.BlobName = uid.ToString();
+            //image.BlobName = uid.ToString();
+            //image.Bucket = Constants.IMAGE_STORAGE_BUCKET;
+            //image.Filename = file.FileName;
+            //image.MimeType = file.ContentType;
+            //image.Size = file.Length;
+
+            //var stream = file.OpenReadStream();
+            //await storage.Put(image.Bucket, image.BlobName, stream, image.Size, image.MimeType);
+
+            //await database.Put(image);
+            //await SaveTags(image);
+
+            //cache.Delete(GetCacheImageKey(uid));
+
+            //return Ok(image);
+
+            var image = new ImageModel();
+            image.OwnerUid = authClaims.UserId;
+            image.BlobName = image.Uid.ToString();
             image.Bucket = Constants.IMAGE_STORAGE_BUCKET;
             image.Filename = file.FileName;
             image.MimeType = file.ContentType;
@@ -130,12 +144,11 @@ namespace RESTAPI.Controllers
             await storage.Put(image.Bucket, image.BlobName, stream, image.Size, image.MimeType);
 
             await database.Put(image);
-            await SaveTags(image);
 
-            cache.Delete(GetCacheImageKey(uid));
-
-            return Ok(image);
+            return Created("image", image);
         }
+
+
 
         // -------------------------------------------------------------------------
         // --- POST /api/images/:uid ---
