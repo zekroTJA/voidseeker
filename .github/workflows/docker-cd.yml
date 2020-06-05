@@ -1,0 +1,42 @@
+name: Docker CD
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+
+  build-backend:
+    
+    runs-on: ubuntu-latest
+    name: Build Back End Image
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build Image
+        run: |
+          docker build . \
+            --file ./RESTAPI/Dockerfile \
+            --tag zekro/voidseeker-backend:latest
+      - name: Push Image
+        run: |
+          docker login -u zekro -p ${{ secrets.DOCKER_PASSWORD }}
+          docker push zekro/voidseeker-backend:latest
+          
+  build-frontend:
+    
+    runs-on: ubuntu-latest
+    name: Build Front End Image
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build Image
+        run: |
+          docker build ./WebApp \
+            --tag zekro/voidseeker-frontend:latest
+      - name: Push Image
+        run: |
+          docker login -u zekro -p ${{ secrets.DOCKER_PASSWORD }}
+          docker push zekro/voidseeker-frontend:latest
