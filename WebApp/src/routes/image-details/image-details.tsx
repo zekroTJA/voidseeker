@@ -102,8 +102,18 @@ class ImageDetailsRoute extends Component<ImageDetailsRouteProps> {
                     <td>{byteFormatter(img.size)}</td>
                   </tr>
                   <tr>
+                    <th>Resolution</th>
+                    <td>
+                      {img.width} x {img.height}
+                    </td>
+                  </tr>
+                  <tr>
                     <th>Media Type</th>
                     <td>{img.mimetype}</td>
+                  </tr>
+                  <tr>
+                    <th>MD5 Hash</th>
+                    <td>{img.md5hash}</td>
                   </tr>
                   <tr>
                     <th>Restriction</th>
