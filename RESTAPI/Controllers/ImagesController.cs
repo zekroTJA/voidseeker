@@ -99,6 +99,11 @@ namespace RESTAPI.Controllers
                 return BadRequest(new ErrorModel(400, "image already existent"));
 
             stream.Position = 0;
+            var imageMeta = Image.FromStream(stream);
+            image.Height = imageMeta.Height;
+            image.Width = imageMeta.Width;
+
+            stream.Position = 0;
             await storage.Put(image.Bucket, image.BlobName, stream, image.Size, image.MimeType);
 
             await database.Put(image);

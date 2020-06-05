@@ -54,6 +54,12 @@ namespace RESTAPI.Models
         [JsonPropertyName("md5hash")]
         public string Md5Hash { get; set; }
 
+        [JsonPropertyName("height")]
+        public int Height { get; set; }
+
+        [JsonPropertyName("width")]
+        public int Width { get; set; }
+
         [JsonPropertyName("tagscombined")]
         public string TagsCombined { get; set; }
 
