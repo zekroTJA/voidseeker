@@ -73,6 +73,18 @@ namespace RESTAPI.Database
             return res?.Hits.DefaultIfEmpty(null).First()?.Source;
         }
 
+        public async Task<ImageModel?> GetImageByHash(string hash, Guid ownerId)
+        {
+            var res = await SearchOrNullAsync<ImageModel>(s => s
+                    .Index(new ImageModel().Index)
+                    .Size(1)
+                    .Query(q =>
+                        q.MatchPhrase(t => t.Field(f => f.Md5Hash).Query(hash)) &&
+                        q.MatchPhrase(t => t.Field(f => f.OwnerUid).Query(ownerId.ToString()))));
+
+            return res?.Hits.DefaultIfEmpty(null).First()?.Source;
+        }
+
         public async Task<List<UserModel>> SearchUsers(int offset, int size, string filter)
         {
             filter = filter.ToLower();

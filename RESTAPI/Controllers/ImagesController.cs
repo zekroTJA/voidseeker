@@ -8,12 +8,14 @@ using RESTAPI.Filter;
 using RESTAPI.Models;
 using RESTAPI.Models.Responses;
 using RESTAPI.Storage;
+using RESTAPI.Util;
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net.Mime;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 namespace RESTAPI.Controllers
@@ -86,8 +88,17 @@ namespace RESTAPI.Controllers
             image.Filename = file.FileName;
             image.MimeType = file.ContentType;
             image.Size = file.Length;
+            image.Explicit = false;
+            image.Public = false;
 
             var stream = file.OpenReadStream();
+
+            image.Md5Hash = FileHashing.GetHash(stream);
+
+            if (await database.GetImageByHash(image.Md5Hash, image.OwnerUid) != null)
+                return BadRequest(new ErrorModel(400, "image already existent"));
+
+            stream.Position = 0;
             await storage.Put(image.Bucket, image.BlobName, stream, image.Size, image.MimeType);
 
             await database.Put(image);
