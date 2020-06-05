@@ -21,7 +21,7 @@ import './App.scss';
 export default class App extends Component {
   public state = {
     redirect: (null as any) as string,
-    loggedIn: true,
+    loggedIn: false,
     isAdmin: false,
   };
 
@@ -54,18 +54,18 @@ export default class App extends Component {
       }
     });
 
+    this.globalState.selfUser().then((u) => {
+      if (u) {
+        this.setState({ isAdmin: u.isadmin, loggedIn: true });
+      }
+    });
+
     RestAPI.instanceStatus().then((val) => {
       if (!val.initialized) {
         this.redirect('/init');
       } else {
         this.globalState.instance = val;
         this.setState({});
-      }
-    });
-
-    this.globalState.selfUser().then((u) => {
-      if (u && u.isadmin) {
-        this.setState({ isAdmin: true });
       }
     });
   }

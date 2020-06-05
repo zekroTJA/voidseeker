@@ -8,9 +8,7 @@ import ImageModel from './models/image';
 import { TagModel } from './models/tag';
 
 const PREFIX =
-  process.env.NODE_ENV === 'development'
-    ? 'https://localhost:5001/api'
-    : '/api';
+  process.env.NODE_ENV === 'development' ? 'https://localhost:5001' : '/api';
 
 export class AuthenticationError extends Error {
   constructor() {
