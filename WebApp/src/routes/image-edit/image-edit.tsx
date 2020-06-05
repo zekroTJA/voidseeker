@@ -82,7 +82,7 @@ class ImageEditRoute extends Component<ImageEditRouteProps> {
         SnackBarType.SUCCESS,
         4000
       );
-      this.props.history.goBack();
+      this.props.history.push('/images');
     } catch {}
   }
 

@@ -104,8 +104,15 @@ export class RestAPI {
     return this.get(`images/${uid}/info`);
   }
 
-  public static initCreateImage(image: ImageModel): Promise<ImageModel> {
-    return this.put('images', image);
+  // public static initCreateImage(image: ImageModel): Promise<ImageModel> {
+  //   return this.put('images', image);
+  // }
+
+  public static uploadImage(file: File): Promise<ImageModel> {
+    const formData = new FormData();
+    formData.append('file', file);
+    console.log(formData);
+    return this.req('PUT', 'images', formData, 'multipart/form-data');
   }
 
   public static updateImageInfo(
@@ -172,14 +179,27 @@ export class RestAPI {
   private static async req<T>(
     method: string,
     path: string,
-    body?: any
+    body?: any,
+    contentType: string | undefined = 'application/json'
   ): Promise<T> {
+    let reqBody = undefined;
+    if (body) {
+      if (typeof body !== 'string' && contentType === 'application/json') {
+        reqBody = JSON.stringify(body);
+      } else {
+        reqBody = body;
+      }
+    }
+
+    const headers: { [key: string]: string } = {};
+    if (contentType !== 'multipart/form-data') {
+      headers['content-type'] = contentType;
+    }
+
     const res = await window.fetch(`${PREFIX}/${path}`, {
       method,
-      headers: {
-        'content-type': 'application/json',
-      },
-      body: !!body ? JSON.stringify(body) : undefined,
+      headers,
+      body: reqBody,
       credentials: 'include',
     });
 
