@@ -8,12 +8,14 @@ using RESTAPI.Filter;
 using RESTAPI.Models;
 using RESTAPI.Models.Responses;
 using RESTAPI.Storage;
+using RESTAPI.Util;
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net.Mime;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 namespace RESTAPI.Controllers
@@ -66,40 +68,6 @@ namespace RESTAPI.Controllers
         // -------------------------------------------------------------------------
         // --- PUT /api/images ---
 
-        //[HttpPut]
-        //[ProducesResponseType(201)]
-        //[ProducesResponseType(400)]
-        //public ActionResult<CompletionWrapperModel<ImageModel>> Put([FromBody] ImageModel image)
-        //{
-        //    image.AfterCreate();
-        //    image.LowercaseTags();
-
-        //    if (!image.ValidateTags(out var reason))
-        //        return BadRequest(new ErrorModel(400, reason));
-
-        //    image.OwnerUid = authClaims.UserId;
-        //    image.BlobName = null;
-        //    image.Bucket = null;
-        //    image.Filename = null;
-        //    image.MimeType = null;
-        //    image.Size = -1;
-
-        //    var deadlineUntil = TimeSpan.FromMinutes(15);
-        //    cache.Put(GetCacheImageKey(image.Uid), image, deadlineUntil);
-
-        //    return Created("image-placeholder", new CompletionWrapperModel<ImageModel>()
-        //    {
-        //        Uid = image.Uid,
-        //        Initialized = DateTime.Now,
-        //        Deadline = DateTime.Now.Add(deadlineUntil),
-        //        CompletionResource = $"/api/images/{image.Uid.ToString()}",
-        //        Data = image,
-        //    });
-        //}
-
-        // -------------------------------------------------------------------------
-        // --- PUT /api/images ---
-
         [HttpPut]
         [RequestSizeLimit(100 * 1024 * 1024)]
         [Consumes("multipart/form-data")]
@@ -110,27 +78,8 @@ namespace RESTAPI.Controllers
             if (file == null)
                 return BadRequest(new ErrorModel(400, "no image attached"));
 
-            //if (!cache.Contains(GetCacheImageKey(uid)) || !cache.TryGet<ImageModel>(GetCacheImageKey(uid), out var image))
-            //    return NotFound(new ErrorModel(404, "not found or deadline has expired"));
-
-            //if (image.OwnerUid != authClaims.UserId)
-            //    return NotFound(new ErrorModel(404, "not found or deadline has expired"));
-
-            //image.BlobName = uid.ToString();
-            //image.Bucket = Constants.IMAGE_STORAGE_BUCKET;
-            //image.Filename = file.FileName;
-            //image.MimeType = file.ContentType;
-            //image.Size = file.Length;
-
-            //var stream = file.OpenReadStream();
-            //await storage.Put(image.Bucket, image.BlobName, stream, image.Size, image.MimeType);
-
-            //await database.Put(image);
-            //await SaveTags(image);
-
-            //cache.Delete(GetCacheImageKey(uid));
-
-            //return Ok(image);
+            if (!Constants.ALLOWED_CONTENT_TYPES.Contains(file.ContentType))
+                return BadRequest(new ErrorModel(400, "invalid content type"));
 
             var image = new ImageModel();
             image.OwnerUid = authClaims.UserId;
@@ -139,8 +88,22 @@ namespace RESTAPI.Controllers
             image.Filename = file.FileName;
             image.MimeType = file.ContentType;
             image.Size = file.Length;
+            image.Explicit = false;
+            image.Public = false;
 
             var stream = file.OpenReadStream();
+
+            image.Md5Hash = FileHashing.GetHash(stream);
+
+            if (await database.GetImageByHash(image.Md5Hash, image.OwnerUid) != null)
+                return BadRequest(new ErrorModel(400, "image already existent"));
+
+            stream.Position = 0;
+            var imageMeta = Image.FromStream(stream);
+            image.Height = imageMeta.Height;
+            image.Width = imageMeta.Width;
+
+            stream.Position = 0;
             await storage.Put(image.Bucket, image.BlobName, stream, image.Size, image.MimeType);
 
             await database.Put(image);

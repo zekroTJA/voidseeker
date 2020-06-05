@@ -15,6 +15,7 @@ namespace RESTAPI.Database
 
         Task<UserModel?> GetUserByUserName(string username);
         Task<TagModel?> GetTagByName(string name);
+        Task<ImageModel?> GetImageByHash(string hash, Guid ownerId);
 
         Task<List<UserModel>> SearchUsers(int offset, int size, string filter);
         Task<List<ImageModel>> SearchImages(

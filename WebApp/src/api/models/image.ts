@@ -32,4 +32,7 @@ export default interface ImageModel extends UniqueModel {
   grade?: Grade;
   tagscombined: string;
   tagsarray: string[];
+  md5hash: string;
+  width: number;
+  height: number;
 }

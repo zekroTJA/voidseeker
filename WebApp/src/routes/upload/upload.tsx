@@ -81,7 +81,12 @@ class UploadRoute extends Component<UploadRouteProps> {
     try {
       const res = await RestAPI.uploadImage(file);
       this.props.history.replace(`/images/${res.uid}/edit`);
-    } catch {}
+    } catch {
+      this.setState({
+        dragging: false,
+        dropText: 'Drop your image here or click to select a file.',
+      });
+    }
   }
 }
 
