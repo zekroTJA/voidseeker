@@ -11,10 +11,9 @@ services:
     ports:
       - '80:80'
       - '443:443'
-      - '7687:7687'
     volumes:
-      - './nginx/config:/etc/nginx'
-      # - '/etc/cert:/etc/cert:ro' # certificate mounts
+      - './nginx/config:/etc/nginx:ro'
+      - '/etc/cert:/etc/cert:ro'
     restart: always
 
   elastic:
