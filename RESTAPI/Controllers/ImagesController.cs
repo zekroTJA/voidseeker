@@ -133,11 +133,15 @@ namespace RESTAPI.Controllers
             //return Ok(image);
 
             var image = new ImageModel();
+            image.OwnerUid = authClaims.UserId;
             image.BlobName = image.Uid.ToString();
             image.Bucket = Constants.IMAGE_STORAGE_BUCKET;
             image.Filename = file.FileName;
             image.MimeType = file.ContentType;
             image.Size = file.Length;
+
+            var stream = file.OpenReadStream();
+            await storage.Put(image.Bucket, image.BlobName, stream, image.Size, image.MimeType);
 
             await database.Put(image);
 
