@@ -1,0 +1,64 @@
+version: '3'
+
+volumes:
+  elastic:
+  minio:
+
+services:
+
+  nginx:
+    image: 'nginx:latest'
+    ports:
+      - '80:80'
+      - '443:443'
+      - '7687:7687'
+    volumes:
+      - './nginx/config:/etc/nginx'
+      # - '/etc/cert:/etc/cert:ro' # certificate mounts
+    restart: always
+
+  elastic:
+    image: 'elasticsearch:7.7.0'
+    expose:
+      - '9200'
+    environment:
+      discovery.type: 'single-node'
+    volumes:
+      - 'elastic:/usr/share/elasticsearch/data'
+    restart: always
+
+  minio:
+    image: 'minio/minio:latest'
+    expose:
+      - '9000'
+    volumes:
+      - 'minio:/data'
+    environment:
+      MINIO_ACCESS_KEY:  'minio_key'
+      MINIO_SECRET_KEY:  'minio_secret'
+    command: server /data
+    restart: always
+
+  vs-backend:
+    image: 'zekro/voidseeker-backend:latest'
+    expose:
+      - '8080'
+    environment:
+      VS_WEBSERVER__URL:                    'http://vs-backend:8080'
+      VS_DATABASE__ELASTICSEARCH__NODES__0: 'http://elastic:9200'
+      VS_STORAGE__MINIO__ENDPOINT:          'minio:9000'
+      VS_STORAGE__MINIO__ACCESSKEY:         'minio_key'
+      VS_STORAGE__MINIO__SECRETKEY:         'minio_secret'
+      VS_STORAGE__MINIO__DEFAULTLOCATION:   'us-east-1'
+      VS_STORAGE__MINIO__SSLENABLED:        'false'
+    restart: on-failure
+    labels:
+      apptype: 'webapp'
+
+  vs-frontend:
+    image: 'zekro/voidseeker-frontend:latest'
+    expose:
+      - '8080'
+    restart: on-failure
+    labels:
+      apptype: 'webapp'  
