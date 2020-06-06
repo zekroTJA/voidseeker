@@ -82,7 +82,7 @@ export default class App extends Component {
             onLogout={this.onLogout.bind(this)}
             onHome={this.onHome.bind(this)}
             onUpload={this.onUpload.bind(this)}
-            onUpdateProfile={this.onUpdateProfile.bind(this)}
+            onMyProfile={this.onMyProfile.bind(this)}
             onAdmin={this.onAdmin.bind(this)}
           />
         )}
@@ -188,8 +188,8 @@ export default class App extends Component {
     this.redirect('/upload');
   }
 
-  private onUpdateProfile() {
-    this.redirect('/users/me/edit');
+  private onMyProfile() {
+    this.redirect('/users/me');
   }
 
   private onAdmin() {

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using RESTAPI.Extensions;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -31,9 +32,10 @@ namespace RESTAPI.Authorization
         {
             var key = configuration.GetValue<string>("WebServer:Auth:JWTSecret");
 
-            signingKey = key != null 
-                ? new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)) 
-                : GenerateSigningKey(keyLen);
+            signingKey = key.NullOrEmpty()
+                ? GenerateSigningKey(keyLen)
+                : new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
+
             tokenHandler = new JwtSecurityTokenHandler();
         }
 

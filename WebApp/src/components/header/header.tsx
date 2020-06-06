@@ -9,7 +9,7 @@ interface HeaderPorps {
   isAdmin?: boolean;
   onLogout?: () => void;
   onUpload?: () => void;
-  onUpdateProfile?: () => void;
+  onMyProfile?: () => void;
   onAdmin?: () => void;
   onHome?: () => void;
 }
@@ -29,10 +29,10 @@ export default class Header extends Component<HeaderPorps> {
         )}
         <div className="header-right-control">
           <button onClick={() => this.props.onUpload?.call(this)}>
-            Upload image
+            Upload
           </button>
-          <button onClick={() => this.props.onUpdateProfile?.call(this)}>
-            Update Profile
+          <button onClick={() => this.props.onMyProfile?.call(this)}>
+            My Profile
           </button>
           {this.props.isAdmin && (
             <button onClick={() => this.props.onAdmin?.call(this)}>
