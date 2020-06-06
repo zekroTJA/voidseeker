@@ -9,10 +9,11 @@ import Container from '../../components/container/container';
 import { UserModel } from '../../api/models/user';
 import moment from 'moment';
 import { byteFormatter } from 'byte-formatter';
-
-import './image-details.scss';
 import Modal from '../../components/modal/modal';
 import SnackBarNotifier, { SnackBarType } from '../../util/snackbar-notifier';
+
+import './image-details.scss';
+import Consts from '../../consts';
 
 interface ImageDetailsRouteProps extends RouteComponentProps {
   globalState: GlobalState;
@@ -81,9 +82,7 @@ class ImageDetailsRoute extends Component<ImageDetailsRouteProps> {
                   </tr>
                   <tr>
                     <th>Uploaded</th>
-                    <td>
-                      {moment(img.created).format('YYYY-MM-DD HH:mm:ss Z')}
-                    </td>
+                    <td>{moment(img.created).format(Consts.TIME_FORMAT)}</td>
                   </tr>
                   <tr>
                     <th>Uploaded by</th>

@@ -12,6 +12,7 @@ import moment from 'moment';
 import './admin.scss';
 import Modal from '../../components/modal/modal';
 import SnackBarNotifier, { SnackBarType } from '../../util/snackbar-notifier';
+import Consts from '../../consts';
 
 interface AdminRouteProps extends RouteComponentProps {
   globalState: GlobalState;
@@ -38,12 +39,12 @@ class AdminRoute extends Component<AdminRouteProps> {
         <td>{u.displayname || <i>Not set.</i>}</td>
         <td>
           {u.lastlogin ? (
-            moment(u.lastlogin).format('YYYY-MM-DD hh:mm')
+            moment(u.lastlogin).format(Consts.TIME_FORMAT)
           ) : (
             <i>Never logged in</i>
           )}
         </td>
-        <td>{moment(u.created).format('YYYY-MM-DD hh:mm')}</td>
+        <td>{moment(u.created).format(Consts.TIME_FORMAT)}</td>
         <td>{u.isadmin ? <b>Yes</b> : 'No'}</td>
         <td>
           <NavLink to={`/users/${u.uid}/edit`}>

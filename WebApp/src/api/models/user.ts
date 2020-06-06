@@ -8,6 +8,7 @@ export interface UserModel extends UniqueModel {
   description: string;
   lastlogin: Date;
   isadmin?: boolean;
+  imagescount?: number;
 }
 
 export interface UserCreateModel extends UserModel {

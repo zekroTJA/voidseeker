@@ -29,11 +29,12 @@
   flex-wrap: wrap;
 
   > span {
+    display: flex;
     height: 180px;
     width: 180px;
     display: inline-block;
-    text-align: center;
-    vertical-align: middle;
+    align-items: center;
+    justify-content: center;
     margin: 5px;
   }
 }
