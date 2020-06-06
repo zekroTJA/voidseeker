@@ -44,7 +44,6 @@ class ImageEditRoute extends Component<ImageEditRouteProps> {
   public render() {
     return (
       <div>
-        <h2>Edit Image</h2>
         {this.state.image && (
           <div className="image-edit-container">
             <img
@@ -96,7 +95,7 @@ class ImageEditRoute extends Component<ImageEditRouteProps> {
           tagSuggestions: res.data
             .map((t) => t.name)
             .filter(
-              (t, i) =>
+              (t) =>
                 !this.state.image.tagsarray
                   .slice(0, valSplit.length - 1)
                   .includes(t)

@@ -18,9 +18,9 @@
 }
 
 .image-details-preview {
+  display: block;
   max-height: calc(100vh - 50px - 30px);
-  max-width: calc(100vw - 50px);
-  height: fit-content;
+  max-width: calc(50vw);
   margin: 0 20px 20px 0;
 }
 

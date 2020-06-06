@@ -52,11 +52,13 @@ class ImageDetailsRoute extends Component<ImageDetailsRouteProps> {
         {this.state.deleteModal && this.deleteModal}
         {img && (
           <div className="image-details-container">
-            <img
-              className="image-details-preview"
-              src={RestAPI.imageUrl(img.uid)}
-              alt={img.title || img.filename}
-            />
+            <div>
+              <img
+                className="image-details-preview"
+                src={RestAPI.imageUrl(img.uid)}
+                alt={img.title || img.filename}
+              />
+            </div>
             <Container title="Image Information">
               <table className="image-details-table">
                 <tbody>
