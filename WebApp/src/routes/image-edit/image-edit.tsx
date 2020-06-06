@@ -95,7 +95,12 @@ class ImageEditRoute extends Component<ImageEditRouteProps> {
         this.setState({
           tagSuggestions: res.data
             .map((t) => t.name)
-            .filter((t) => !this.state.image.tagsarray.includes(t)),
+            .filter(
+              (t, i) =>
+                !this.state.image.tagsarray
+                  .slice(0, valSplit.length - 1)
+                  .includes(t)
+            ),
         });
       } catch {}
     } else {

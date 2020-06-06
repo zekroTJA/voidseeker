@@ -131,6 +131,10 @@ class ImageEditor extends Component<ImageEditorProperties> {
       image.tagsarray = image.tagsarray.filter((t) => t.length > 0);
       image.tagscombined = image.tagsarray.join(' ');
     });
+
+    setTimeout(() => {
+      this.onChange(() => this.props.tagSuggestions?.splice(0));
+    }, 100);
   }
 
   private getImageTags(image: ImageModel): string {
