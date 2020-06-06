@@ -12,6 +12,7 @@ import ImageEditRoute from './routes/image-edit/image-edit';
 import UploadRoute from './routes/upload/upload';
 import AdminRoute from './routes/admin/admin';
 import UserEditRoute from './routes/user-edit/user-edit';
+import UserDetailsRoute from './routes/user-details/user-details';
 import SnackBar from './components/snackbar/snackbar';
 import SnackBarNotifier, { SnackBarType } from './util/snackbar-notifier';
 import Header from './components/header/header';
@@ -130,6 +131,16 @@ export default class App extends Component {
               path="/users/new"
               render={() => (
                 <UserEditRoute globalState={this.globalState} userId="new" />
+              )}
+            />
+            <Route
+              exact
+              path="/users/:uid"
+              render={({ match }) => (
+                <UserDetailsRoute
+                  globalState={this.globalState}
+                  userId={match.params.uid}
+                />
               )}
             />
             <Route

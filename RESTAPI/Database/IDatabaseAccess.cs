@@ -10,8 +10,9 @@ namespace RESTAPI.Database
         Task Put<T>(T obj) where T : UniqueModel;
         Task<T> Get<T>(Guid uid) where T : UniqueModel, new();
         Task Delete<T>(Guid uid) where T : UniqueModel, new();
-        Task<long> Count<T>() where T : UniqueModel, new();
         Task Update<T>(T obj) where T : UniqueModel;
+        Task<long> Count<T>() where T : UniqueModel, new();
+        Task<long> Count<T>(string field, string value) where T : UniqueModel, new();
 
         Task<UserModel?> GetUserByUserName(string username);
         Task<TagModel?> GetTagByName(string name);

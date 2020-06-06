@@ -45,6 +45,14 @@ namespace RESTAPI.Database
             return res.Count;
         }
 
+        public async Task<long> Count<T>(string field, string value) where T : UniqueModel, new()
+        {
+            var res = await client.CountAsync<T>(idx => idx
+                .Index(new T().Index).Query(q => q.
+                    MatchPhrase(t => t.Field(field).Query(value))));
+            return res.Count;
+        }
+
         public Task Update<T>(T obj) where T : UniqueModel =>
             client.UpdateAsync<T, object>(obj.Uid, s => s
                 .Index(obj.Index)

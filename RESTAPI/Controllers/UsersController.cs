@@ -86,7 +86,7 @@ namespace RESTAPI.Controllers
         [HttpGet("{ident}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<UserModel>> GetUser([FromRoute] string ident)
+        public async Task<ActionResult<UserDetailsModel>> GetUser([FromRoute] string ident)
         {
             UserModel user;
 
@@ -101,7 +101,10 @@ namespace RESTAPI.Controllers
             if (user == null)
                 return NotFound();
 
-            return Ok(user);
+            var detailedUser = new UserDetailsModel(user);
+            detailedUser.ImagesCount = await database.Count<ImageModel>("ownerUid", user.Uid.ToString());
+
+            return Ok(detailedUser);
         }
 
         // -------------------------------------------------------------------------
@@ -110,7 +113,7 @@ namespace RESTAPI.Controllers
         [HttpGet("@me")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
-        public Task<ActionResult<UserModel>> GetSelfUser() =>
+        public Task<ActionResult<UserDetailsModel>> GetSelfUser() =>
             GetUser(authClaims.User?.Uid.ToString());
 
         // -------------------------------------------------------------------------
