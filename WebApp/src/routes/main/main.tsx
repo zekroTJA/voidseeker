@@ -37,6 +37,8 @@ class MainRoute extends Component<MainRouteProps> {
         this.fetchImages();
       }
     );
+
+    this.fromQueryParams();
   }
 
   public render() {
@@ -58,6 +60,7 @@ class MainRoute extends Component<MainRouteProps> {
       <div>
         <div className="main-controls">
           <input
+            id="main-control-searchbar"
             placeholder="search"
             onChange={(v) => this.onSearch(v.target.value)}
           />
@@ -145,6 +148,7 @@ class MainRoute extends Component<MainRouteProps> {
         false // ascending
       );
       this.setState({});
+      this.setQueryParams();
     } catch {}
   }
 
@@ -157,6 +161,51 @@ class MainRoute extends Component<MainRouteProps> {
     this.setState({ offset }, () => {
       this.fetchImages();
     });
+  }
+
+  private setQueryParams() {
+    const params = new URLSearchParams();
+
+    params.append('explicit', JSON.stringify(this.state.includeExplicit));
+    params.append('public', JSON.stringify(this.state.includePublic));
+
+    if (this.state.filter) {
+      params.append('filter', this.state.filter);
+    }
+
+    this.state.excludes.forEach((ex) => params.append('exclude', ex));
+
+    this.props.history.replace({
+      search: params.toString(),
+    });
+  }
+
+  private fromQueryParams(cb: () => void = () => {}) {
+    const params = new URLSearchParams(this.props.location.search);
+    const searchInput = (document.getElementById(
+      'main-control-searchbar'
+    ) as HTMLInputElement) || { value: null };
+
+    const includeExplicit = JSON.parse(params.get('explicit') || 'null');
+    const includePublic = JSON.parse(params.get('public') || 'null');
+    const filter = params.get('filter');
+    const excludes = params.getAll('exclude');
+
+    const state: { [key: string]: any } = {};
+    if (includeExplicit !== null) state.includeExplicit = includeExplicit;
+    if (includePublic !== null) state.includePublic = includePublic;
+
+    if (filter !== null) {
+      state.filter = filter;
+      searchInput.value = filter;
+    }
+
+    if (excludes.length > 0) {
+      state.excludes = excludes;
+      searchInput.value += ` ${excludes.map((e) => `-${e}`).join(' ')}`;
+    }
+
+    this.setState(state, cb);
   }
 }
 
