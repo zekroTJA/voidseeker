@@ -4,10 +4,20 @@ import React, { Component } from 'react';
 import { withRouter, RouteComponentProps, NavLink } from 'react-router-dom';
 import GlobalState from '../../util/globalstate';
 import { RestAPI } from '../../api/restapi';
-
-import './main.scss';
 import InputLimiter from '../../util/inputlimier';
 import LocalStorage from '../../util/localstorage';
+
+import './main.scss';
+import ObjectUtils from '../../util/objects';
+
+const SORT_OPTIONS = {
+  'File Name': 'filename',
+  'Title': 'title',
+  'Description': 'description',
+  'Size': 'size',
+  'Grade': 'grade',
+  'Created': 'created',
+};
 
 interface MainRouteProps extends RouteComponentProps {
   globalState: GlobalState;
@@ -21,6 +31,8 @@ class MainRoute extends Component<MainRouteProps> {
     includePublic: false,
     offset: 0,
     size: 100,
+    sortBy: 'created',
+    ascending: false,
   };
 
   private searchLimiter = new InputLimiter(300);
@@ -32,6 +44,8 @@ class MainRoute extends Component<MainRouteProps> {
       {
         includeExplicit: LocalStorage.get<boolean>('include_explicit', false),
         includePublic: LocalStorage.get<boolean>('include_public', false),
+        sortBy: LocalStorage.get<string>('sort_by', 'created'),
+        ascending: LocalStorage.get<boolean>('sort_ascending', false),
       },
       () => {
         this.fetchImages();
@@ -54,6 +68,12 @@ class MainRoute extends Component<MainRouteProps> {
           />
         </NavLink>
       </span>
+    ));
+
+    const sortOptions = ObjectUtils.objectMap(SORT_OPTIONS, (k, v) => (
+      <option key={k} value={v}>
+        {k}
+      </option>
     ));
 
     return (
@@ -81,6 +101,19 @@ class MainRoute extends Component<MainRouteProps> {
               onChange={() => this.onIncludePublicChange()}
             />
             <label htmlFor="main-control-public">Display public</label>
+          </div>
+          <div>
+            <label htmlFor="main-sort-by">Sort by: </label>
+            <select
+              id="main-sort-by"
+              value={this.state.sortBy}
+              onChange={(v) => this.onSortByChange(v.target.value)}
+            >
+              {sortOptions}
+            </select>
+            <button className="ml-10" onClick={() => this.onAscendingChange()}>
+              {this.state.ascending ? '▲' : '▼'}
+            </button>
           </div>
           <div className="main-page-dialer">
             <button
@@ -135,6 +168,20 @@ class MainRoute extends Component<MainRouteProps> {
     });
   }
 
+  private async onSortByChange(sortBy: string) {
+    this.setState({ sortBy }, () => {
+      LocalStorage.set<string>('sort_by', this.state.sortBy);
+      this.fetchImages();
+    });
+  }
+
+  private async onAscendingChange() {
+    this.setState({ ascending: !this.state.ascending }, () => {
+      LocalStorage.set<boolean>('sort_ascending', this.state.ascending);
+      this.fetchImages();
+    });
+  }
+
   private async fetchImages() {
     try {
       this.props.globalState.images = await RestAPI.images(
@@ -144,8 +191,8 @@ class MainRoute extends Component<MainRouteProps> {
         this.state.size, // limit
         this.state.filter, // filter
         this.state.excludes, // excludes
-        'created', // sort by
-        false // ascending
+        this.state.sortBy, // sort by
+        this.state.ascending // ascending
       );
       this.setState({});
       this.setQueryParams();
@@ -175,6 +222,9 @@ class MainRoute extends Component<MainRouteProps> {
 
     this.state.excludes.forEach((ex) => params.append('exclude', ex));
 
+    params.append('sortBy', this.state.sortBy);
+    params.append('ascending', JSON.stringify(this.state.ascending));
+
     this.props.history.replace({
       search: params.toString(),
     });
@@ -188,12 +238,16 @@ class MainRoute extends Component<MainRouteProps> {
 
     const includeExplicit = JSON.parse(params.get('explicit') || 'null');
     const includePublic = JSON.parse(params.get('public') || 'null');
+    const ascending = JSON.parse(params.get('ascending') || 'null');
     const filter = params.get('filter');
+    const sortBy = params.get('sortBy');
     const excludes = params.getAll('exclude');
 
     const state: { [key: string]: any } = {};
     if (includeExplicit !== null) state.includeExplicit = includeExplicit;
     if (includePublic !== null) state.includePublic = includePublic;
+    if (sortBy !== null) state.sortBy = sortBy;
+    if (ascending !== null) state.ascending = ascending;
 
     if (filter !== null) {
       state.filter = filter;

@@ -60,7 +60,7 @@ class ImageEditRoute extends Component<ImageEditRouteProps> {
               />
               <button
                 className="upload-submit-btn"
-                onClick={this.onUpload.bind(this)}
+                onClick={this.onSave.bind(this)}
               >
                 SAVE
               </button>
@@ -71,9 +71,7 @@ class ImageEditRoute extends Component<ImageEditRouteProps> {
     );
   }
 
-  private async onUpload() {
-    console.log('state explicit: ', this.state.image.explicit);
-    console.log('state public: ', this.state.image.public);
+  private async onSave() {
     try {
       await RestAPI.updateImageInfo(this.state.image.uid, this.state.image);
       SnackBarNotifier.show(
@@ -81,7 +79,7 @@ class ImageEditRoute extends Component<ImageEditRouteProps> {
         SnackBarType.SUCCESS,
         4000
       );
-      this.props.history.push('/images');
+      this.props.history.push(`/images/${this.state.image.uid}`);
     } catch {}
   }
 

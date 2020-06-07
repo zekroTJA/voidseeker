@@ -113,7 +113,6 @@ export class RestAPI {
   public static uploadImage(file: File): Promise<ImageModel> {
     const formData = new FormData();
     formData.append('file', file);
-    console.log(formData);
     return this.req('PUT', 'images', formData, 'multipart/form-data');
   }
 
