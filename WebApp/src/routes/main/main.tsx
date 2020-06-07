@@ -11,12 +11,12 @@ import './main.scss';
 import ObjectUtils from '../../util/objects';
 
 const SORT_OPTIONS = {
-  'File Name': 'filename',
-  'Title': 'title',
-  'Description': 'description',
-  'Size': 'size',
-  'Grade': 'grade',
-  'Created': 'created',
+  // 'File Name': 'filename',
+  // 'Title': 'title',
+  // 'Description': 'description',
+  Size: 'size',
+  Grade: 'grade',
+  Created: 'created',
 };
 
 interface MainRouteProps extends RouteComponentProps {
