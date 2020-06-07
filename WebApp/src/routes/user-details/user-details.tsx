@@ -7,9 +7,9 @@ import { RestAPI } from '../../api/restapi';
 import Container from '../../components/container/container';
 import { UserModel } from '../../api/models/user';
 import moment from 'moment';
+import Consts from '../../consts';
 
 import './user-details.scss';
-import Consts from '../../consts';
 
 interface UserDetailsRouteProps extends RouteComponentProps {
   globalState: GlobalState;

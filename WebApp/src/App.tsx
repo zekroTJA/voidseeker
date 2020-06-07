@@ -13,6 +13,7 @@ import UploadRoute from './routes/upload/upload';
 import AdminRoute from './routes/admin/admin';
 import UserEditRoute from './routes/user-edit/user-edit';
 import UserDetailsRoute from './routes/user-details/user-details';
+import TagsRoute from './routes/tags/tags';
 import SnackBar from './components/snackbar/snackbar';
 import SnackBarNotifier, { SnackBarType } from './util/snackbar-notifier';
 import Header from './components/header/header';
@@ -152,6 +153,11 @@ export default class App extends Component {
                   userId={match.params.uid}
                 />
               )}
+            />
+            <Route
+              exact
+              path="/tags"
+              render={() => <TagsRoute globalState={this.globalState} />}
             />
             <Route
               exact

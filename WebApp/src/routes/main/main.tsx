@@ -6,9 +6,9 @@ import GlobalState from '../../util/globalstate';
 import { RestAPI } from '../../api/restapi';
 import InputLimiter from '../../util/inputlimier';
 import LocalStorage from '../../util/localstorage';
+import ObjectUtils from '../../util/objects';
 
 import './main.scss';
-import ObjectUtils from '../../util/objects';
 
 const SORT_OPTIONS = {
   // 'File Name': 'filename',
