@@ -85,6 +85,7 @@ export default class App extends Component {
             onUpload={this.onUpload.bind(this)}
             onMyProfile={this.onMyProfile.bind(this)}
             onAdmin={this.onAdmin.bind(this)}
+            onTags={this.onTags.bind(this)}
           />
         )}
 
@@ -200,5 +201,9 @@ export default class App extends Component {
 
   private onAdmin() {
     this.redirect('/admin');
+  }
+
+  private onTags() {
+    this.redirect('/tags');
   }
 }

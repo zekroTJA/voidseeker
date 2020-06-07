@@ -12,6 +12,7 @@ interface HeaderPorps {
   onMyProfile?: () => void;
   onAdmin?: () => void;
   onHome?: () => void;
+  onTags?: () => void;
 }
 
 export default class Header extends Component<HeaderPorps> {
@@ -31,6 +32,7 @@ export default class Header extends Component<HeaderPorps> {
           <button onClick={() => this.props.onUpload?.call(this)}>
             Upload
           </button>
+          <button onClick={() => this.props.onTags?.call(this)}>Tags</button>
           <button onClick={() => this.props.onMyProfile?.call(this)}>
             My Profile
           </button>
