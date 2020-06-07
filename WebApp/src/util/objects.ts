@@ -14,4 +14,22 @@ export default class ObjectUtils {
 
     return keys.map((k, i) => [k, values[i]]);
   }
+
+  public static objectForEach<TVal>(
+    obj: { [key: string]: TVal },
+    cb: (key: string, val: TVal) => void
+  ) {
+    Object.keys(obj).forEach((k) => {
+      cb(k, obj[k]);
+    });
+  }
+
+  public static objectMap<TVal, TRes>(
+    obj: { [key: string]: TVal },
+    cb: (key: string, val: TVal) => TRes
+  ): TRes[] {
+    const res: TRes[] = [];
+    this.objectForEach(obj, (k, v) => res.push(cb(k, v)));
+    return res;
+  }
 }
