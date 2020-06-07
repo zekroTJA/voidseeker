@@ -72,5 +72,24 @@ namespace RESTAPI.Controllers
 
             return Ok(tag);
         }
+
+        // -------------------------------------------------------------------------
+        // --- DELETE /api/tags/:uid ---
+
+        [HttpDelete("{uid}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(404)]
+        [AdminOnly]
+        public async Task<ActionResult> Delete([FromRoute] Guid uid)
+        {
+            var tag = await database.Get<TagModel>(uid);
+            if (tag == null)
+                return NotFound();
+
+            await database.Delete<TagModel>(uid);
+
+            return Ok();
+        }
     }
 }

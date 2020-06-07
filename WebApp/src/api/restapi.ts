@@ -158,6 +158,10 @@ export class RestAPI {
     return this.get(`tags/${ident}`);
   }
 
+  public static deleteTag(uid: string): Promise<any> {
+    return this.delete(`tags/${uid}`);
+  }
+
   // ------------------------------------------------------------
   // --- HELPERS ---
 

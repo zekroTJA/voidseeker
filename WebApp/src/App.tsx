@@ -13,6 +13,7 @@ import UploadRoute from './routes/upload/upload';
 import AdminRoute from './routes/admin/admin';
 import UserEditRoute from './routes/user-edit/user-edit';
 import UserDetailsRoute from './routes/user-details/user-details';
+import TagsRoute from './routes/tags/tags';
 import SnackBar from './components/snackbar/snackbar';
 import SnackBarNotifier, { SnackBarType } from './util/snackbar-notifier';
 import Header from './components/header/header';
@@ -84,6 +85,7 @@ export default class App extends Component {
             onUpload={this.onUpload.bind(this)}
             onMyProfile={this.onMyProfile.bind(this)}
             onAdmin={this.onAdmin.bind(this)}
+            onTags={this.onTags.bind(this)}
           />
         )}
 
@@ -155,6 +157,11 @@ export default class App extends Component {
             />
             <Route
               exact
+              path="/tags"
+              render={() => <TagsRoute globalState={this.globalState} />}
+            />
+            <Route
+              exact
               path="/admin"
               render={() => <AdminRoute globalState={this.globalState} />}
             />
@@ -194,5 +201,9 @@ export default class App extends Component {
 
   private onAdmin() {
     this.redirect('/admin');
+  }
+
+  private onTags() {
+    this.redirect('/tags');
   }
 }

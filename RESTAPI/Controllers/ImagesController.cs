@@ -15,7 +15,6 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net.Mime;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 namespace RESTAPI.Controllers
@@ -154,7 +153,7 @@ namespace RESTAPI.Controllers
 
             await database.Update(image);
             if (tagsUpdated)
-                await SaveTags(image);
+                await SaveTags(image, authClaims.UserId);
 
             return Ok(image);
         }
@@ -269,13 +268,13 @@ namespace RESTAPI.Controllers
         private string GetCacheImageKey(Guid uid) =>
             $"image:create:{uid.ToString()}";
 
-        private async Task SaveTags(ImageModel image)
+        private async Task SaveTags(ImageModel image, Guid creator)
         {
             foreach (var t in image.TagsArray)
             {
                 if ((await database.GetTagByName(t)) == null)
                 {
-                    await database.Put(new TagModel() { Name = t });
+                    await database.Put(new TagModel() { Name = t, CreatorUid = creator });
                 }
             }
         }

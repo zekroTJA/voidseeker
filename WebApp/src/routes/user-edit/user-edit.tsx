@@ -5,11 +5,11 @@ import { RouteComponentProps, withRouter } from 'react-router-dom';
 import GlobalState from '../../util/globalstate';
 import { UserCreateModel } from '../../api/models/user';
 import { RestAPI } from '../../api/restapi';
-
-import './user-edit.scss';
 import Container from '../../components/container/container';
 import UserEditor from '../../components/usereditor/usereditor';
 import SnackBarNotifier, { SnackBarType } from '../../util/snackbar-notifier';
+
+import './user-edit.scss';
 
 interface UserEditRouteProps extends RouteComponentProps {
   globalState: GlobalState;
