@@ -7,6 +7,7 @@ using Microsoft.OpenApi.Models;
 using RESTAPI.Authorization;
 using RESTAPI.Cache;
 using RESTAPI.Database;
+using RESTAPI.Export;
 using RESTAPI.Hashing;
 using RESTAPI.Storage;
 using System;
@@ -33,6 +34,7 @@ namespace RESTAPI
                 .AddSingleton<IAuthorization, JWTAuthorization>()
                 .AddSingleton<IHasher, Argon2Hasher>()
                 .AddSingleton<ICacheProvider>(new InternalCacheProvider(TimeSpan.FromMinutes(10)))
+                .AddSingleton<IExportWorkerHandler, ExportWorkerHandler>()
                 ;
 
             services.AddSwaggerGen(options =>

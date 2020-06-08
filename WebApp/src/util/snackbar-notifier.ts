@@ -16,6 +16,7 @@ export interface SnackBarEvent {
 }
 
 export default class SnackBarNotifier {
+  public static enabled = true;
   public static readonly events = new EventEmitter();
 
   public static show(
@@ -23,6 +24,7 @@ export default class SnackBarNotifier {
     type: SnackBarType = SnackBarType.INFO,
     duration: number = 5000
   ) {
+    if (!this.enabled) return;
     this.events.emit('show', { content, type, duration } as SnackBarEvent);
   }
 

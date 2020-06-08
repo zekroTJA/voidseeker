@@ -11,6 +11,7 @@ import ImageDetailsRoute from './routes/image-details/image-details';
 import ImageEditRoute from './routes/image-edit/image-edit';
 import UploadRoute from './routes/upload/upload';
 import AdminRoute from './routes/admin/admin';
+import ExportRoute from './routes/export/export';
 import UserEditRoute from './routes/user-edit/user-edit';
 import UserDetailsRoute from './routes/user-details/user-details';
 import TagsRoute from './routes/tags/tags';
@@ -159,6 +160,11 @@ export default class App extends Component {
               exact
               path="/tags"
               render={() => <TagsRoute globalState={this.globalState} />}
+            />
+            <Route
+              exact
+              path="/export"
+              render={() => <ExportRoute globalState={this.globalState} />}
             />
             <Route
               exact

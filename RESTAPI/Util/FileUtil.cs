@@ -10,5 +10,15 @@
 
             return fileName.Substring(i + 1);
         }
+
+        public static string GetFileExtensionByContentType(string contentType)
+        {
+            contentType = contentType.ToLower();
+
+            if (!Constants.FILE_EXTENSIONS_BY_CONTENT_TYPE.ContainsKey(contentType))
+                return "unknown";
+
+            return Constants.FILE_EXTENSIONS_BY_CONTENT_TYPE[contentType];
+        }
     }
 }

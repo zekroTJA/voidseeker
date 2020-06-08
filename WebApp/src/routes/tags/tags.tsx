@@ -34,12 +34,12 @@ class TagsRoute extends Component<TagsRouteProps> {
       <div className="tags-element">
         <NavLink to={`/images?filter=${t.name}`}>{t.name}</NavLink>
         {this.state.isAdmin && (
-          <a
+          <button
             className="tags-element-delete"
             onClick={() => this.onTagDelete(t)}
           >
             X
-          </a>
+          </button>
         )}
       </div>
     ));

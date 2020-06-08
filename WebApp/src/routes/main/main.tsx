@@ -9,6 +9,8 @@ import LocalStorage from '../../util/localstorage';
 import ObjectUtils from '../../util/objects';
 
 import './main.scss';
+import Modal from '../../components/modal/modal';
+import SnackBarNotifier from '../../util/snackbar-notifier';
 
 const SORT_OPTIONS = {
   // 'File Name': 'filename',
@@ -33,6 +35,7 @@ class MainRoute extends Component<MainRouteProps> {
     size: 100,
     sortBy: 'created',
     ascending: false,
+    showExportModal: false,
   };
 
   private searchLimiter = new InputLimiter(300);
@@ -78,6 +81,7 @@ class MainRoute extends Component<MainRouteProps> {
 
     return (
       <div>
+        {this.state.showExportModal && this.exportModal}
         <div className="main-controls">
           <input
             id="main-control-searchbar"
@@ -115,6 +119,13 @@ class MainRoute extends Component<MainRouteProps> {
               {this.state.ascending ? '▲' : '▼'}
             </button>
           </div>
+          <a
+            href="#"
+            className="main-export-link"
+            onClick={() => this.onExportLink()}
+          >
+            Export results
+          </a>
           <div className="main-page-dialer">
             <button
               disabled={this.state.offset === 0}
@@ -135,6 +146,30 @@ class MainRoute extends Component<MainRouteProps> {
         </div>
         <div className="main-image-grid">{imgs}</div>
       </div>
+    );
+  }
+
+  private get exportModal(): JSX.Element {
+    return (
+      <Modal onClose={() => this.setState({ showExportModal: false })}>
+        <span>
+          Do you really want to export <strong>all</strong> results of the
+          applied filter?
+          <br />
+          The creation of the bundle will be created in the background and can
+          then be downloaded on clicking on this link again.
+        </span>
+        <div className="main-modal-controls">
+          <button onClick={() => this.setState({ showExportModal: false })}>
+            Cancel
+          </button>
+          <button>
+            <strong onClick={() => this.onExportResults()}>
+              Start export bundling
+            </strong>
+          </button>
+        </div>
+      </Modal>
     );
   }
 
@@ -180,6 +215,31 @@ class MainRoute extends Component<MainRouteProps> {
       LocalStorage.set<boolean>('sort_ascending', this.state.ascending);
       this.fetchImages();
     });
+  }
+
+  private async onExportLink() {
+    // TODO: Dirty, maybe implement better method to
+    // bypass error snackbar
+    SnackBarNotifier.enabled = false;
+    setTimeout(() => (SnackBarNotifier.enabled = true), 1000);
+    try {
+      await RestAPI.statusExport();
+      this.props.history.push('/export');
+    } catch {
+      this.setState({ showExportModal: true });
+    }
+  }
+
+  private async onExportResults() {
+    try {
+      await RestAPI.initializeExport(
+        this.state.includePublic,
+        this.state.includeExplicit,
+        this.state.filter,
+        this.state.excludes
+      );
+      this.props.history.push('/export');
+    } catch {}
   }
 
   private async fetchImages() {
