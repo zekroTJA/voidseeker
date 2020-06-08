@@ -3,6 +3,7 @@ using RESTAPI.Authorization;
 using RESTAPI.Database;
 using RESTAPI.Export;
 using RESTAPI.Filter;
+using RESTAPI.Models;
 using RESTAPI.Models.Responses;
 using System.IO;
 using System.Net.Mime;
@@ -46,8 +47,10 @@ namespace RESTAPI.Controllers
             if (workerHandler.HasWorker(authClaims.UserId))
                 return BadRequest(new ErrorModel(400, "already initialized"));
 
+            var count = await database.Count<ImageModel>();
+
             var res = await database.SearchImages(
-                0, -1, filter, exclude, authClaims.UserId, includePublic, includeExplicit);
+                0, (int)count, filter, exclude, authClaims.UserId, includePublic, includeExplicit);
 
             var worker = workerHandler.InitializeWorker(authClaims.UserId, res);
 
