@@ -37,3 +37,21 @@
     margin: 5px;
   }
 }
+
+.main-export-link {
+  margin-left: 15px;
+  font-size: 14px;
+}
+
+.main-modal-controls {
+  display: flex;
+  margin-top: 10px;
+
+  > * {
+    margin-left: 10px;
+
+    &:first-child {
+      margin-left: auto;
+    }
+  }
+}

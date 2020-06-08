@@ -6,6 +6,7 @@ import { UserCreateModel, UserModel } from './models/user';
 import PageModel from './models/page';
 import ImageModel from './models/image';
 import { TagModel } from './models/tag';
+import { WorkerStatus } from './models/worker';
 
 const PREFIX =
   process.env.NODE_ENV === 'development'
@@ -163,9 +164,37 @@ export class RestAPI {
   }
 
   // ------------------------------------------------------------
+  // --- EXPORT ---
+
+  public static initializeExport(
+    includePublic = false,
+    includeExplicit = false,
+    filter = '',
+    excludes: string[] = []
+  ): Promise<WorkerStatus> {
+    const excludesQuery = excludes.map((v) => `&exclude=${v}`).join('');
+    const filterQuery = !!filter ? `&filter=${filter}` : '';
+    return this.post(
+      `export/initialize?includePublic=${includePublic}&includeExplicit=${includeExplicit}${filterQuery}${excludesQuery}`
+    );
+  }
+
+  public static statusExport(): Promise<WorkerStatus> {
+    return this.get(`export/status`);
+  }
+
+  public static cancelExport(): Promise<any> {
+    return this.delete(`export`);
+  }
+
+  public static exportDownloadLink(): string {
+    return `${PREFIX}/export/download`;
+  }
+
+  // ------------------------------------------------------------
   // --- HELPERS ---
 
-  private static get<T>(path: string): Promise<T> {
+  public static get<T>(path: string): Promise<T> {
     return this.req<T>('GET', path, undefined);
   }
 

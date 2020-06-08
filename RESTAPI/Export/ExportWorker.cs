@@ -35,6 +35,7 @@ namespace RESTAPI.Export
         [JsonIgnore]
         public string ArchiveFilePath { get; set; }
 
+
         private readonly IStorageProvider storage;
         private readonly string location;
         private readonly List<ImageModel> images;
