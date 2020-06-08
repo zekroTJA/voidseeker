@@ -132,8 +132,10 @@ namespace RESTAPI.Database
             {
                 desc.Index(new ImageModel().Index)
                     .Sort(s => ascending ? s.Ascending(sortBy) : s.Descending(sortBy))
-                    .Skip(offset)
-                    .Size(size);
+                    .Skip(offset);
+
+                if (size > -1)
+                    desc.Size(size);
 
                 desc.Query(query =>
                 {

@@ -503,5 +503,6 @@ thumb
 sketch
 
 appsettings.Development.json
+tmp/
 
 # End of https://www.gitignore.io/api/react,csharp,dotnetcore,aspnetcore
