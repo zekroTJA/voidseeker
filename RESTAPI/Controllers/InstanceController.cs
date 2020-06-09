@@ -11,6 +11,16 @@ using System.Threading.Tasks;
 
 namespace RESTAPI.Controllers
 {
+    /// <summary>
+    /// 
+    /// INSTANCE CONTROLLER
+    /// /api/instance
+    /// 
+    /// Provides endpoints for checking the
+    /// instance status and initializing the
+    /// instance on first startup.
+    /// 
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [ProxyAddress]
@@ -18,8 +28,10 @@ namespace RESTAPI.Controllers
     [Consumes(MediaTypeNames.Application.Json)]
     public class InstanceController : ControllerBase
     {
+        // --- Injected by DI ---------------------
         private readonly IDatabaseAccess database;
         private readonly IHasher hasher;
+        // ----------------------------------------
 
         public InstanceController(IDatabaseAccess _database, IHasher _hasher)
         {

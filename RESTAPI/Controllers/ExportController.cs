@@ -11,6 +11,17 @@ using System.Threading.Tasks;
 
 namespace RESTAPI.Controllers
 {
+    /// <summary>
+    /// 
+    /// EXPORT CONTROLLER
+    /// /api/export
+    /// 
+    /// Provides endpoints for initializing
+    /// image export workers, checking their
+    /// status download the generated bundle
+    /// or cancel and cleanup the workers.
+    /// 
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [ProxyAddress]
@@ -20,9 +31,12 @@ namespace RESTAPI.Controllers
     [TypeFilter(typeof(AuthorizationRequired))]
     public class ExportController : ControllerBase, IAuthorizedController
     {
-        private AuthClaims authClaims;
+        // --- Injected by DI -------------------------------
         private readonly IDatabaseAccess database;
         private readonly IExportWorkerHandler workerHandler;
+        // --------------------------------------------------
+
+        private AuthClaims authClaims;
 
         public AuthClaims GetAuthClaims() => authClaims;
 
@@ -44,15 +58,15 @@ namespace RESTAPI.Controllers
             [FromQuery] bool includePublic = false,
             [FromQuery] bool includeExplicit = false)
         {
-            if (workerHandler.HasWorker(authClaims.UserId))
+            if (workerHandler.HasWorker(authClaims.UserUid))
                 return BadRequest(new ErrorModel(400, "already initialized"));
 
             var count = await database.Count<ImageModel>();
 
             var res = await database.SearchImages(
-                0, (int)count, filter, exclude, authClaims.UserId, includePublic, includeExplicit);
+                0, (int)count, filter, exclude, authClaims.UserUid, includePublic, includeExplicit);
 
-            var worker = workerHandler.InitializeWorker(authClaims.UserId, res);
+            var worker = workerHandler.InitializeWorker(authClaims.UserUid, res);
 
             return Created("worker", worker);
         }
@@ -62,7 +76,7 @@ namespace RESTAPI.Controllers
         [ProducesResponseType(400)]
         public ActionResult<ExportWorker> Status()
         {
-            if (!workerHandler.TryGetWorker(authClaims.UserId, out var worker))
+            if (!workerHandler.TryGetWorker(authClaims.UserUid, out var worker))
                 return BadRequest(new ErrorModel(400, "not initialized"));
 
             return Ok(worker);
@@ -73,7 +87,7 @@ namespace RESTAPI.Controllers
         [ProducesResponseType(400)]
         public ActionResult Download()
         {
-            if (!workerHandler.TryGetWorker(authClaims.UserId, out var worker))
+            if (!workerHandler.TryGetWorker(authClaims.UserUid, out var worker))
                 return BadRequest(new ErrorModel(400, "not initialized"));
 
             if (!worker.Finished)
@@ -88,10 +102,10 @@ namespace RESTAPI.Controllers
         [ProducesResponseType(400)]
         public ActionResult Remove()
         {
-            if (!workerHandler.TryGetWorker(authClaims.UserId, out var worker))
+            if (!workerHandler.TryGetWorker(authClaims.UserUid, out var worker))
                 return BadRequest(new ErrorModel(400, "not initialized"));
 
-            workerHandler.DestroyWorker(authClaims.UserId);
+            workerHandler.DestroyWorker(authClaims.UserUid);
             return Ok();
         }
     }

@@ -6,10 +6,17 @@ export enum WorkerStatus {
   COLLECTING,
   PACKING,
   CLEANUP,
+  ERRORED,
+}
+
+export interface WorkerExceptionModel {
+  message: string;
+  source: string;
 }
 
 export default interface WorkerModel {
   expires: Date;
   finished: boolean;
   status: WorkerStatus;
+  exception: WorkerExceptionModel;
 }

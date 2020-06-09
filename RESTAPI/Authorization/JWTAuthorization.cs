@@ -11,8 +11,8 @@ using System.Text;
 namespace RESTAPI.Authorization
 {
     /// <summary>
-    /// Provides Authoriation functionalities using
-    /// Jason Web Tokens.
+    /// Implementation of the <see cref="IAuthorization"/> interface
+    /// using JSON Web Tokens.
     /// </summary>
     public class JWTAuthorization : IAuthorization
     {
@@ -25,7 +25,7 @@ namespace RESTAPI.Authorization
 
         /// <summary>
         /// Cretaes a new instance of JWTAuthorization using either
-        /// the passed key as JWT signing key or, if it is null, 
+        /// the configured key as JWT signing key or, if it is null, 
         /// generating a random key on startup used to signing JWTs.
         /// </summary>
         public JWTAuthorization(IConfiguration configuration)
@@ -42,7 +42,7 @@ namespace RESTAPI.Authorization
         public string GetSessionKey(AuthClaims properties, TimeSpan expires)
         {
             var claims = new ClaimsIdentity();
-            claims.AddClaim(new Claim(ClaimTypes.NameIdentifier, properties.UserId.ToString()));
+            claims.AddClaim(new Claim(ClaimTypes.NameIdentifier, properties.UserUid.ToString()));
             claims.AddClaim(new Claim(ClaimTypes.Name, properties.UserName));
 
             var credentials = new SigningCredentials(signingKey, securityAlgorithm);
@@ -78,7 +78,7 @@ namespace RESTAPI.Authorization
 
             return new AuthClaims
             {
-                UserId = Guid.Parse(userId),
+                UserUid = Guid.Parse(userId),
                 UserName = userName
             };
         }

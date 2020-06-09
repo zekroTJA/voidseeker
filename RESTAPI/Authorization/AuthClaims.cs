@@ -5,9 +5,9 @@ using System.Text.Json.Serialization;
 namespace RESTAPI.Authorization
 {
     /// <summary>
-    /// Wraps a username and session ID which needs
-    /// to be saved with a session key and recovered
-    /// by a sesison key.
+    /// Wraps a UserName, UserUid and the fully
+    /// hydrated user model of an authenticted
+    /// user.
     /// </summary>
     public class AuthClaims
     {
@@ -15,7 +15,7 @@ namespace RESTAPI.Authorization
         public string UserName { get; set; }
 
         [JsonPropertyName("userid")]
-        public Guid UserId { get; set; }
+        public Guid UserUid { get; set; }
 
         [JsonIgnore]
         public UserModel? User { get; set; }

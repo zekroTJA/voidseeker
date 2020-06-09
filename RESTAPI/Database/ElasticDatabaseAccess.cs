@@ -10,10 +10,19 @@ using System.Threading.Tasks;
 
 namespace RESTAPI.Database
 {
+    /// <summary>
+    /// Implementation of <see cref="IDatabaseAccess"/> using
+    /// Elasticsearch.
+    /// </summary>
     public class ElasticDatabaseAccess : IDatabaseAccess
     {
         private readonly ElasticClient client;
 
+        /// <summary>
+        /// Initialize new <see cref="ElasticDatabaseAccess"/> instance
+        /// with passed <see cref="IConfiguration"/> values.
+        /// </summary>
+        /// <param name="configuration">configuration</param>
         public ElasticDatabaseAccess(IConfiguration configuration)
         {
             var nodeUrls = new List<string>();
@@ -256,6 +265,13 @@ namespace RESTAPI.Database
         // ------------------------------------------------------------------------------
         // --- HELPER FUNCTIONS ---
 
+        /// <summary>
+        /// Executes an async search which returns, if it fails,
+        /// a null result.
+        /// </summary>
+        /// <typeparam name="T">serach object type</typeparam>
+        /// <param name="selector">search selector</param>
+        /// <returns></returns>
         private async Task<ISearchResponse<T>?> SearchOrNullAsync<T>(Func<SearchDescriptor<T>, ISearchRequest> selector)
             where T : class
         {
@@ -269,6 +285,14 @@ namespace RESTAPI.Database
             }
         }
 
+        /// <summary>
+        /// Executes an async search using <see cref="SearchOrNullAsync{T}(Func{SearchDescriptor{T}, ISearchRequest})"/>
+        /// and matches all results with specified offset and size.
+        /// </summary>
+        /// <typeparam name="T">search object type</typeparam>
+        /// <param name="offset">results offset</param>
+        /// <param name="size">results size</param>
+        /// <returns></returns>
         private Task<ISearchResponse<T>?> SearchMatchAll<T>(int offset, int size) where T : UniqueModel, new() =>
             SearchOrNullAsync<T>(s => s
                 .Index(new T().Index)

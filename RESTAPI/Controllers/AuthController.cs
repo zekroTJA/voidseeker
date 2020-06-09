@@ -12,6 +12,15 @@ using System.Threading.Tasks;
 
 namespace RESTAPI.Controllers
 {
+    /// <summary>
+    /// 
+    /// AUTHORIZATION CONTROLLER
+    /// /api/authorization
+    /// 
+    /// Provides endpoints for logging in and logging
+    /// out using session cookies.
+    /// 
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [ProxyAddress]
@@ -19,9 +28,11 @@ namespace RESTAPI.Controllers
     [Consumes(MediaTypeNames.Application.Json)]
     public class AuthController : ControllerBase
     {
+        // --- Injected by DI -------------------------
         private readonly IAuthorization authorization;
         private readonly IDatabaseAccess database;
         private readonly IHasher hasher;
+        // --------------------------------------------
 
         private static readonly TimeSpan DEFAULT_SESSION_EXPIRATION = TimeSpan.FromDays(1);
         private static readonly TimeSpan EXTENDED_SESSION_EXPIRATION = TimeSpan.FromDays(30);
@@ -56,7 +67,7 @@ namespace RESTAPI.Controllers
 
             var claims = new AuthClaims()
             {
-                UserId = user.Uid,
+                UserUid = user.Uid,
                 UserName = user.UserName,
             };
 

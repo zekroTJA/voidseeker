@@ -11,6 +11,15 @@ using System.Threading.Tasks;
 
 namespace RESTAPI.Controllers
 {
+    /// <summary>
+    /// 
+    /// TAGS CONTROLLER
+    /// /api/tags
+    /// 
+    /// Provides endpoints for searching tags,
+    /// getting tags metadata and deleting tags.
+    /// 
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [ProxyAddress]
@@ -20,7 +29,9 @@ namespace RESTAPI.Controllers
     [TypeFilter(typeof(AuthorizationRequired))]
     public class TagsController : ControllerBase, IAuthorizedController
     {
+        // --- Injected by DI ---------------------
         private readonly IDatabaseAccess database;
+        // ----------------------------------------
 
         private AuthClaims authClaims;
 
