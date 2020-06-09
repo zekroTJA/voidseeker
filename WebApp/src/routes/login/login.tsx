@@ -39,12 +39,14 @@ class LoginRoute extends Component<LoginRouteProps> {
             type="text"
             value={this.state.username}
             onChange={(e) => this.setState({ username: e.target.value })}
+            onKeyPress={this.onKeyPress.bind(this)}
           />
           <input
             placeholder="Password"
             type="password"
             value={this.state.password}
             onChange={(e) => this.setState({ password: e.target.value })}
+            onKeyPress={this.onKeyPress.bind(this)}
           />
           <div className="cb-container mb-10">
             <input
@@ -64,6 +66,12 @@ class LoginRoute extends Component<LoginRouteProps> {
         </Container>
       </div>
     );
+  }
+
+  private async onKeyPress(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === 'Enter') {
+      await this.onLogin();
+    }
   }
 
   private async onLogin() {

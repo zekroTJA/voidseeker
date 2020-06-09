@@ -21,6 +21,7 @@ code {
 input, textarea, select {
   padding: 5px;
   transition: all .25s ease;
+  border: solid 1px black;
 }
 
 button {
@@ -83,6 +84,16 @@ h1, h2, h3, h4, h5 {
 .highlight-red {
   background-color: rgba(255, 0, 0, 0.25);
   padding: 1px 3px;
+}
+
+button.link {
+  color: -webkit-link;
+  cursor: pointer;
+  text-decoration: underline;
+  text-transform: unset;
+  padding: unset;
+  border: unset;
+  outline: none;
 }
 
 .mt-10 {

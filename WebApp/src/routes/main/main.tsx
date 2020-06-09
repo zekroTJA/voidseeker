@@ -119,13 +119,12 @@ class MainRoute extends Component<MainRouteProps> {
               {this.state.ascending ? '▲' : '▼'}
             </button>
           </div>
-          <a
-            href="#"
-            className="main-export-link"
+          <button
+            className="main-export-link link"
             onClick={() => this.onExportLink()}
           >
             Export results
-          </a>
+          </button>
           <div className="main-page-dialer">
             <button
               disabled={this.state.offset === 0}
