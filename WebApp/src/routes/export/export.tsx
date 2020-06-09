@@ -50,6 +50,12 @@ class ExportRoute extends Component<ExportRouteProps> {
                 </a>
               </div>
             )}
+            {this.workerErrored && (
+              <div className="warn-text">
+                {this.state.worker.exception.source}:&nbsp;
+                {this.state.worker.exception.message}
+              </div>
+            )}
             <div className="export-cancel-button">
               <button onClick={() => this.cancelWorker()}>
                 {worker.finished ? 'Delete archive' : 'Cancel Worker'}
@@ -73,6 +79,8 @@ class ExportRoute extends Component<ExportRouteProps> {
         return 'Worker is currently indexing image metadata...';
       case WorkerStatus.PACKING:
         return 'Worker is currently creating the bundle...';
+      case WorkerStatus.ERRORED:
+        return 'Worker errored while processing:';
       default:
         return 'unknown';
     }
@@ -80,6 +88,10 @@ class ExportRoute extends Component<ExportRouteProps> {
 
   private get workerExpires(): string {
     return moment(this.state.worker.expires).fromNow();
+  }
+
+  public get workerErrored(): boolean {
+    return this.state.worker.status === WorkerStatus.ERRORED;
   }
 
   private async fetchWorkerState() {

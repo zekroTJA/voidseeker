@@ -37,7 +37,7 @@ class SettingsRoute extends Component<SettingsRouteProps> {
             <label htmlFor="settings-cb-darktheme">Enable dark theme</label>
           </div>
           {this.state.darkthemeChanged && (
-            <div className="settings-small-info">
+            <div className="settings-small-info warn-text">
               Page needs to be reloaded for the change to take effect.
             </div>
           )}
