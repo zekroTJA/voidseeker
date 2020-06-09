@@ -22,6 +22,7 @@ namespace RESTAPI.Export
         COLLECTING,
         PACKING,
         CLEANUP,
+        ERRORED,
     }
 
     /// <summary>
@@ -43,6 +44,9 @@ namespace RESTAPI.Export
 
         [JsonPropertyName("status")]
         public ExportWorkerStatus Status { get; set; }
+
+        [JsonPropertyName("exception")]
+        public ExportWorkerExceptionModel Exception { get; set; }
 
         [JsonIgnore]
         public string ArchiveFilePath { get; set; }
@@ -76,7 +80,7 @@ namespace RESTAPI.Export
         public void Initialize()
         {
             cancellation = new CancellationTokenSource();
-            Task.Run(Job, cancellation.Token);
+            Task.Run(CatchException(Job), cancellation.Token);
         }
 
         /// <summary>
@@ -89,6 +93,27 @@ namespace RESTAPI.Export
                 cancellation.Cancel();
 
             Directory.Delete(location, true);
+        }
+
+        /// <summary>
+        /// Wrapper function for <see cref="Job"/> which catches
+        /// exceptions, sets the status of the worker to 
+        /// <see cref="ExportWorkerStatus.ERRORED"/> and sets the
+        /// thrown exception as <see cref="Exception"/>.
+        /// </summary>
+        /// <param name="job"></param>
+        /// <returns></returns>
+        private Func<Task> CatchException(Func<Task> job)
+        {
+            return async () =>
+            {
+                try { await job(); }
+                catch (Exception e)
+                {
+                    Exception = new ExportWorkerExceptionModel(e);
+                    Status = ExportWorkerStatus.ERRORED;
+                }
+            };
         }
 
         /// <summary>
