@@ -21,6 +21,7 @@ code {
 input, textarea, select {
   padding: 5px;
   transition: all .25s ease;
+  border: solid 1px black;
 }
 
 button {

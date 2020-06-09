@@ -1,0 +1,52 @@
+@import './colors.scss';
+
+$c-bg-dark: #101011;
+
+body {
+  background-color: $c-bg-dark;
+  color: white;
+}
+
+button {
+  color: white;
+  border-color: white;
+
+  &:disabled {
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+}
+
+input, textarea, select {
+  background-color: transparent;
+  color: white;
+  border-color: white;
+}
+
+a, .link {
+  color: #01adff !important;
+}
+
+select option {
+  background-color: $c-bg-dark;
+}
+
+.header-container {
+  background-color: darken($c-accent, $amount: 40);
+}
+
+.container-element {
+  border-color: white;
+
+  .container-header {
+    border-color: white;
+  }
+}
+
+.tags-element {
+  border-color: white;
+}
+
+.modal-conatiner {
+  background-color: #141414;
+  border-color: white;
+}
