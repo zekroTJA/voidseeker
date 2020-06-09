@@ -4,6 +4,10 @@ Self-hosted image storage, management, indexing and searching utility. Built wit
 
 > This project is currently in a `work-in-progerss` state, so there is a lot of unfinished stuff. ;)
 
+## Screen Shots
+
+![](.github/media/demo.gif)
+
 ## Techniques
 
 voidseeker is split into two main components: a **back end** and a **front end** server.
