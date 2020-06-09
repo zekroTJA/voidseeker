@@ -85,6 +85,16 @@ h1, h2, h3, h4, h5 {
   padding: 1px 3px;
 }
 
+button.link {
+  color: -webkit-link;
+  cursor: pointer;
+  text-decoration: underline;
+  text-transform: unset;
+  padding: unset;
+  border: unset;
+  outline: none;
+}
+
 .mt-10 {
   margin-top: 10px;
 }

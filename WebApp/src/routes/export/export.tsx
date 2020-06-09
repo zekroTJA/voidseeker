@@ -73,6 +73,8 @@ class ExportRoute extends Component<ExportRouteProps> {
         return 'Worker is currently indexing image metadata...';
       case WorkerStatus.PACKING:
         return 'Worker is currently creating the bundle...';
+      default:
+        return 'unknown';
     }
   }
 
