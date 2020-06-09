@@ -12,6 +12,9 @@ using System.Threading.Tasks;
 
 namespace RESTAPI.Export
 {
+    /// <summary>
+    /// <see cref="ExportWorker"/> progress status definitions.
+    /// </summary>
     public enum ExportWorkerStatus
     {
         FINISHED,
@@ -21,6 +24,15 @@ namespace RESTAPI.Export
         CLEANUP,
     }
 
+    /// <summary>
+    /// Provides functionalities to collect image files using
+    /// the specified <see cref="IStorageProvider"/> and sving
+    /// them to the specified location. After that, these are
+    /// bundled to a zip and provided for download.
+    /// 
+    /// This class also provides JSOn-serializable information
+    /// about the worker status.
+    /// </summary>
     public class ExportWorker
     {
         [JsonPropertyName("expires")]
@@ -42,6 +54,13 @@ namespace RESTAPI.Export
 
         private CancellationTokenSource cancellation;
 
+        /// <summary>
+        /// Create new <see cref="ExportWorker"/> instance.
+        /// </summary>
+        /// <param name="_storage">storage provider</param>
+        /// <param name="_images">image list</param>
+        /// <param name="_location">bundling lcoation</param>
+        /// <param name="expiresIn">life span</param>
         public ExportWorker(IStorageProvider _storage, List<ImageModel> _images, string _location, TimeSpan expiresIn)
         {
             storage = _storage;
@@ -51,29 +70,43 @@ namespace RESTAPI.Export
             Expires = DateTime.Now.Add(expiresIn);
         }
 
+        /// <summary>
+        /// Starts the collection worker task in a new thread.
+        /// </summary>
         public void Initialize()
         {
             cancellation = new CancellationTokenSource();
             Task.Run(Job, cancellation.Token);
         }
 
+        /// <summary>
+        /// Cancels the worker task and removes temporary
+        /// files in the bundling location.
+        /// </summary>
         public void Cancel()
         {
             if (cancellation != null)
                 cancellation.Cancel();
 
-            //try
-            //{
-                Directory.Delete(location, true);
-            //} catch { }
+            Directory.Delete(location, true);
         }
 
+        /// <summary>
+        /// Collection task.
+        /// </summary>
+        /// <returns></returns>
         private async Task Job()
         {
             var dataPath = Path.Combine(location, "data");
             var imagesPath = Path.Combine(dataPath, "images");
 
+            // -------------------------------------------------------------------------------------------
+            // --- Create temporary bundling directory.
+
             Directory.CreateDirectory(imagesPath);
+
+            // -------------------------------------------------------------------------------------------
+            // --- Create image index file and write to temp lcoation.
 
             Status = ExportWorkerStatus.INDEXING;
             var indexData = JsonSerializer.Serialize(images, new JsonSerializerOptions
@@ -86,6 +119,9 @@ namespace RESTAPI.Export
             {
                 indexFile.Write(indexData);
             }
+
+            // -------------------------------------------------------------------------------------------
+            // --- Collectlisted images and copy them to the sepcified temp location.
 
             Status = ExportWorkerStatus.COLLECTING;
             foreach (var img in images)
@@ -102,12 +138,21 @@ namespace RESTAPI.Export
                 }
             }
 
+            // -------------------------------------------------------------------------------------------
+            // --- Create zip bundle with index file and image files.
+
             Status = ExportWorkerStatus.PACKING;
             ArchiveFilePath = Path.Combine(location, $"archive.zip");
             ZipFile.CreateFromDirectory(dataPath, ArchiveFilePath);
 
+            // -------------------------------------------------------------------------------------------
+            // --- Delete temp bundling directory.
+
             Status = ExportWorkerStatus.CLEANUP;
             Directory.Delete(dataPath, true);
+
+            // -------------------------------------------------------------------------------------------
+            // --- Finish.
 
             Status = ExportWorkerStatus.FINISHED;
             Finished = true;

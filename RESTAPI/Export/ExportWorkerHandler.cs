@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Configuration;
-using RESTAPI.Database;
 using RESTAPI.Models;
 using RESTAPI.Storage;
 using System;
@@ -10,9 +9,11 @@ using System.Timers;
 
 namespace RESTAPI.Export
 {
+    /// <summary>
+    /// Implementation of <see cref="IExportWorkerHandler"/>.
+    /// </summary>
     public class ExportWorkerHandler : IExportWorkerHandler
     {
-        private readonly IDatabaseAccess database;
         private readonly IStorageProvider storage;
 
         private readonly string bundlingLocation;
@@ -21,10 +22,15 @@ namespace RESTAPI.Export
         private readonly Timer cleanupTimer;
         private readonly ConcurrentDictionary<Guid, ExportWorker> workers;
 
-        public ExportWorkerHandler(IDatabaseAccess _database, IStorageProvider _storage, IConfiguration configuration)
+        /// <summary>
+        /// Creates a new instance of <see cref="ExportWorkerHandler"/> with the
+        /// specified <see cref="IStorageProvider"/> and <see cref="IConfiguration"/>.
+        /// </summary>
+        /// <param name="_storage"></param>
+        /// <param name="configuration"></param>
+        public ExportWorkerHandler(IStorageProvider _storage, IConfiguration configuration)
         {
             workers = new ConcurrentDictionary<Guid, ExportWorker>();
-            database = _database;
             storage = _storage;
 
             bundlingLocation = configuration.GetValue("Export:BundlingLocation", "./tmp/export");
@@ -74,6 +80,12 @@ namespace RESTAPI.Export
             return true;
         }
 
+        /// <summary>
+        /// Executes on cleanup timer elapse and destorys all
+        /// workers which are expired.
+        /// </summary>
+        /// <param name="o"></param>
+        /// <param name="args"></param>
         private void OnCleanup(object o, EventArgs args)
         {
             var now = DateTime.Now;

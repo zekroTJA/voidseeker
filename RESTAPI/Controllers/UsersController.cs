@@ -13,6 +13,15 @@ using System.Threading.Tasks;
 
 namespace RESTAPI.Controllers
 {
+    /// <summary>
+    /// 
+    /// USERS CONTROLLER
+    /// /api/users
+    /// 
+    /// Provides endpoints searching, updating,
+    /// creating and deleting users.
+    /// 
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [ProxyAddress]
@@ -22,9 +31,12 @@ namespace RESTAPI.Controllers
     [TypeFilter(typeof(AuthorizationRequired))]
     public class UsersController : ControllerBase, IAuthorizedController
     {
-        private AuthClaims authClaims;
+        // --- Injected by DI ---------------------
         private readonly IDatabaseAccess database;
         private readonly IHasher hasher;
+        // ----------------------------------------
+
+        private AuthClaims authClaims;
 
         public UsersController(IDatabaseAccess _database, IHasher _hasher)
         {

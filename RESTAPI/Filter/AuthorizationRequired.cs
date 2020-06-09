@@ -42,7 +42,7 @@ namespace RESTAPI.Filter
             try
             {
                 var claims = authorization.ValidateSessionKey(token);
-                claims.User = await database.Get<UserModel>(claims.UserId);
+                claims.User = await database.Get<UserModel>(claims.UserUid);
                 controller.SetAuthClaims(claims);
             }
             catch

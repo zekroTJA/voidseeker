@@ -19,6 +19,17 @@ using System.Threading.Tasks;
 
 namespace RESTAPI.Controllers
 {
+    /// <summary>
+    /// 
+    /// IMAGES CONTROLLER
+    /// /api/images
+    /// 
+    /// Provides endpoints for uploading and downloading
+    /// images, searching imahes, getting and setting 
+    /// metadata, deleting images and getting image 
+    /// thumbnails.
+    /// 
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [ProxyAddress]
@@ -28,9 +39,12 @@ namespace RESTAPI.Controllers
     [TypeFilter(typeof(AuthorizationRequired))]
     public class ImagesController : ControllerBase, IAuthorizedController
     {
-        private AuthClaims authClaims;
+        // --- Injected by DI ---------------------
         private readonly IDatabaseAccess database;
         private readonly IStorageProvider storage;
+        // ----------------------------------------
+        
+        private AuthClaims authClaims;
 
         public ImagesController(IDatabaseAccess _database, IStorageProvider _storage)
         {
@@ -59,7 +73,7 @@ namespace RESTAPI.Controllers
             [FromQuery] bool ascending = false)
         {
             var res = await database.SearchImages(
-                offset, size, filter, exclude, authClaims.UserId, includePublic, includeExplicit, sortBy, ascending);
+                offset, size, filter, exclude, authClaims.UserUid, includePublic, includeExplicit, sortBy, ascending);
 
             return Ok(new PageModel<ImageModel>(res, offset));
         }
@@ -81,7 +95,7 @@ namespace RESTAPI.Controllers
                 return BadRequest(new ErrorModel(400, "invalid content type"));
 
             var image = new ImageModel();
-            image.OwnerUid = authClaims.UserId;
+            image.OwnerUid = authClaims.UserUid;
             image.BlobName = image.Uid.ToString();
             image.Bucket = Constants.IMAGE_STORAGE_BUCKET;
             image.Filename = file.FileName;
@@ -124,7 +138,7 @@ namespace RESTAPI.Controllers
             bool tagsUpdated = false;
 
             var image = await database.Get<ImageModel>(uid);
-            if (image.OwnerUid != authClaims.UserId && !authClaims.User.IsAdmin.Equals(true))
+            if (image.OwnerUid != authClaims.UserUid && !authClaims.User.IsAdmin.Equals(true))
                 return NotFound();
 
             if (newImage.Description != null)
@@ -153,7 +167,7 @@ namespace RESTAPI.Controllers
 
             await database.Update(image);
             if (tagsUpdated)
-                await SaveTags(image, authClaims.UserId);
+                await SaveTags(image, authClaims.UserUid);
 
             return Ok(image);
         }
@@ -168,7 +182,7 @@ namespace RESTAPI.Controllers
         public async Task<ActionResult> GetImage([FromRoute] Guid uid)
         {
             var image = await database.Get<ImageModel>(uid);
-            if (image == null || (!image.Public.Equals(true) && image.OwnerUid != authClaims.UserId && !authClaims.User.IsAdmin.Equals(true)))
+            if (image == null || (!image.Public.Equals(true) && image.OwnerUid != authClaims.UserUid && !authClaims.User.IsAdmin.Equals(true)))
                 return NotFound();
 
             var data = new byte[(int)image.Size];
@@ -207,7 +221,7 @@ namespace RESTAPI.Controllers
             catch (ObjectNotFoundException) 
             {
                 var image = await database.Get<ImageModel>(uid);
-                if (image == null || (!image.Public.Equals(true) && image.OwnerUid != authClaims.UserId && !authClaims.User.IsAdmin.Equals(true)))
+                if (image == null || (!image.Public.Equals(true) && image.OwnerUid != authClaims.UserUid && !authClaims.User.IsAdmin.Equals(true)))
                     return NotFound();
 
                 var oriImageMemStream = new MemoryStream();
@@ -238,7 +252,7 @@ namespace RESTAPI.Controllers
         public async Task<ActionResult<ImageModel>> GetImageInfo([FromRoute] Guid uid)
         {
             var image = await database.Get<ImageModel>(uid);
-            if (image == null || (!image.Public.Equals(true) && image.OwnerUid != authClaims.UserId && !authClaims.User.IsAdmin.Equals(true)))
+            if (image == null || (!image.Public.Equals(true) && image.OwnerUid != authClaims.UserUid && !authClaims.User.IsAdmin.Equals(true)))
                 return NotFound();
 
             return Ok(image);
@@ -253,7 +267,7 @@ namespace RESTAPI.Controllers
         public async Task<ActionResult<ImageModel>> DeleteImage([FromRoute] Guid uid)
         {
             var image = await database.Get<ImageModel>(uid);
-            if (image == null || (image.OwnerUid != authClaims.UserId && !authClaims.User.IsAdmin.Equals(true)))
+            if (image == null || (image.OwnerUid != authClaims.UserUid && !authClaims.User.IsAdmin.Equals(true)))
                 return NotFound();
 
             await database.Delete<ImageModel>(uid);
