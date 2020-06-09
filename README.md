@@ -8,6 +8,29 @@ Self-hosted image storage, management, indexing and searching utility. Built wit
 
 ![](.github/media/demo.gif)
 
+## How does the Search work?
+
+For seaching, type keywords into the `search` field on the main view. This will fuzzy-match the single words primarily on the `tags` of the images and secondary on other metadata like `title` and `description`.
+
+Each word is now and-combined. This means, the following search term will look for images including the tags `wallpaper` and `nature`.
+```
+wallpaper nature
+```
+
+You can also explicitly exclude matches, which are or-combined.
+```
+wallpaper nature -flowers -animals
+```
+This will look for images tagges with `wallpaper` and `nature` and which are not tagged with `flowers` or `animals`.
+
+As mentioned above, the search is fuzzy, which makes it less sensible for typos and tag inconsistency. So the following search terms will all match images tagged with `wallpaper` and `nature`.
+```
+wallpapers nartue
+wall_paper nature
+walpaper naturw
+...
+```
+
 ## Techniques
 
 voidseeker is split into two main components: a **back end** and a **front end** server.
