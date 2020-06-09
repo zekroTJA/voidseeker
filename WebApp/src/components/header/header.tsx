@@ -13,6 +13,7 @@ interface HeaderPorps {
   onAdmin?: () => void;
   onHome?: () => void;
   onTags?: () => void;
+  onSettings?: () => void;
 }
 
 export default class Header extends Component<HeaderPorps> {
@@ -35,6 +36,9 @@ export default class Header extends Component<HeaderPorps> {
           <button onClick={() => this.props.onTags?.call(this)}>Tags</button>
           <button onClick={() => this.props.onMyProfile?.call(this)}>
             My Profile
+          </button>
+          <button onClick={() => this.props.onSettings?.call(this)}>
+            Settings
           </button>
           {this.props.isAdmin && (
             <button onClick={() => this.props.onAdmin?.call(this)}>

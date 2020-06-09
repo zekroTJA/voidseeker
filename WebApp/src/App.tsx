@@ -15,6 +15,7 @@ import ExportRoute from './routes/export/export';
 import UserEditRoute from './routes/user-edit/user-edit';
 import UserDetailsRoute from './routes/user-details/user-details';
 import TagsRoute from './routes/tags/tags';
+import SettingsRoute from './routes/settings/settings';
 import SnackBar from './components/snackbar/snackbar';
 import SnackBarNotifier, { SnackBarType } from './util/snackbar-notifier';
 import Header from './components/header/header';
@@ -87,6 +88,7 @@ export default class App extends Component {
             onMyProfile={this.onMyProfile.bind(this)}
             onAdmin={this.onAdmin.bind(this)}
             onTags={this.onTags.bind(this)}
+            onSettings={this.onSettings.bind(this)}
           />
         )}
 
@@ -163,6 +165,11 @@ export default class App extends Component {
             />
             <Route
               exact
+              path="/settings"
+              render={() => <SettingsRoute globalState={this.globalState} />}
+            />
+            <Route
+              exact
               path="/export"
               render={() => <ExportRoute globalState={this.globalState} />}
             />
@@ -211,5 +218,9 @@ export default class App extends Component {
 
   private onTags() {
     this.redirect('/tags');
+  }
+
+  private onSettings() {
+    this.redirect('/settings');
   }
 }
