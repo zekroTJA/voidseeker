@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using RESTAPI.Authorization;
 using RESTAPI.Database;
 using RESTAPI.Filter;
@@ -34,14 +35,18 @@ namespace RESTAPI.Controllers
         private readonly IHasher hasher;
         // --------------------------------------------
 
+        private readonly bool bypassSecureCookies;
+
         private static readonly TimeSpan DEFAULT_SESSION_EXPIRATION = TimeSpan.FromDays(1);
         private static readonly TimeSpan EXTENDED_SESSION_EXPIRATION = TimeSpan.FromDays(30);
 
-        public AuthController(IAuthorization _authorization, IDatabaseAccess _database, IHasher _hasher)
+        public AuthController(IAuthorization _authorization, IDatabaseAccess _database, IHasher _hasher, IConfiguration configuration)
         {
             authorization = _authorization;
             database = _database;
             hasher = _hasher;
+
+            bypassSecureCookies = configuration.GetValue("WebServer:Auth:BypassSecureCookies", false);
         }
 
         // -------------------------------------------------------------------------
@@ -79,7 +84,7 @@ namespace RESTAPI.Controllers
                 HttpOnly = true,
 #if !DEBUG
                 SameSite = SameSiteMode.Strict,
-                Secure = true,
+                Secure = !bypassSecureCookies,
 #endif
             };
 
