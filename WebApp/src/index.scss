@@ -91,9 +91,9 @@ button.link {
   cursor: pointer;
   text-decoration: underline;
   text-transform: unset;
-  padding: unset;
-  border: unset;
-  outline: none;
+  padding: unset !important;
+  border: unset !important;
+  outline: none !important;
 }
 
 .warn-text {

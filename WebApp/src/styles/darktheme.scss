@@ -1,6 +1,7 @@
 @import './colors.scss';
 
-$c-bg-dark: #101011;
+$c-bg-dark:   #101011;
+$c-bg-dark-2: #141414;
 
 body {
   background-color: $c-bg-dark;
@@ -9,10 +10,14 @@ body {
 
 button {
   color: white;
-  border-color: white;
+  border-color: rgba(255, 255, 255, 0.75);
 
   &:disabled {
-    border-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.2) !important;
+  }
+
+  &:hover {
+    border: solid 1px rgba(255, 255, 255, 1);
   }
 }
 
@@ -47,10 +52,16 @@ select option {
 }
 
 .modal-conatiner {
-  background-color: #141414;
+  background-color: $c-bg-dark-2;
   border-color: white;
 }
 
 .warn-text {
   color: rgb(238, 59, 59);
+}
+
+.image-editor-tags-suggestions {
+  border-color: white;
+  color: white;
+  background-color: lighten($c-bg-dark-2, 10);
 }
