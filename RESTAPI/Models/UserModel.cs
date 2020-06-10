@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace RESTAPI.Models
@@ -8,12 +9,16 @@ namespace RESTAPI.Models
     /// </summary>
     public class UserModel : UniqueModel
     {
+        [RegularExpression(Constants.USERNAME_PATTERN, ErrorMessage = "invalid characters in username")]
+        [StringLength(64, MinimumLength = 2, ErrorMessage = "invalid username length")]
         [JsonPropertyName("username")]
         public string UserName { get; set; }
 
+        [StringLength(128)]
         [JsonPropertyName("displayname")]
         public string DisplayName { get; set; }
 
+        [StringLength(4096)]
         [JsonPropertyName("description")]
         public string Description { get; set; }
 

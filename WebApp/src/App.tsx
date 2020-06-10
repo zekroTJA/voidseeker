@@ -21,6 +21,7 @@ import SnackBarNotifier, { SnackBarType } from './util/snackbar-notifier';
 import Header from './components/header/header';
 
 import './App.scss';
+import ResponseErrorUtil from './util/responseerror';
 
 export default class App extends Component {
   public state = {
@@ -43,7 +44,7 @@ export default class App extends Component {
           SnackBarNotifier.show(
             <span>
               API Error <code>[{err.status}]</code>:&nbsp;
-              <strong>{v.message || 'unknown error'}</strong>
+              <strong>{ResponseErrorUtil.getMessage(v)}</strong>
             </span>,
             SnackBarType.ERROR
           );

@@ -58,11 +58,14 @@ namespace RESTAPI.Controllers
         [ProducesResponseType(400)]
         public async Task<ActionResult<UserModel>> Create([FromBody] UserCreateRequestModel user)
         {
-            if (!user.IsValidUsername())
-                return BadRequest(new ErrorModel(400, "invalid username"));
 
-            if (!user.IsValidPassword())
-                return BadRequest(new ErrorModel(400, "invalid new password"));
+            // Validation is done by MVC request model.
+
+            //if (!user.IsValidUsername())
+            //    return BadRequest(new ErrorModel(400, "invalid username"));
+
+            //if (!user.IsValidPassword())
+            //    return BadRequest(new ErrorModel(400, "invalid new password"));
 
             if (await database.GetUserByUserName(user.UserName) != null)
                 return BadRequest(new ErrorModel(400, "username already taken"));
@@ -145,8 +148,8 @@ namespace RESTAPI.Controllers
 
             if (user.UserName != newUser.UserName && !newUser.UserName.IsNullOrEmpty())
             {
-                if (!newUser.IsValidUsername())
-                    return BadRequest(new ErrorModel(400, "invalid username"));
+                //if (!newUser.IsValidUsername())
+                //    return BadRequest(new ErrorModel(400, "invalid username"));
 
                 if (await database.GetUserByUserName(user.UserName) != null)
                     return BadRequest(new ErrorModel(400, "username already taken"));

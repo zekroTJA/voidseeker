@@ -1,4 +1,5 @@
 ﻿using RESTAPI.Extensions;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
@@ -10,12 +11,15 @@ namespace RESTAPI.Models.Requests
     /// </summary>
     public class UserCreateRequestModel : UserModel
     {
+        [StringLength(4096, MinimumLength = 6)]
         [JsonPropertyName("password")]
         public string Password { get; set; }
 
         [JsonPropertyName("oldpassword")]
         public string? OldPassword { get; set; }
 
+        [StringLength(256)]
+        [RegularExpression(@"^[\w-+]+@\w+.\w+$")]
         [JsonPropertyName("emailaddress")]
         public new string EmailAddress { get; set; }
 
