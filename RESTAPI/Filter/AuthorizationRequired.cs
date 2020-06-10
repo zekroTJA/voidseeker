@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 namespace RESTAPI.Filter
 {
     /// <summary>
-    /// TypeFilter which tries to the a session key form the incomming
+    /// ActionFilter which tries to the a session key form the incomming
     /// request and tries to validate the reuqets with the injected
-    /// Authorization module. The AuthClaims of the authorized
-    /// user is then set to the controller instance.
+    /// Authorization module. The <see cref="AuthClaims"/> of the authorized
+    /// user is then set to the <see cref="IAuthorizedController"/> instance.
     /// 
     /// If this filter is added and the authorization fails, a
     /// 401 Unauthorized exception is returned as response.

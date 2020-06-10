@@ -6,11 +6,20 @@ using System.Threading.Tasks;
 
 namespace RESTAPI.Storage
 {
+    /// <summary>
+    /// Implementation of <see cref="IStorageProvider"/>
+    /// using MinIO client.
+    /// </summary>
     public class MinioStorageProvider : IStorageProvider
     {
         private readonly MinioClient client;
         private readonly string defaultLocation;
 
+        /// <summary>
+        /// Initialize new <see cref="MinioStorageProvider"/> by
+        /// passed <see cref="IConfiguration"/>.
+        /// </summary>
+        /// <param name="configuration"></param>
         public MinioStorageProvider(IConfiguration configuration)
         {
             var section = configuration.GetSection("Storage:Minio");

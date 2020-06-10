@@ -5,6 +5,9 @@ using System.Text.RegularExpressions;
 
 namespace RESTAPI.Models
 {
+    /// <summary>
+    /// Image Grade specification.
+    /// </summary>
     public enum Grade
     {
         S,
@@ -16,6 +19,9 @@ namespace RESTAPI.Models
         F
     }
 
+    /// <summary>
+    /// Image metadata model.
+    /// </summary>
     public class ImageModel : UniqueModel
     {
         [JsonPropertyName("owneruid")]
@@ -69,16 +75,27 @@ namespace RESTAPI.Models
             get => TagsCombined?.Split(" ") ?? new string[] { };
         }
 
+        /// <summary>
+        /// Initialize new empty <see cref="ImageModel"/> instance.
+        /// </summary>
         public ImageModel() : base("images")
         {
         }
 
-        public bool ValidateTags(out string reason)
+        /// <summary>
+        /// Returns true when the passed tags are valid.
+        /// Reason will be set to a string describing the
+        /// reason why the tags are not valid, when they
+        /// are not valid.
+        /// </summary>
+        /// <param name="reason">reason output</param>
+        /// <returns></returns>
+        public bool IsValidTags(out string reason)
         {
             var dict = new Dictionary<string, object>();
             foreach (var v in TagsArray)
             {
-                if (!Regex.IsMatch(v, @"^[a-z0-9_\-']+$"))
+                if (!Regex.IsMatch(v, Constants.TAG_PATTERN))
                 {
                     reason = "invalid tag format - must be lowercase and can only contain letters, numbers, underscores and minuses";
                     return false;
@@ -97,6 +114,9 @@ namespace RESTAPI.Models
             return true;
         }
 
+        /// <summary>
+        /// Transform tags to all lowercase.
+        /// </summary>
         public void LowercaseTags()  =>
             TagsCombined = TagsCombined?.ToLower();
     }

@@ -72,16 +72,16 @@ namespace RESTAPI.Controllers
             if (usersCount > 0L)
                 return BadRequest(new ErrorModel(400, "already initialized"));
 
-            if (!user.ValidateUsername())
+            if (!user.IsValidUsername())
                 return BadRequest(new ErrorModel(400, "invalid username"));
 
-            if (!user.ValidatePassword())
+            if (!user.IsValidPassword())
                 return BadRequest(new ErrorModel(400, "invalid new password"));
 
             user.AfterCreate();
             user.LastLogin = default;
             user.IsAdmin = true;
-            user.DisplayName = user.DisplayName.NullOrEmpty() ? user.UserName : user.DisplayName;
+            user.DisplayName = user.DisplayName.IsNullOrEmpty() ? user.UserName : user.DisplayName;
             user.PasswordHash = hasher.Create(user.Password);
 
             await database.Put(user);

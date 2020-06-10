@@ -160,7 +160,7 @@ namespace RESTAPI.Controllers
             {
                 image.TagsCombined = newImage.TagsCombined;
                 image.LowercaseTags();
-                if (!image.ValidateTags(out var reason))
+                if (!image.IsValidTags(out var reason))
                     return BadRequest(new ErrorModel(400, reason));
                 tagsUpdated = true;
             }

@@ -3,6 +3,9 @@ using System.Text.Json.Serialization;
 
 namespace RESTAPI.Models
 {
+    /// <summary>
+    /// User model.
+    /// </summary>
     public class UserModel : UniqueModel
     {
         [JsonPropertyName("username")]
@@ -27,10 +30,18 @@ namespace RESTAPI.Models
         [JsonIgnore]
         public byte[] PasswordHash { get; set; }
 
+        /// <summary>
+        /// Create new empty <see cref="UserModel"/>.
+        /// </summary>
         public UserModel() : base("users")
         {
         }
 
+        /// <summary>
+        /// Create new <see cref="UserModel"/> as deep copy
+        /// of the passed user model instance.
+        /// </summary>
+        /// <param name="user"></param>
         public UserModel(UserModel user) : base("users")
         {
             Uid = user.Uid;
