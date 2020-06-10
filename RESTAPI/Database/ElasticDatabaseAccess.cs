@@ -108,7 +108,7 @@ namespace RESTAPI.Database
 
             ISearchResponse<UserModel> res;
             
-            if (filter.NullOrEmpty())
+            if (filter.IsNullOrEmpty())
             {
                 res = await SearchMatchAll<UserModel>(offset, size);
             }
@@ -159,7 +159,7 @@ namespace RESTAPI.Database
                     exclude.ToList().ForEach(ex =>
                         result = result && !query.Fuzzy(match => match.Field(f => f.TagsCombined).Value(ex.ToLower())));
 
-                    if (!filter.NullOrEmpty())
+                    if (!filter.IsNullOrEmpty())
                     {
                         QueryContainer metaResult, tagResult = null;
 
@@ -240,7 +240,7 @@ namespace RESTAPI.Database
 
             ISearchResponse<TagModel> res;
 
-            if (filter.NullOrEmpty())
+            if (filter.IsNullOrEmpty())
             {
                 res = await SearchMatchAll<TagModel>(offset, size);
             }

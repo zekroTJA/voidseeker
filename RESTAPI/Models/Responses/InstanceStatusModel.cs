@@ -2,6 +2,9 @@
 
 namespace RESTAPI.Models.Responses
 {
+    /// <summary>
+    /// Response model if instance information.
+    /// </summary>
     public class InstanceStatusModel
     {
         [JsonPropertyName("initialized")]

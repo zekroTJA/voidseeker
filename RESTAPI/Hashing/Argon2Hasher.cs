@@ -1,9 +1,11 @@
 ﻿using Isopoh.Cryptography.Argon2;
-using System;
 using System.Text;
 
 namespace RESTAPI.Hashing
 {
+    /// <summary>
+    /// Implementation of <see cref="IHasher"/> using Argon2ID.
+    /// </summary>
     public class Argon2Hasher : IHasher
     {
         public byte[] Create(string password) =>

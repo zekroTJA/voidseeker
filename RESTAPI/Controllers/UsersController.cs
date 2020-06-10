@@ -58,10 +58,10 @@ namespace RESTAPI.Controllers
         [ProducesResponseType(400)]
         public async Task<ActionResult<UserModel>> Create([FromBody] UserCreateRequestModel user)
         {
-            if (!user.ValidateUsername())
+            if (!user.IsValidUsername())
                 return BadRequest(new ErrorModel(400, "invalid username"));
 
-            if (!user.ValidatePassword())
+            if (!user.IsValidPassword())
                 return BadRequest(new ErrorModel(400, "invalid new password"));
 
             if (await database.GetUserByUserName(user.UserName) != null)
@@ -69,7 +69,7 @@ namespace RESTAPI.Controllers
 
             user.AfterCreate();
             user.LastLogin = default;
-            user.DisplayName = user.DisplayName.NullOrEmpty() ? user.UserName : user.DisplayName;
+            user.DisplayName = user.DisplayName.IsNullOrEmpty() ? user.UserName : user.DisplayName;
             user.PasswordHash = hasher.Create(user.Password);
 
             await database.Put(user);
@@ -102,7 +102,7 @@ namespace RESTAPI.Controllers
         {
             UserModel user;
 
-            if (ident.NullOrEmpty())
+            if (ident.IsNullOrEmpty())
                 return NotFound();
 
             if (Guid.TryParse(ident, out var uid))
@@ -143,9 +143,9 @@ namespace RESTAPI.Controllers
 
             var user = await database.Get<UserModel>(uid.Value);
 
-            if (user.UserName != newUser.UserName && !newUser.UserName.NullOrEmpty())
+            if (user.UserName != newUser.UserName && !newUser.UserName.IsNullOrEmpty())
             {
-                if (!newUser.ValidateUsername())
+                if (!newUser.IsValidUsername())
                     return BadRequest(new ErrorModel(400, "invalid username"));
 
                 if (await database.GetUserByUserName(user.UserName) != null)
@@ -154,7 +154,7 @@ namespace RESTAPI.Controllers
                 user.UserName = newUser.UserName;
             }
 
-            if (!newUser.DisplayName.NullOrEmpty())
+            if (!newUser.DisplayName.IsNullOrEmpty())
                 user.DisplayName = newUser.DisplayName;
 
             // If actually set to "", this will reset the entry for
@@ -174,12 +174,12 @@ namespace RESTAPI.Controllers
                 user.IsAdmin = newUser.IsAdmin.Equals(true);
             }
 
-            if (!newUser.Password.NullOrEmpty())
+            if (!newUser.Password.IsNullOrEmpty())
             {
-                if (!newUser.ValidatePassword())
+                if (!newUser.IsValidPassword())
                     return BadRequest(new ErrorModel(400, "invalid new password"));
 
-                if (newUser.OldPassword.NullOrEmpty())
+                if (newUser.OldPassword.IsNullOrEmpty())
                     return BadRequest(new ErrorModel(400, "old password is required"));
 
                 if (!hasher.Validate(newUser.OldPassword, user.PasswordHash))

@@ -32,7 +32,7 @@ namespace RESTAPI.Authorization
         {
             var key = configuration.GetValue<string>("WebServer:Auth:JWTSecret");
 
-            signingKey = key.NullOrEmpty()
+            signingKey = key.IsNullOrEmpty()
                 ? GenerateSigningKey(keyLen)
                 : new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
 

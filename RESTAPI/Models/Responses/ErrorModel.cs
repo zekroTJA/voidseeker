@@ -2,6 +2,10 @@
 
 namespace RESTAPI.Models.Responses
 {
+    /// <summary>
+    /// Response model used to display
+    /// general REST API errors.
+    /// </summary>
     public class ErrorModel
     {
         [JsonPropertyName("code")]
@@ -10,10 +14,19 @@ namespace RESTAPI.Models.Responses
         [JsonPropertyName("message")]
         public string Message { get; set; }
 
+        /// <summary>
+        /// Initialize empty <see cref="ErrorModel"/>.
+        /// </summary>
         public ErrorModel()
         {
         }
 
+        /// <summary>
+        /// Initialize new <see cref="ErrorModel"/> with passed
+        /// error code and message.
+        /// </summary>
+        /// <param name="code">error code</param>
+        /// <param name="message">error message</param>
         public ErrorModel(int code, string message)
         {
             Code = code;

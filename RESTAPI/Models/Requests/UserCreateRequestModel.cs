@@ -4,6 +4,10 @@ using System.Text.RegularExpressions;
 
 namespace RESTAPI.Models.Requests
 {
+    /// <summary>
+    /// Request body model used for creating and
+    /// updating users.
+    /// </summary>
     public class UserCreateRequestModel : UserModel
     {
         [JsonPropertyName("password")]
@@ -15,10 +19,20 @@ namespace RESTAPI.Models.Requests
         [JsonPropertyName("emailaddress")]
         public new string EmailAddress { get; set; }
 
-        public bool ValidateUsername() =>
-            Regex.IsMatch(UserName, @"^[a-z0-9-_\.]{1,32}$");
+        /// <summary>
+        /// Returns true if the username
+        /// set is valid.
+        /// </summary>
+        /// <returns></returns>
+        public bool IsValidUsername() =>
+            Regex.IsMatch(UserName, Constants.USERNAME_PATTERN);
 
-        public bool ValidatePassword() =>
-            !Password.NullOrEmpty();
+        /// <summary>
+        /// Returns true if the set password
+        /// is valid.
+        /// </summary>
+        /// <returns></returns>
+        public bool IsValidPassword() =>
+            !Password.IsNullOrEmpty();
     }
 }

@@ -2,6 +2,9 @@
 
 namespace RESTAPI.Models.Requests
 {
+    /// <summary>
+    /// Login request body model.
+    /// </summary>
     public class LoginModel
     {
         [JsonPropertyName("username")]

@@ -70,7 +70,7 @@ namespace RESTAPI.Controllers
         {
             TagModel tag;
 
-            if (ident.NullOrEmpty())
+            if (ident.IsNullOrEmpty())
                 return NotFound();
 
             if (Guid.TryParse(ident, out var uid))
