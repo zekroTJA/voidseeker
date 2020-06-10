@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
@@ -27,9 +28,11 @@ namespace RESTAPI.Models
         [JsonPropertyName("owneruid")]
         public Guid OwnerUid { get; set; }
 
+        [StringLength(32)]
         [JsonPropertyName("mimetype")]
         public string MimeType { get; set; }
 
+        [StringLength(256)]
         [JsonPropertyName("filename")]
         public string Filename { get; set; }
 
@@ -39,9 +42,11 @@ namespace RESTAPI.Models
         [JsonPropertyName("bucket")]
         public string Bucket { get; set; }
 
+        [StringLength(256)]
         [JsonPropertyName("title")]
         public string Title { get; set; }
 
+        [StringLength(4096)]
         [JsonPropertyName("description")]
         public string Description { get; set; }
 
@@ -66,6 +71,7 @@ namespace RESTAPI.Models
         [JsonPropertyName("width")]
         public int Width { get; set; }
 
+        [StringLength(4096)]
         [JsonPropertyName("tagscombined")]
         public string TagsCombined { get; set; }
 
