@@ -1,0 +1,29 @@
+version: '3'
+
+volumes:
+  elastic:
+  minio:
+
+services:
+
+  elastic:
+    image: 'elasticsearch:7.7.0'
+    ports:
+      - '9200:9200'
+    environment:
+      discovery.type: 'single-node'
+    volumes:
+      - 'elastic:/usr/share/elasticsearch/data'
+    restart: on-failure
+
+  minio:
+    image: 'minio/minio:latest'
+    ports:
+      - '9000:9000'
+    volumes:
+      - 'minio:/data'
+    environment:
+      MINIO_ACCESS_KEY:  'minio_test'
+      MINIO_SECRET_KEY:  'minio_test_secret'
+    command: server /data
+    restart: on-failure
