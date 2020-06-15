@@ -111,7 +111,7 @@ namespace RESTAPI.Controllers
                 tag.Name = newTag.Name;
             }
 
-            if (newTag.CoupledWith != null && newTag.CoupledWith.Length > 0)
+            if (newTag.CoupledWith != null)
             {
                 foreach (var t in newTag.CoupledWith)
                 {
