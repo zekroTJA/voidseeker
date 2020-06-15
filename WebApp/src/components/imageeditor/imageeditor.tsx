@@ -2,15 +2,16 @@
 
 import React, { Component } from 'react';
 import ImageModel, { Grade } from '../../api/models/image';
-
-import './imageeditor.scss';
 import { withRouter, RouteComponentProps } from 'react-router-dom';
 import ObjectUtils from '../../util/objects';
 import InputLimiter from '../../util/inputlimier';
+import { TagModel } from '../../api/models/tag';
+
+import './imageeditor.scss';
 
 interface ImageEditorProperties extends RouteComponentProps {
   image: ImageModel;
-  tagSuggestions?: string[];
+  tagSuggestions?: TagModel[];
   onChange?: (image: ImageModel) => void;
   onTagsInput?: (v: string) => void;
 }
@@ -35,8 +36,13 @@ class ImageEditor extends Component<ImageEditorProperties> {
     );
 
     const tagSuggestions = (this.props.tagSuggestions || []).map((s) => (
-      <p key={s} onClick={() => this.onSuggestionClick(image, s)}>
-        {s}
+      <p key={s.uid} onClick={() => this.onSuggestionClick(image, s)}>
+        {s.name}{' '}
+        {s.coupledwith?.length > 0 && (
+          <span className="imageeditor-coupled-num">
+            +{s.coupledwith.length}
+          </span>
+        )}
       </p>
     ));
 
@@ -67,7 +73,7 @@ class ImageEditor extends Component<ImageEditorProperties> {
         <label htmlFor="image-editor-description">Description:</label>
         <textarea
           id="image-editor-description"
-          value={image.description}
+          value={image.description || ''}
           onChange={(v) =>
             this.onChange(() => (image.description = v.target.value))
           }
@@ -154,10 +160,17 @@ class ImageEditor extends Component<ImageEditorProperties> {
     });
   }
 
-  private onSuggestionClick(image: ImageModel, s: string) {
+  private onSuggestionClick(image: ImageModel, s: TagModel) {
     this.onChange(() => {
       image.tagsarray = image.tagsarray.filter((t) => t.length > 0);
-      image.tagsarray[image.tagsarray.length - 1] = s;
+      image.tagsarray[image.tagsarray.length - 1] = s.name;
+
+      if (s.coupledwith) {
+        image.tagsarray = image.tagsarray.concat(
+          s.coupledwith.filter((c) => !image.tagsarray.includes(c))
+        );
+      }
+
       this.props.tagSuggestions?.splice(0);
       image.tagscombined = image.tagsarray.join(' ');
     });

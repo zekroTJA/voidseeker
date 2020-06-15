@@ -68,16 +68,6 @@ class TagEditRoute extends Component<TagEditRouteProps> {
     );
   }
 
-  // private get actionDisabled(): boolean {
-  //   const user = this.state.user;
-
-  //   if (this.state.isNew) {
-  //     return !user || !user.username || !user.password;
-  //   }
-
-  //   return !user || !user.username || (!!user.password && !user.oldpassword);
-  // }
-
   private onChange(cb: () => void) {
     cb();
     this.setState({});
@@ -88,7 +78,6 @@ class TagEditRoute extends Component<TagEditRouteProps> {
       .toLowerCase()
       .split(' ')
       .filter((t) => !!t);
-    console.log(this.state.tag.coupledwith);
     this.setState({ coupledWith: this.state.tag.coupledwith.join(' ') });
   }
 

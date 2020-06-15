@@ -7,10 +7,11 @@ import ImageModel from '../../api/models/image';
 import Container from '../../components/container/container';
 import { RestAPI } from '../../api/restapi';
 import SnackBarNotifier, { SnackBarType } from '../../util/snackbar-notifier';
-
-import './image-edit.scss';
 import GlobalState from '../../util/globalstate';
 import { UserModel } from '../../api/models/user';
+import { TagModel } from '../../api/models/tag';
+
+import './image-edit.scss';
 
 interface ImageEditRouteProps extends RouteComponentProps {
   globalState: GlobalState;
@@ -21,7 +22,7 @@ class ImageEditRoute extends Component<ImageEditRouteProps> {
   public state = {
     image: (null as any) as ImageModel,
     owner: (null as any) as UserModel,
-    tagSuggestions: (null as any) as string[],
+    tagSuggestions: (null as any) as TagModel[],
   };
 
   public async componentDidMount() {
@@ -90,14 +91,12 @@ class ImageEditRoute extends Component<ImageEditRouteProps> {
       try {
         const res = await RestAPI.tags(0, 10, lastVal, 10);
         this.setState({
-          tagSuggestions: res.data
-            .map((t) => t.name)
-            .filter(
-              (t) =>
-                !this.state.image.tagsarray
-                  .slice(0, valSplit.length - 1)
-                  .includes(t)
-            ),
+          tagSuggestions: res.data.filter(
+            (t) =>
+              !this.state.image.tagsarray
+                .slice(0, valSplit.length - 1)
+                .includes(t.name)
+          ),
         });
       } catch {}
     } else {
