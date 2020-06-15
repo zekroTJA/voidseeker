@@ -6,6 +6,7 @@ import { withRouter, RouteComponentProps } from 'react-router-dom';
 import ObjectUtils from '../../util/objects';
 import InputLimiter from '../../util/inputlimier';
 import { TagModel } from '../../api/models/tag';
+import TagsInput from '../tagsinput/tagsinput';
 
 import './imageeditor.scss';
 
@@ -35,17 +36,6 @@ class ImageEditor extends Component<ImageEditorProperties> {
       ))
     );
 
-    const tagSuggestions = (this.props.tagSuggestions || []).map((s) => (
-      <p key={s.uid} onClick={() => this.onSuggestionClick(image, s)}>
-        {s.name}{' '}
-        {s.coupledwith?.length > 0 && (
-          <span className="imageeditor-coupled-num">
-            +{s.coupledwith.length}
-          </span>
-        )}
-      </p>
-    ));
-
     return (
       <div className="image-editor-container">
         <label htmlFor="image-editor-title">Title:</label>
@@ -55,21 +45,13 @@ class ImageEditor extends Component<ImageEditorProperties> {
           onChange={(v) => this.onChange(() => (image.title = v.target.value))}
         />
         <label htmlFor="image-editor-tags">Tags:</label>
-        <div className="image-editor-tags-container">
-          <input
-            id="image-editor-tags"
-            value={this.getImageTags(image)}
-            onChange={(v) => this.onImageTagsChange(image, v.target.value)}
-            onBlur={() => this.onImageTagsBlur(image)}
-            autoComplete="off"
-          />
-          {this.props.tagSuggestions &&
-            this.props.tagSuggestions.length > 0 && (
-              <div className="image-editor-tags-suggestions">
-                {tagSuggestions}
-              </div>
-            )}
-        </div>
+        <TagsInput
+          tags={image.tagsarray}
+          tagsCompiled={image.tagscombined}
+          onChange={(tagsCombined, tagsArray) =>
+            this.onTagsChange(image, tagsCombined, tagsArray)
+          }
+        />
         <label htmlFor="image-editor-description">Description:</label>
         <textarea
           id="image-editor-description"
@@ -119,33 +101,15 @@ class ImageEditor extends Component<ImageEditorProperties> {
     }
   }
 
-  private onImageTagsChange(image: ImageModel, input: string) {
-    this.limiter.input(input, () => {
-      if (this.props.onTagsInput) {
-        this.props.onTagsInput(input);
-      }
-    });
+  private onTagsChange(
+    image: ImageModel,
+    tagsCombined: string,
+    tagsArray: string[]
+  ) {
     this.onChange(() => {
-      image.tagsarray = input.toLowerCase().split(' ');
+      image.tagsarray = tagsArray;
+      image.tagscombined = tagsCombined;
     });
-  }
-
-  private onImageTagsBlur(image: ImageModel) {
-    this.onChange(() => {
-      image.tagsarray = image.tagsarray.filter((t) => t.length > 0);
-      image.tagscombined = image.tagsarray.join(' ');
-    });
-
-    setTimeout(() => {
-      this.onChange(() => this.props.tagSuggestions?.splice(0));
-    }, 100);
-  }
-
-  private getImageTags(image: ImageModel): string {
-    if (image.tagsarray === undefined || image.tagsarray === null) {
-      image.tagsarray = [];
-    }
-    return image.tagsarray.join(' ');
   }
 
   private onGradeChange(image: ImageModel, value: string) {
@@ -157,22 +121,6 @@ class ImageEditor extends Component<ImageEditorProperties> {
         val = parseInt(value, 10);
       }
       image.grade = val;
-    });
-  }
-
-  private onSuggestionClick(image: ImageModel, s: TagModel) {
-    this.onChange(() => {
-      image.tagsarray = image.tagsarray.filter((t) => t.length > 0);
-      image.tagsarray[image.tagsarray.length - 1] = s.name;
-
-      if (s.coupledwith) {
-        image.tagsarray = image.tagsarray.concat(
-          s.coupledwith.filter((c) => !image.tagsarray.includes(c))
-        );
-      }
-
-      this.props.tagSuggestions?.splice(0);
-      image.tagscombined = image.tagsarray.join(' ');
     });
   }
 }

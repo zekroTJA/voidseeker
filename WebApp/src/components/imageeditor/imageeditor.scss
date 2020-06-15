@@ -19,29 +19,3 @@
     }
   }
 }
-
-.image-editor-tags-container {
-  position: relative;
-}
-
-.image-editor-tags-suggestions {
-  position: absolute;
-  width: 100%;
-  border: solid 1px black;
-  background-color: white;
-
-  > p {
-    margin: 0;
-    padding: 5px;
-    cursor: pointer;
-
-    &:hover {
-      background-color: rgba(0, 0, 0, 0.1);
-    }
-  }
-}
-
-.imageeditor-coupled-num {
-  font-size: 12px;
-  opacity: 0.75;
-}

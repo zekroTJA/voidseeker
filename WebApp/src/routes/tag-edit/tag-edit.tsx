@@ -3,14 +3,13 @@
 import React, { Component } from 'react';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
 import GlobalState from '../../util/globalstate';
-import { UserCreateModel } from '../../api/models/user';
 import { RestAPI } from '../../api/restapi';
 import Container from '../../components/container/container';
-import UserEditor from '../../components/usereditor/usereditor';
 import SnackBarNotifier, { SnackBarType } from '../../util/snackbar-notifier';
 import { TagModel } from '../../api/models/tag';
 
 import './tag-edit.scss';
+import TagsInput from '../../components/tagsinput/tagsinput';
 
 interface TagEditRouteProps extends RouteComponentProps {
   globalState: GlobalState;
@@ -20,7 +19,6 @@ interface TagEditRouteProps extends RouteComponentProps {
 class TagEditRoute extends Component<TagEditRouteProps> {
   public state = {
     tag: (null as any) as TagModel,
-    coupledWith: '',
   };
 
   public async componentDidMount() {
@@ -48,12 +46,11 @@ class TagEditRoute extends Component<TagEditRouteProps> {
               }
             />
             <label htmlFor="tag-edit-coupled">Coupled with:</label>
-            <input
-              id="tag-edit-coupled"
-              type="text"
-              value={this.state.coupledWith}
-              onChange={(v) => this.setState({ coupledWith: v.target.value })}
-              onBlur={() => this.onCoupledWithInput()}
+            <TagsInput
+              tags={tag.coupledwith}
+              onChange={(_, tagsArray) =>
+                this.onChange(() => (tag.coupledwith = tagsArray))
+              }
             />
             <button
               className="tag-edit-update"
@@ -73,13 +70,13 @@ class TagEditRoute extends Component<TagEditRouteProps> {
     this.setState({});
   }
 
-  private onCoupledWithInput() {
-    this.state.tag.coupledwith = this.state.coupledWith
-      .toLowerCase()
-      .split(' ')
-      .filter((t) => !!t);
-    this.setState({ coupledWith: this.state.tag.coupledwith.join(' ') });
-  }
+  // private onCoupledWithInput() {
+  //   const coupled = this.state.coupledWith
+  //     .toLowerCase()
+  //     .split(' ')
+  //     .filter((t) => !!t);
+  //   this.setState({ coupledWith: coupled.join(' ') });
+  // }
 
   private async onSubmit() {
     try {
