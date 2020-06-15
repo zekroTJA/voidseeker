@@ -22,7 +22,7 @@ interface TagsInputProps {
 
 export default class TagsInput extends Component<TagsInputProps> {
   public state = {
-    tagsCompiled: this.props.tagsCompiled || this.props.tags.join(' '),
+    tagsCompiled: this.props.tagsCompiled || this.props.tags?.join(' ') || '',
     suggestions: [] as TagModel[],
     selected: -1,
   };
@@ -126,13 +126,15 @@ export default class TagsInput extends Component<TagsInputProps> {
   }
 
   private onImageTagsBlur() {
-    const tags = this.state.tagsCompiled
-      .toLowerCase()
-      .split(' ')
-      .filter((t) => !!t);
-    const tagsCompiled = tags.join(' ');
+    setTimeout(() => {
+      const tags = this.state.tagsCompiled
+        .toLowerCase()
+        .split(' ')
+        .filter((t) => !!t);
+      const tagsCompiled = tags.join(' ');
 
-    this.setState({ tagsCompiled });
-    this.props.onChange?.call(this, tagsCompiled, tags);
+      this.setState({ tagsCompiled, selected: -1, suggestions: [] });
+      this.props.onChange?.call(this, tagsCompiled, tags);
+    }, 100);
   }
 }
