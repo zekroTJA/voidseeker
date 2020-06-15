@@ -117,6 +117,12 @@ namespace RESTAPI.Controllers
                 {
                     if (!Regex.IsMatch(t, Constants.TAG_PATTERN))
                         return BadRequest(new ErrorModel(400, "invalid couple tag"));
+
+                    if (t == tag.Name)
+                        return BadRequest(new ErrorModel(400, "tag can not be coupled with itself"));
+
+                    if (newTag.CoupledWith.Count(v => v == t) > 1)
+                        return BadRequest(new ErrorModel(400, "douplicate couple tag"));
                 }
                 tag.CoupledWith = newTag.CoupledWith;
             }
