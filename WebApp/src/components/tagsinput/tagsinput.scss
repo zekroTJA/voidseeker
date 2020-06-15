@@ -1,0 +1,29 @@
+.tagsinput-tags-suggestions {
+  position: absolute;
+  width: 100%;
+  border: solid 1px black;
+  background-color: white;
+
+  > p {
+    margin: 0;
+    padding: 5px;
+    cursor: pointer;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.2);
+    }
+  }
+}
+
+.tagsinput-tags-container {
+  position: relative;
+}
+
+.tagsinput-coupled-num {
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.tagsinput-selected {
+  background-color: rgba(0, 0, 0, 0.2);
+}
