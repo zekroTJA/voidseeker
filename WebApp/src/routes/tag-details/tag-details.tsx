@@ -8,9 +8,9 @@ import Container from '../../components/container/container';
 import moment from 'moment';
 import Consts from '../../consts';
 import { TagModel } from '../../api/models/tag';
+import { UserModel } from '../../api/models/user';
 
 import './tag-details.scss';
-import { UserModel } from '../../api/models/user';
 
 interface TagDetailsRouteProps extends RouteComponentProps {
   globalState: GlobalState;
@@ -43,10 +43,10 @@ class TagDetailsRoute extends Component<TagDetailsRouteProps> {
     const owner = this.state.owner;
 
     return (
-      <div className="user-details-container">
+      <div className="tag-details-container">
         {tag && (
-          <Container title={`User details of ${tag.name}`}>
-            <table className="user-details-table">
+          <Container title={`Tag details of ${tag.name}`}>
+            <table className="tag-details-table">
               <tbody>
                 <tr>
                   <th>Name</th>
