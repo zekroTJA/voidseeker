@@ -11,7 +11,7 @@ namespace RESTAPI
         public const string IMAGE_STORAGE_BUCKET =      "void-images";
         public const string THUMBNAIL_STORAGE_BUCKET =  "void-images-thumbnails";
 
-        public const string TAG_PATTERN =               @"^[a-z0-9_\-']+$";
+        public const string TAG_PATTERN =               @"^[a-z0-9_\-']{1,64}$";
         public const string USERNAME_PATTERN =          @"^[a-z0-9-_\.]{1,32}$";
 
         public static readonly string[] ALLOWED_CONTENT_TYPES = {
