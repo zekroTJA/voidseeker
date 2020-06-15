@@ -159,6 +159,10 @@ export class RestAPI {
     return this.get(`tags/${ident}`);
   }
 
+  public static updateTag(tag: TagModel): Promise<TagModel> {
+    return this.post(`tags/${tag.uid}`, tag);
+  }
+
   public static deleteTag(uid: string): Promise<any> {
     return this.delete(`tags/${uid}`);
   }

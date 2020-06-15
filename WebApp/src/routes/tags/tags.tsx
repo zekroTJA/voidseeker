@@ -32,7 +32,7 @@ class TagsRoute extends Component<TagsRouteProps> {
   public render() {
     const tagElements = this.state.tags.map((t) => (
       <div className="tags-element">
-        <NavLink to={`/images?filter=${t.name}`}>{t.name}</NavLink>
+        <NavLink to={`/tags/${t.uid}`}>{t.name}</NavLink>
         {this.state.isAdmin && (
           <button
             className="tags-element-delete"
