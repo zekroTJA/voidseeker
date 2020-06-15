@@ -15,6 +15,8 @@ import ExportRoute from './routes/export/export';
 import UserEditRoute from './routes/user-edit/user-edit';
 import UserDetailsRoute from './routes/user-details/user-details';
 import TagsRoute from './routes/tags/tags';
+import TagDetailsRoute from './routes/tag-details/tag-details';
+import TagEditRoute from './routes/tag-edit/tag-edit';
 import SettingsRoute from './routes/settings/settings';
 import SnackBar from './components/snackbar/snackbar';
 import SnackBarNotifier, { SnackBarType } from './util/snackbar-notifier';
@@ -163,6 +165,26 @@ export default class App extends Component {
               exact
               path="/tags"
               render={() => <TagsRoute globalState={this.globalState} />}
+            />
+            <Route
+              exact
+              path="/tags/:uid"
+              render={({ match }) => (
+                <TagDetailsRoute
+                  globalState={this.globalState}
+                  tagId={match.params.uid}
+                />
+              )}
+            />
+            <Route
+              exact
+              path="/tags/:uid/edit"
+              render={({ match }) => (
+                <TagEditRoute
+                  globalState={this.globalState}
+                  tagId={match.params.uid}
+                />
+              )}
             />
             <Route
               exact
