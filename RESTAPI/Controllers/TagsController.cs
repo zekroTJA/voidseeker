@@ -100,6 +100,9 @@ namespace RESTAPI.Controllers
             if (tag == null)
                 return NotFound();
 
+            if (!authClaims.User.IsAdmin.Equals(true) && tag.CreatorUid != authClaims.UserUid)
+                return BadRequest(new ErrorModel(400, "only the owner or an admin can edit a tag"));
+
             if (!newTag.Name.IsNullOrEmpty() && tag.Name != newTag.Name)
             {
                 if (await database.GetTagByName(newTag.Name) != null)
