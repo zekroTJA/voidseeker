@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Elasticsearch.Net;
+using Microsoft.AspNetCore.Mvc;
 using RESTAPI.Authorization;
 using RESTAPI.Database;
 using RESTAPI.Extensions;
@@ -6,7 +7,9 @@ using RESTAPI.Filter;
 using RESTAPI.Models;
 using RESTAPI.Models.Responses;
 using System;
+using System.Linq;
 using System.Net.Mime;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace RESTAPI.Controllers
@@ -80,6 +83,42 @@ namespace RESTAPI.Controllers
 
             if (tag == null)
                 return NotFound();
+
+            return Ok(tag);
+        }
+
+        // -------------------------------------------------------------------------
+        // --- POST /api/tags/:uid ---
+
+        [HttpPost("{uid}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<TagModel>> Post([FromRoute] Guid uid, [FromBody] TagModel newTag)
+        {
+            var tag = await database.Get<TagModel>(uid);
+            if (tag == null)
+                return NotFound();
+
+            if (!newTag.Name.IsNullOrEmpty() && tag.Name != newTag.Name)
+            {
+                if (await database.GetTagByName(newTag.Name) != null)
+                    return BadRequest(new ErrorModel(400, "tag name already used"));
+
+                tag.Name = newTag.Name;
+            }
+
+            if (newTag.CoupledWith != null && newTag.CoupledWith.Length > 0)
+            {
+                foreach (var t in newTag.CoupledWith)
+                {
+                    if (!Regex.IsMatch(t, Constants.TAG_PATTERN))
+                        return BadRequest(new ErrorModel(400, "invalid couple tag"));
+                }
+                tag.CoupledWith = newTag.CoupledWith;
+            }
+
+            await database.Update(tag);
 
             return Ok(tag);
         }
