@@ -56,10 +56,11 @@ class InitRoute extends Component<RouteComponentProps> {
     return !this.state.user.username || !this.state.user.password;
   }
 
-  private onInitialize() {
-    RestAPI.instanceInitialize(this.state.user).then(() =>
-      this.props.history.push('/login')
-    );
+  private async onInitialize() {
+    try {
+      await RestAPI.instanceInitialize(this.state.user);
+      this.props.history.push('/login');
+    } catch {}
   }
 }
 
