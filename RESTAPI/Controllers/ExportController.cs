@@ -6,6 +6,7 @@ using RESTAPI.Filter;
 using RESTAPI.Models;
 using RESTAPI.Models.Responses;
 using System.IO;
+using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
 
@@ -62,6 +63,9 @@ namespace RESTAPI.Controllers
                 return BadRequest(new ErrorModel(400, "already initialized"));
 
             var count = await database.Count<ImageModel>();
+
+            if (authClaims.User?.TagBlacklist != null)
+                exclude = exclude.Concat(authClaims.User.TagBlacklist).ToArray();
 
             var res = await database.SearchImages(
                 0, (int)count, filter, exclude, authClaims.UserUid, includePublic, includeExplicit);

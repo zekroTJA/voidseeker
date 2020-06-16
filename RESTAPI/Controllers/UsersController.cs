@@ -9,6 +9,7 @@ using RESTAPI.Models.Requests;
 using RESTAPI.Models.Responses;
 using System;
 using System.Net.Mime;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace RESTAPI.Controllers
@@ -146,29 +147,28 @@ namespace RESTAPI.Controllers
 
             var user = await database.Get<UserModel>(uid.Value);
 
+            // Update Username
             if (user.UserName != newUser.UserName && !newUser.UserName.IsNullOrEmpty())
             {
-                //if (!newUser.IsValidUsername())
-                //    return BadRequest(new ErrorModel(400, "invalid username"));
-
                 if (await database.GetUserByUserName(user.UserName) != null)
                     return BadRequest(new ErrorModel(400, "username already taken"));
 
                 user.UserName = newUser.UserName;
             }
 
+            // Update Displayname
             if (!newUser.DisplayName.IsNullOrEmpty())
                 user.DisplayName = newUser.DisplayName;
 
-            // If actually set to "", this will reset the entry for
-            // the email address.
+            // Update Email Address
             if (newUser.EmailAddress != null)
                 user.EmailAddress = newUser.EmailAddress;
 
-            // Same for description
+            // Update Username
             if (newUser.Description != null)
                 user.Description = newUser.Description;
 
+            // Update Admin Status
             if (newUser.IsAdmin != null)
             {
                 if (!authClaims.User.IsAdmin.Equals(true))
@@ -177,6 +177,7 @@ namespace RESTAPI.Controllers
                 user.IsAdmin = newUser.IsAdmin.Equals(true);
             }
 
+            // Update Password
             if (!newUser.Password.IsNullOrEmpty())
             {
                 if (!newUser.IsValidPassword())

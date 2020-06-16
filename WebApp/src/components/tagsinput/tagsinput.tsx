@@ -17,6 +17,7 @@ enum KEY_CODE {
 interface TagsInputProps {
   tags: string[];
   tagsCompiled?: string;
+  disableTagCoupling?: boolean;
   onChange?: (tagsCompiled: string, tags: string[]) => void;
 }
 
@@ -36,8 +37,8 @@ export default class TagsInput extends Component<TagsInputProps> {
         className={this.state.selected === i ? 'tagsinput-selected' : ''}
         onClick={() => this.onSuggestionClick(s)}
       >
-        {s.name}{' '}
-        {s.coupledwith?.length > 0 && (
+        {s.name}&nbsp;
+        {!this.props.disableTagCoupling && s.coupledwith?.length > 0 && (
           <span className="tagsinput-coupled-num">+{s.coupledwith.length}</span>
         )}
       </p>
@@ -83,7 +84,7 @@ export default class TagsInput extends Component<TagsInputProps> {
     let tagsCompiledSplit = this.state.tagsCompiled.split(' ');
     tagsCompiledSplit[tagsCompiledSplit.length - 1] = s.name;
 
-    if (s.coupledwith) {
+    if (!this.props.disableTagCoupling && s.coupledwith) {
       tagsCompiledSplit = tagsCompiledSplit.concat(
         s.coupledwith.filter((t) => !tagsCompiledSplit.includes(t))
       );
@@ -135,6 +136,6 @@ export default class TagsInput extends Component<TagsInputProps> {
 
       this.setState({ tagsCompiled, selected: -1, suggestions: [] });
       this.props.onChange?.call(this, tagsCompiled, tags);
-    }, 100);
+    }, 75 /* <- TODO: This time might be adjusted if it fails sometimes */);
   }
 }

@@ -6,12 +6,17 @@ import './container.scss';
 
 interface ContainerProperties {
   title?: string | JSX.Element;
+  className?: string;
 }
 
 export default class Container extends Component<ContainerProperties> {
   public render() {
     return (
-      <div className="container-element">
+      <div
+        className={`container-element${
+          this.props.className ? ` ${this.props.className}` : ''
+        }`}
+      >
         {this.props.title && (
           <div className="container-header">{this.title}</div>
         )}

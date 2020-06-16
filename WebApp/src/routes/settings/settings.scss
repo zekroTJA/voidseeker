@@ -5,3 +5,19 @@
 .settings-small-info {
   font-size: 14px;
 }
+
+.settings-blacklist {
+  input {
+    display: block;
+    width: 100%;
+  }
+}
+
+.settings-usersettings-container {
+  margin-top: 20px;
+
+  button {
+    margin-top: 10px;
+    width: 100%;
+  }
+}

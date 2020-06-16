@@ -7,6 +7,7 @@ import PageModel from './models/page';
 import ImageModel from './models/image';
 import { TagModel } from './models/tag';
 import { WorkerStatus } from './models/worker';
+import UserSettingsModel from './models/usersettings';
 
 const PREFIX =
   process.env.NODE_ENV === 'development'
@@ -81,6 +82,19 @@ export class RestAPI {
 
   public static deleteUser(uid: string): Promise<any> {
     return this.delete(`users/${uid}`);
+  }
+
+  // ------------------------------------------------------------
+  // --- USERSETTINGS ---
+
+  public static userSettings(): Promise<UserSettingsModel> {
+    return this.get(`usersettings`);
+  }
+
+  public static setUserSettings(
+    settings: UserSettingsModel
+  ): Promise<UserSettingsModel> {
+    return this.post(`usersettings`, settings);
   }
 
   // ------------------------------------------------------------
