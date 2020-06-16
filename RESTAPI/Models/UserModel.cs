@@ -28,6 +28,9 @@ namespace RESTAPI.Models
         [JsonPropertyName("isadmin")]
         public bool? IsAdmin { get; set; }
 
+        [JsonPropertyName("tagblacklist")]
+        public string[] TagBlacklist { get; set; }
+
 
         [JsonIgnore]
         public string EmailAddress { get; set; }

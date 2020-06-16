@@ -72,6 +72,9 @@ namespace RESTAPI.Controllers
             [FromQuery] string sortBy = "created",
             [FromQuery] bool ascending = false)
         {
+            if (authClaims.User?.TagBlacklist != null)
+                exclude = exclude.Concat(authClaims.User.TagBlacklist).ToArray();
+
             var res = await database.SearchImages(
                 offset, size, filter, exclude, authClaims.UserUid, includePublic, includeExplicit, sortBy, ascending);
 
@@ -278,9 +281,6 @@ namespace RESTAPI.Controllers
 
         // -------------------------------------------------------------------------
         // --- HELPER FUNCTIONS ---
-
-        private string GetCacheImageKey(Guid uid) =>
-            $"image:create:{uid.ToString()}";
 
         private async Task SaveTags(ImageModel image, Guid creator)
         {
