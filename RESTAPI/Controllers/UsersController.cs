@@ -177,16 +177,6 @@ namespace RESTAPI.Controllers
                 user.IsAdmin = newUser.IsAdmin.Equals(true);
             }
 
-            // Update Tag Blacklist
-            if (newUser.TagBlacklist != null)
-            {
-                foreach (var t in newUser.TagBlacklist)
-                    if (!Regex.IsMatch(t, Constants.TAG_PATTERN))
-                        return BadRequest(new ErrorModel(400, "invalid blacklist tag"));
-
-                user.TagBlacklist = newUser.TagBlacklist;
-            }
-
             // Update Password
             if (!newUser.Password.IsNullOrEmpty())
             {
