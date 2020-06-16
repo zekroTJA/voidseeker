@@ -48,6 +48,7 @@ class TagEditRoute extends Component<TagEditRouteProps> {
             <label htmlFor="tag-edit-coupled">Coupled with:</label>
             <TagsInput
               tags={tag.coupledwith}
+              disableTagCoupling
               onChange={(_, tagsArray) =>
                 this.onChange(() => (tag.coupledwith = tagsArray))
               }
@@ -69,14 +70,6 @@ class TagEditRoute extends Component<TagEditRouteProps> {
     cb();
     this.setState({});
   }
-
-  // private onCoupledWithInput() {
-  //   const coupled = this.state.coupledWith
-  //     .toLowerCase()
-  //     .split(' ')
-  //     .filter((t) => !!t);
-  //   this.setState({ coupledWith: coupled.join(' ') });
-  // }
 
   private async onSubmit() {
     try {

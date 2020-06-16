@@ -30,6 +30,9 @@ namespace RESTAPI.Models
 
 
         [JsonIgnore]
+        public string[] TagBlacklist { get; set; }
+
+        [JsonIgnore]
         public string EmailAddress { get; set; }
 
         [JsonIgnore]
