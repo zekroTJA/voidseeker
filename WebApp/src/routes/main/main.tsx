@@ -7,10 +7,11 @@ import { RestAPI } from '../../api/restapi';
 import InputLimiter from '../../util/inputlimier';
 import LocalStorage from '../../util/localstorage';
 import ObjectUtils from '../../util/objects';
-
-import './main.scss';
 import Modal from '../../components/modal/modal';
 import SnackBarNotifier from '../../util/snackbar-notifier';
+import PageDialer from '../../components/pagedialer/pagedialer';
+
+import './main.scss';
 
 const SORT_OPTIONS = {
   // 'File Name': 'filename',
@@ -126,24 +127,27 @@ class MainRoute extends Component<MainRouteProps> {
             Export results
           </button>
           <div className="main-page-dialer">
-            <button
-              disabled={this.state.offset === 0}
-              onClick={() => this.dialPage(-1)}
-            >
-              ◄
-            </button>
-            <span>
-              {this.state.offset + 1} - {gs.images.size + this.state.offset}
-            </span>
-            <button
-              disabled={this.state.size > gs.images.size}
-              onClick={() => this.dialPage(1)}
-            >
-              ►
-            </button>
+            <PageDialer
+              offset={this.state.offset}
+              maxSize={this.state.size}
+              currSize={gs.images.size}
+              onChange={(offset) => this.onDialPage(offset)}
+            />
           </div>
         </div>
         <div className="main-image-grid">{imgs}</div>
+        {this.state.size <= gs.images.size && (
+          <div className="flex">
+            <div className="main-page-dialer">
+              <PageDialer
+                offset={this.state.offset}
+                maxSize={this.state.size}
+                currSize={gs.images.size}
+                onChange={(offset) => this.onDialPage(offset)}
+              />
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -258,12 +262,7 @@ class MainRoute extends Component<MainRouteProps> {
     } catch {}
   }
 
-  private dialPage(n: number) {
-    let offset = this.state.offset + n * this.state.size;
-    if (offset < 0) {
-      offset = 0;
-    }
-
+  private onDialPage(offset: number) {
     this.setState({ offset }, () => {
       this.fetchImages();
     });
