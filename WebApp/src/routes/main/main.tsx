@@ -137,7 +137,7 @@ class MainRoute extends Component<MainRouteProps> {
         </div>
         <div className="main-image-grid">{imgs}</div>
         {this.state.size <= gs.images.size && (
-          <div className="flex">
+          <div className="flex mb-20">
             <div className="main-page-dialer">
               <PageDialer
                 offset={this.state.offset}
