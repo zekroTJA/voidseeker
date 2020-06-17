@@ -9,10 +9,10 @@ export interface UserModel extends UniqueModel {
   lastlogin: Date;
   isadmin?: boolean;
   imagescount?: number;
+  emailaddress?: string;
 }
 
 export interface UserCreateModel extends UserModel {
   password?: string;
   oldpassword?: string;
-  emailaddress?: string;
 }

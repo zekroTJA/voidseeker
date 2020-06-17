@@ -18,6 +18,7 @@ import TagsRoute from './routes/tags/tags';
 import TagDetailsRoute from './routes/tag-details/tag-details';
 import TagEditRoute from './routes/tag-edit/tag-edit';
 import SettingsRoute from './routes/settings/settings';
+import MailConfirmRoute from './routes/mailconfirm/mailconfirm';
 import SnackBar from './components/snackbar/snackbar';
 import SnackBarNotifier, { SnackBarType } from './util/snackbar-notifier';
 import Header from './components/header/header';
@@ -98,6 +99,11 @@ export default class App extends Component {
         <div className="router-outlet">
           <Router>
             <Route exact path="/init" render={() => <InitRoute />}></Route>
+            <Route
+              exact
+              path="/confirmemail"
+              render={() => <MailConfirmRoute />}
+            ></Route>
             <Route
               exact
               path="/login"
