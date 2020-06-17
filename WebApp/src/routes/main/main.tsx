@@ -33,7 +33,7 @@ class MainRoute extends Component<MainRouteProps> {
     includeExplicit: false,
     includePublic: false,
     offset: 0,
-    size: 100,
+    size: LocalStorage.get<number>('page_size', 100)!,
     sortBy: 'created',
     ascending: false,
     showExportModal: false,
@@ -186,7 +186,7 @@ class MainRoute extends Component<MainRouteProps> {
         .filter((s) => !s.startsWith('-') && s.length > 0)
         .join(' ');
 
-      this.setState({ excludes, filter }, () => {
+      this.setState({ excludes, filter, offset: 0 }, () => {
         this.fetchImages();
       });
     });
