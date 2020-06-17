@@ -4,6 +4,13 @@ using System.Text.Json.Serialization;
 
 namespace RESTAPI.Models
 {
+    public enum EmailConfirmStatus
+    {
+        UNSET,
+        UNCONFIRMED,
+        CONFIRMED,
+    }
+
     /// <summary>
     /// User model.
     /// </summary>
@@ -28,12 +35,17 @@ namespace RESTAPI.Models
         [JsonPropertyName("isadmin")]
         public bool? IsAdmin { get; set; }
 
+        [StringLength(256)]
+        [RegularExpression(@"^[\w-+]+@\w+.\w+$")]
+        [JsonPropertyName("emailaddress")]
+        public string EmailAddress { get; set; }
+
+        [JsonPropertyName("emailconfirmstatus")]
+        public EmailConfirmStatus EmailConfirmStatus { get; set; }
+
 
         [JsonIgnore]
         public string[] TagBlacklist { get; set; }
-
-        [JsonIgnore]
-        public string EmailAddress { get; set; }
 
         [JsonIgnore]
         public byte[] PasswordHash { get; set; }
@@ -61,6 +73,7 @@ namespace RESTAPI.Models
             IsAdmin = user.IsAdmin;
             EmailAddress = user.EmailAddress;
             PasswordHash = user.PasswordHash;
+            EmailConfirmStatus = user.EmailConfirmStatus;
         }
     }
 }

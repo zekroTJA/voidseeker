@@ -18,11 +18,6 @@ namespace RESTAPI.Models.Requests
         [JsonPropertyName("oldpassword")]
         public string? OldPassword { get; set; }
 
-        [StringLength(256)]
-        [RegularExpression(@"^[\w-+]+@\w+.\w+$")]
-        [JsonPropertyName("emailaddress")]
-        public new string EmailAddress { get; set; }
-
         /// <summary>
         /// Returns true if the username
         /// set is valid.

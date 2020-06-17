@@ -1,12 +1,16 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using RESTAPI.Authorization;
+using RESTAPI.Cache;
 using RESTAPI.Database;
 using RESTAPI.Extensions;
 using RESTAPI.Filter;
 using RESTAPI.Hashing;
+using RESTAPI.Mailing;
 using RESTAPI.Models;
 using RESTAPI.Models.Requests;
 using RESTAPI.Models.Responses;
+using RESTAPI.Util;
 using System;
 using System.Net.Mime;
 using System.Text.RegularExpressions;
@@ -35,14 +39,22 @@ namespace RESTAPI.Controllers
         // --- Injected by DI ---------------------
         private readonly IDatabaseAccess database;
         private readonly IHasher hasher;
+        private readonly IMailService mailService;
+        private readonly ICacheProvider cache;
         // ----------------------------------------
 
         private AuthClaims authClaims;
+        private readonly string publicAddress;
 
-        public UsersController(IDatabaseAccess _database, IHasher _hasher)
+        public UsersController(
+            IDatabaseAccess _database, IHasher _hasher, IMailService _mailService, 
+            IConfiguration _config, ICacheProvider _cache)
         {
             database = _database;
             hasher = _hasher;
+            mailService = _mailService;
+            cache = _cache;
+            publicAddress = _config.GetValue<string>("WebServer:PublicURL", null);
         }
 
         public void SetAuthClaims(AuthClaims claims) =>
@@ -75,6 +87,8 @@ namespace RESTAPI.Controllers
             user.LastLogin = default;
             user.DisplayName = user.DisplayName.IsNullOrEmpty() ? user.UserName : user.DisplayName;
             user.PasswordHash = hasher.Create(user.Password);
+            // TODO: Replace with mail confirmation
+            user.EmailAddress = null;
 
             await database.Put(user);
 
@@ -116,6 +130,12 @@ namespace RESTAPI.Controllers
 
             if (user == null)
                 return NotFound();
+
+            if (!(authClaims.User?.IsAdmin).Equals(true))
+            {
+                user.EmailAddress = null;
+                user.EmailConfirmStatus = EmailConfirmStatus.UNSET;
+            }
 
             var detailedUser = new UserDetailsModel(user);
             detailedUser.ImagesCount = await database.Count<ImageModel>("ownerUid", user.Uid.ToString());
@@ -161,8 +181,14 @@ namespace RESTAPI.Controllers
                 user.DisplayName = newUser.DisplayName;
 
             // Update Email Address
-            if (newUser.EmailAddress != null)
+            if (newUser.EmailAddress != null && newUser.EmailAddress != user.EmailAddress)
+            {
                 user.EmailAddress = newUser.EmailAddress;
+                if (user.EmailAddress.Length > 0)
+                    await SendMailConfirm(user);
+                else
+                    user.EmailConfirmStatus = EmailConfirmStatus.UNSET;
+            }
 
             // Update Username
             if (newUser.Description != null)
@@ -226,5 +252,32 @@ namespace RESTAPI.Controllers
         [ProducesResponseType(200)]
         public Task<IActionResult> DeleteSelfUser() =>
             DeleteUser(authClaims.User.Uid);
+
+        // -------------------------------------------------------------------------
+        // --- HELPERS ---
+
+        private async Task SendMailConfirm(UserModel user)
+        {
+            if (publicAddress.IsNullOrEmpty())
+                return;
+
+            var token = CryptoRandomUtil.GetBase64String(32)
+                .Replace('=', '_')
+                .Replace('+', '-');
+            cache.Put($"{Constants.MAIL_CONFIRM_CACHE_KEY}:{token}", user.Uid, TimeSpan.FromHours(1));
+
+            var content =
+                $"To confirm your mail address of your voidseeker account, please open the link below.\n" +
+                $"\n" +
+                $"Username:      {user.UserName}\n" +
+                $"UID:           {user.Uid}\n" +
+                $"Instance Host: {publicAddress}\n" +
+                $"\n" +
+                $"Confirmation Link:\n" +
+                $"{publicAddress}{Constants.MAIL_CONFIRM_SUBDIR}?token={token}";
+
+            await mailService.SendMailAsync("voidseeker", user.EmailAddress, "E-Mail Confirmation | voidseeker", content, false);
+            user.EmailConfirmStatus = EmailConfirmStatus.UNCONFIRMED;
+        }
     }
 }

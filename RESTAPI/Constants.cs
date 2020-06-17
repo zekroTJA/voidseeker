@@ -10,6 +10,8 @@ namespace RESTAPI
         public const string SESSION_COOKIE_NAME =       "void_session_key";
         public const string IMAGE_STORAGE_BUCKET =      "void-images";
         public const string THUMBNAIL_STORAGE_BUCKET =  "void-images-thumbnails";
+        public const string MAIL_CONFIRM_SUBDIR =       "/confirmemail";
+        public const string MAIL_CONFIRM_CACHE_KEY =    "mailconfirm";
 
         public const string TAG_PATTERN =               @"^[a-z0-9_\-']{1,64}$";
         public const string USERNAME_PATTERN =          @"^[a-z0-9-_\.]{1,32}$";
