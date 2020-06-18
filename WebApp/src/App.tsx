@@ -103,7 +103,7 @@ export default class App extends Component {
         {this.state.loggedIn && (
           <Header
             version={this.globalState.instance?.version}
-            isAdmin={this.state.selfUser.isadmin}
+            isAdmin={this.state.selfUser?.isadmin}
             onLogout={this.onLogout.bind(this)}
             onHome={this.onHome.bind(this)}
             onUpload={this.onUpload.bind(this)}
