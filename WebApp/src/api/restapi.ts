@@ -84,6 +84,10 @@ export class RestAPI {
     return this.delete(`users/${uid}`);
   }
 
+  public static resendUserConfirmMail(): Promise<any> {
+    return this.post(`users/@me/resendconfirm`);
+  }
+
   // ------------------------------------------------------------
   // --- USERSETTINGS ---
 
@@ -120,10 +124,6 @@ export class RestAPI {
   public static imageInfo(uid: string): Promise<ImageModel> {
     return this.get(`images/${uid}/info`);
   }
-
-  // public static initCreateImage(image: ImageModel): Promise<ImageModel> {
-  //   return this.put('images', image);
-  // }
 
   public static uploadImage(file: File): Promise<ImageModel> {
     const formData = new FormData();
@@ -210,29 +210,55 @@ export class RestAPI {
   }
 
   // ------------------------------------------------------------
+  // --- MAILCONFIRM ---
+
+  public static mailConformSet(
+    token: string,
+    dontEmitError: boolean = false
+  ): Promise<WorkerStatus> {
+    return this.post(
+      `mailconfirm/confirmset?token=${token}`,
+      undefined,
+      !dontEmitError
+    );
+  }
+
+  // ------------------------------------------------------------
   // --- HELPERS ---
 
-  public static get<T>(path: string): Promise<T> {
-    return this.req<T>('GET', path, undefined);
+  public static get<T>(path: string, emitError: boolean = true): Promise<T> {
+    return this.req<T>('GET', path, undefined, undefined, emitError);
   }
 
-  private static post<T>(path: string, body?: any): Promise<T> {
-    return this.req<T>('POST', path, body);
+  private static post<T>(
+    path: string,
+    body?: any,
+    emitError: boolean = true
+  ): Promise<T> {
+    return this.req<T>('POST', path, body, undefined, emitError);
   }
 
-  private static put<T>(path: string, body?: any): Promise<T> {
-    return this.req<T>('PUT', path, body);
+  private static put<T>(
+    path: string,
+    body?: any,
+    emitError: boolean = true
+  ): Promise<T> {
+    return this.req<T>('PUT', path, body, undefined, emitError);
   }
 
-  private static delete<T>(path: string): Promise<T> {
-    return this.req<T>('DELETE', path);
+  private static delete<T>(
+    path: string,
+    emitError: boolean = true
+  ): Promise<T> {
+    return this.req<T>('DELETE', path, undefined, undefined, emitError);
   }
 
   private static async req<T>(
     method: string,
     path: string,
     body?: any,
-    contentType: string | undefined = 'application/json'
+    contentType: string | undefined = 'application/json',
+    emitError: boolean = true
   ): Promise<T> {
     let reqBody = undefined;
     if (body) {
@@ -256,12 +282,12 @@ export class RestAPI {
     });
 
     if (res.status === 401) {
-      this.events.emit('authentication-error', res);
+      if (emitError) this.events.emit('authentication-error', res);
       throw new AuthenticationError();
     }
 
     if (!res.ok) {
-      this.events.emit('error', res);
+      if (emitError) this.events.emit('error', res);
       throw new Error(res.statusText);
     }
 

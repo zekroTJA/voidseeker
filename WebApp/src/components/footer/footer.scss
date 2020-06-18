@@ -1,0 +1,20 @@
+.footer-container {
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  color: white;
+  padding: 5px 0;
+
+  .link {
+    color: white !important;
+    text-decoration: underline;
+  }
+}
+
+.footer-error {
+  background-color: #f44336;
+}

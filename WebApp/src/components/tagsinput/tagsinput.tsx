@@ -136,6 +136,6 @@ export default class TagsInput extends Component<TagsInputProps> {
 
       this.setState({ tagsCompiled, selected: -1, suggestions: [] });
       this.props.onChange?.call(this, tagsCompiled, tags);
-    }, 75 /* <- TODO: This time might be adjusted if it fails sometimes */);
+    }, 100 /* <- TODO: This time might be adjusted if it fails sometimes */);
   }
 }
