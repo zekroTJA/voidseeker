@@ -84,6 +84,10 @@ export class RestAPI {
     return this.delete(`users/${uid}`);
   }
 
+  public static resendUserConfirmMail(): Promise<any> {
+    return this.post(`users/@me/resendconfirm`);
+  }
+
   // ------------------------------------------------------------
   // --- USERSETTINGS ---
 

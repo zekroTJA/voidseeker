@@ -5,12 +5,12 @@ import { RouteComponentProps, withRouter } from 'react-router-dom';
 import GlobalState from '../../util/globalstate';
 import Container from '../../components/container/container';
 import LocalStorage from '../../util/localstorage';
-
-import './settings.scss';
 import UserSettingsModel from '../../api/models/usersettings';
 import { RestAPI } from '../../api/restapi';
 import TagsInput from '../../components/tagsinput/tagsinput';
 import SnackBarNotifier, { SnackBarType } from '../../util/snackbar-notifier';
+
+import './settings.scss';
 
 interface SettingsRouteProps extends RouteComponentProps {
   globalState: GlobalState;
@@ -95,7 +95,7 @@ class SettingsRoute extends Component<SettingsRouteProps> {
           4000
         );
       } catch {}
-    }, 100 /* <- Small delay required for tag input to be set */);
+    }, 110 /* <- Small delay required for tag input to be set */);
   }
 }
 

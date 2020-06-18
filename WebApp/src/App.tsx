@@ -20,17 +20,19 @@ import TagEditRoute from './routes/tag-edit/tag-edit';
 import SettingsRoute from './routes/settings/settings';
 import MailConfirmRoute from './routes/mailconfirm/mailconfirm';
 import SnackBar from './components/snackbar/snackbar';
+import Footer from './components/footer/footer';
 import SnackBarNotifier, { SnackBarType } from './util/snackbar-notifier';
 import Header from './components/header/header';
+import ResponseErrorUtil from './util/responseerror';
+import { UserModel, EmailConfirmStatus } from './api/models/user';
 
 import './App.scss';
-import ResponseErrorUtil from './util/responseerror';
 
 export default class App extends Component {
   public state = {
     redirect: (null as any) as string,
     loggedIn: false,
-    isAdmin: false,
+    selfUser: (null as any) as UserModel,
   };
 
   private globalState = new GlobalState();
@@ -64,7 +66,7 @@ export default class App extends Component {
 
     this.globalState.selfUser().then((u) => {
       if (u) {
-        this.setState({ isAdmin: u.isadmin, loggedIn: true });
+        this.setState({ loggedIn: true, selfUser: u });
       }
     });
 
@@ -82,10 +84,26 @@ export default class App extends Component {
     return (
       <div>
         <SnackBar />
+
+        {this.state.selfUser?.emailconfirmstatus ===
+          EmailConfirmStatus.UNCONFIRMED && (
+          <Footer>
+            <span>
+              Your e-mail address is not confirmed yet.&nbsp;
+              <button
+                className="link"
+                onClick={() => this.onConfirmMailResend()}
+              >
+                [Resend confirmation mail.]
+              </button>
+            </span>
+          </Footer>
+        )}
+
         {this.state.loggedIn && (
           <Header
             version={this.globalState.instance?.version}
-            isAdmin={this.state.isAdmin}
+            isAdmin={this.state.selfUser.isadmin}
             onLogout={this.onLogout.bind(this)}
             onHome={this.onHome.bind(this)}
             onUpload={this.onUpload.bind(this)}
@@ -251,5 +269,16 @@ export default class App extends Component {
 
   private onSettings() {
     this.redirect('/settings');
+  }
+
+  private async onConfirmMailResend() {
+    try {
+      await RestAPI.resendUserConfirmMail();
+      SnackBarNotifier.show(
+        'Confirmation mail successfully resend.',
+        SnackBarType.SUCCESS,
+        4000
+      );
+    } catch {}
   }
 }
