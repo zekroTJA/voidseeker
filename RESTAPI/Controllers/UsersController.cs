@@ -234,6 +234,23 @@ namespace RESTAPI.Controllers
             UpdateUser(authClaims.User?.Uid, newUser);
 
         // -------------------------------------------------------------------------
+        // --- POST /api/users/@me/resendconfirm ---
+
+        [HttpPost("@me/resendconfirm")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<ActionResult> ResendConfirmationMail()
+        {
+            var user = authClaims.User;
+            if (user.EmailConfirmStatus != EmailConfirmStatus.UNCONFIRMED)
+                return BadRequest(new ErrorModel(400, "Mail is already confirmed or no mail was set."));
+
+            await SendMailConfirm(user);
+
+            return Ok();
+        }
+
+        // -------------------------------------------------------------------------
         // --- DELETE /api/users/:uid ---
 
         [HttpDelete("{uid}")]
