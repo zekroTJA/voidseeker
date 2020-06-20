@@ -6,9 +6,9 @@ import GlobalState from '../../util/globalstate';
 import WorkerModel, { WorkerStatus } from '../../api/models/worker';
 import { RestAPI } from '../../api/restapi';
 import moment from 'moment';
+import SnackBarNotifier, { SnackBarType } from '../../util/snackbar-notifier';
 
 import './export.scss';
-import SnackBarNotifier, { SnackBarType } from '../../util/snackbar-notifier';
 
 interface ExportRouteProps extends RouteComponentProps {
   globalState: GlobalState;

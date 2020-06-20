@@ -4,10 +4,10 @@ import React, { Component } from 'react';
 import { RestAPI } from '../../api/restapi';
 import { withRouter, RouteComponentProps } from 'react-router-dom';
 import Container from '../../components/container/container';
-
-import './login.scss';
 import GlobalState from '../../util/globalstate';
 import SnackBarNotifier, { SnackBarType } from '../../util/snackbar-notifier';
+
+import './login.scss';
 
 interface LoginRouteProps extends RouteComponentProps {
   globalState: GlobalState;

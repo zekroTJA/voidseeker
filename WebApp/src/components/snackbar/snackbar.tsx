@@ -1,10 +1,10 @@
 /** @format */
 
 import React, { Component } from 'react';
-
-import './snackbar.scss';
 import SnackBarNotifier, { SnackBarEvent } from '../../util/snackbar-notifier';
 import { UnregisterHandler } from '../../util/eventemitter';
+
+import './snackbar.scss';
 
 export default class SnackBar extends Component {
   public state = {

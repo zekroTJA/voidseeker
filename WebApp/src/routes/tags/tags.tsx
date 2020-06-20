@@ -6,9 +6,9 @@ import GlobalState from '../../util/globalstate';
 import { RestAPI } from '../../api/restapi';
 import SnackBarNotifier, { SnackBarType } from '../../util/snackbar-notifier';
 import { TagModel } from '../../api/models/tag';
+import InputLimiter from '../../util/inputlimier';
 
 import './tags.scss';
-import InputLimiter from '../../util/inputlimier';
 
 interface TagsRouteProps extends RouteComponentProps {
   globalState: GlobalState;

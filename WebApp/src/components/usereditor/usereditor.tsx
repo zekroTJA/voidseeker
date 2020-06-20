@@ -2,9 +2,9 @@
 
 import React, { Component } from 'react';
 import { UserCreateModel } from '../../api/models/user';
+import PasswordInput from '../passwordinput/passwordinput';
 
 import './usereditor.scss';
-import PasswordInput from '../passwordinput/passwordinput';
 
 interface UserEditorProperties {
   user: UserCreateModel;
