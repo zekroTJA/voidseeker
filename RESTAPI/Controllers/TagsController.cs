@@ -28,7 +28,7 @@ namespace RESTAPI.Controllers
     [ProxyAddress]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(401)]
+    [ProducesResponseType(typeof(Nullable), 401)]
     [TypeFilter(typeof(AuthorizationRequired))]
     public class TagsController : ControllerBase, IAuthorizedController
     {
@@ -52,7 +52,7 @@ namespace RESTAPI.Controllers
         // --- GET /api/tags ---
 
         [HttpGet]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(PageModel<TagModel>), 200)]
         public async Task<ActionResult<PageModel<TagModel>>> Get(
             [FromQuery] int offset = 0,
             [FromQuery] int size = 50,
@@ -67,8 +67,8 @@ namespace RESTAPI.Controllers
         // --- GET /api/tags/:ident ---
 
         [HttpGet("{ident}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(404)]
+        [ProducesResponseType(typeof(TagModel), 200)]
+        [ProducesResponseType(typeof(Nullable), 404)]
         public async Task<ActionResult<TagModel>> Get([FromRoute] string ident)
         {
             TagModel tag;
@@ -91,9 +91,9 @@ namespace RESTAPI.Controllers
         // --- POST /api/tags/:uid ---
 
         [HttpPost("{uid}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
+        [ProducesResponseType(typeof(TagModel), 200)]
+        [ProducesResponseType(typeof(ErrorModel), 400)]
+        [ProducesResponseType(typeof(Nullable), 404)]
         public async Task<ActionResult<TagModel>> Post([FromRoute] Guid uid, [FromBody] TagModel newTag)
         {
             var tag = await database.Get<TagModel>(uid);
@@ -136,9 +136,8 @@ namespace RESTAPI.Controllers
         // --- DELETE /api/tags/:uid ---
 
         [HttpDelete("{uid}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(401)]
-        [ProducesResponseType(404)]
+        [ProducesResponseType(typeof(Nullable), 204)]
+        [ProducesResponseType(typeof(Nullable), 404)]
         [AdminOnly]
         public async Task<ActionResult> Delete([FromRoute] Guid uid)
         {
@@ -148,7 +147,7 @@ namespace RESTAPI.Controllers
 
             await database.Delete<TagModel>(uid);
 
-            return Ok();
+            return NoContent();
         }
     }
 }

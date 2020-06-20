@@ -32,7 +32,7 @@ namespace RESTAPI.Controllers
     [ProxyAddress]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(401)]
+    [ProducesResponseType(typeof(Nullable), 401)]
     [TypeFilter(typeof(AuthorizationRequired))]
     public class UsersController : ControllerBase, IAuthorizedController
     {
@@ -67,8 +67,8 @@ namespace RESTAPI.Controllers
 
         [HttpPut]
         [AdminOnly]
-        [ProducesResponseType(201)]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(typeof(UserModel), 201)]
+        [ProducesResponseType(typeof(ErrorModel), 400)]
         public async Task<ActionResult<UserModel>> Create([FromBody] UserCreateRequestModel user)
         {
 
@@ -102,7 +102,7 @@ namespace RESTAPI.Controllers
 
         [HttpGet]
         [AdminOnly]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(PageModel<UserModel>), 200)]
         public async Task<ActionResult<PageModel<UserModel>>> Get(
             [FromQuery] int offset = 0, [FromQuery] int size = 20, [FromQuery] string filter = "")
         {
@@ -114,8 +114,8 @@ namespace RESTAPI.Controllers
         // --- GET /api/users/:ident ---
 
         [HttpGet("{ident}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(404)]
+        [ProducesResponseType(typeof(UserDetailsModel), 200)]
+        [ProducesResponseType(typeof(Nullable), 404)]
         public async Task<ActionResult<UserDetailsModel>> GetUser([FromRoute] string ident)
         {
             UserModel user;
@@ -147,8 +147,8 @@ namespace RESTAPI.Controllers
         // --- GET /api/users/@me ---
 
         [HttpGet("@me")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(404)]
+        [ProducesResponseType(typeof(UserDetailsModel), 200)]
+        [ProducesResponseType(typeof(Nullable), 404)]
         public Task<ActionResult<UserDetailsModel>> GetSelfUser() =>
             GetUser(authClaims.User?.Uid.ToString());
 
@@ -157,8 +157,8 @@ namespace RESTAPI.Controllers
 
         [HttpPost("{uid}")]
         [AdminOnly]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(404)]
+        [ProducesResponseType(typeof(UserModel), 200)]
+        [ProducesResponseType(typeof(Nullable), 404)]
         public async Task<ActionResult<UserModel>> UpdateUser(
             [FromRoute] Guid? uid, [FromBody] UserCreateRequestModel newUser)
         {
@@ -227,9 +227,9 @@ namespace RESTAPI.Controllers
         // --- POST /api/users/@me ---
 
         [HttpPost("@me")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
+        [ProducesResponseType(typeof(UserModel), 200)]
+        [ProducesResponseType(typeof(ErrorModel), 400)]
+        [ProducesResponseType(typeof(Nullable), 404)]
         public Task<ActionResult<UserModel>> UpdateSelfUser([FromBody] UserCreateRequestModel newUser) =>
             UpdateUser(authClaims.User?.Uid, newUser);
 
@@ -237,8 +237,8 @@ namespace RESTAPI.Controllers
         // --- POST /api/users/@me/resendconfirm ---
 
         [HttpPost("@me/resendconfirm")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(typeof(Nullable), 204)]
+        [ProducesResponseType(typeof(ErrorModel), 400)]
         public async Task<ActionResult> ResendConfirmationMail()
         {
             var user = authClaims.User;
@@ -247,7 +247,7 @@ namespace RESTAPI.Controllers
 
             await SendMailConfirm(user);
 
-            return Ok();
+            return NoContent();
         }
 
         // -------------------------------------------------------------------------
@@ -255,18 +255,18 @@ namespace RESTAPI.Controllers
 
         [HttpDelete("{uid}")]
         [AdminOnly]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(Nullable), 204)]
         public async Task<IActionResult> DeleteUser([FromRoute] Guid uid)
         {
             await database.Delete<UserModel>(uid);
-            return Ok();
+            return NoContent();
         }
 
         // -------------------------------------------------------------------------
         // --- DELETE /api/users/@me ---
 
         [HttpDelete("@me")]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(Nullable), 204)]
         public Task<IActionResult> DeleteSelfUser() =>
             DeleteUser(authClaims.User.Uid);
 
@@ -278,17 +278,15 @@ namespace RESTAPI.Controllers
             if (publicAddress.IsNullOrEmpty())
                 return;
 
-            var token = CryptoRandomUtil.GetBase64String(32)
-                .Replace('=', '_')
-                .Replace('+', '-');
+            var token = CryptoRandomUtil.GetBase64String(32);
             cache.Put($"{Constants.MAIL_CONFIRM_CACHE_KEY}:{token}", user.Uid, TimeSpan.FromHours(1));
 
             var content =
                 $"To confirm your mail address of your voidseeker account, please open the link below.\n" +
                 $"\n" +
-                $"Username:      {user.UserName}\n" +
-                $"UID:           {user.Uid}\n" +
-                $"Instance Host: {publicAddress}\n" +
+                $"Username:  {user.UserName}\n" +
+                $"UID:  {user.Uid}\n" +
+                $"Instance Host:  {publicAddress}\n" +
                 $"\n" +
                 $"Confirmation Link:\n" +
                 $"{publicAddress}{Constants.MAIL_CONFIRM_SUBDIR}?token={token}";

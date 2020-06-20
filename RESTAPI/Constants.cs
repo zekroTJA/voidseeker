@@ -11,10 +11,13 @@ namespace RESTAPI
         public const string IMAGE_STORAGE_BUCKET =      "void-images";
         public const string THUMBNAIL_STORAGE_BUCKET =  "void-images-thumbnails";
         public const string MAIL_CONFIRM_SUBDIR =       "/confirmemail";
+        public const string MAIL_PWRESET_SUBDIR =       "/passwordreset";
         public const string MAIL_CONFIRM_CACHE_KEY =    "mailconfirm";
+        public const string MAIL_PWRESET_CACHE_KEY =    "mailpwreset";
 
         public const string TAG_PATTERN =               @"^[a-z0-9_\-']{1,64}$";
         public const string USERNAME_PATTERN =          @"^[a-z0-9-_\.]{1,32}$";
+        public const string EMAIL_PATTERN =             @"^[\w-+]+@\w+.\w+$";
 
         public static readonly string[] ALLOWED_CONTENT_TYPES = {
             "image/bmp",

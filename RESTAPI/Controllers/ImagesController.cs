@@ -35,7 +35,7 @@ namespace RESTAPI.Controllers
     [ProxyAddress]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(401)]
+    [ProducesResponseType(typeof(Nullable), 401)]
     [TypeFilter(typeof(AuthorizationRequired))]
     public class ImagesController : ControllerBase, IAuthorizedController
     {
@@ -61,7 +61,7 @@ namespace RESTAPI.Controllers
         // --- GET /api/images ---
 
         [HttpGet]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(PageModel<ImageModel>), 200)]
         public async Task<ActionResult<PageModel<ImageModel>>> Get(
             [FromQuery] int offset = 0,
             [FromQuery] int size = 50,
@@ -87,8 +87,8 @@ namespace RESTAPI.Controllers
         [HttpPut]
         [RequestSizeLimit(100 * 1024 * 1024)]
         [Consumes("multipart/form-data")]
-        [ProducesResponseType(201)]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(typeof(ImageModel), 201)]
+        [ProducesResponseType(typeof(ErrorModel), 400)]
         public async Task<ActionResult<ImageModel>> PutImageData(IFormFile file)
         {
             if (file == null)
@@ -133,9 +133,9 @@ namespace RESTAPI.Controllers
         // --- POST /api/images/:uid ---
 
         [HttpPost("{uid}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
+        [ProducesResponseType(typeof(ImageModel), 200)]
+        [ProducesResponseType(typeof(ErrorModel), 400)]
+        [ProducesResponseType(typeof(Nullable), 404)]
         public async Task<ActionResult<ImageModel>> UpdateImage([FromRoute] Guid uid, [FromBody] ImageModel newImage)
         {
             bool tagsUpdated = false;
@@ -180,8 +180,8 @@ namespace RESTAPI.Controllers
 
         [HttpGet("{uid}")]
         [ResponseCache(Duration = 30 * 24 * 3600, Location = ResponseCacheLocation.Any, NoStore = false)]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(404)]
+        [ProducesResponseType(typeof(FileStream), 200)]
+        [ProducesResponseType(typeof(Nullable), 404)]
         public async Task<ActionResult> GetImage([FromRoute] Guid uid)
         {
             var image = await database.Get<ImageModel>(uid);
@@ -205,8 +205,8 @@ namespace RESTAPI.Controllers
 
         [HttpGet("{uid}/thumbnail")]
         [ResponseCache(Duration = 30 * 24 * 3600, Location = ResponseCacheLocation.Any, NoStore = false)]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(404)]
+        [ProducesResponseType(typeof(FileStream), 200)]
+        [ProducesResponseType(typeof(Nullable), 404)]
         public async Task<ActionResult> GetImageThumbnail([FromRoute] Guid uid, [FromQuery] int size = 200)
         {
             byte[] imageDataArray;
@@ -250,8 +250,8 @@ namespace RESTAPI.Controllers
         // --- GET /api/images/:uid/info ---
 
         [HttpGet("{uid}/info")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(404)]
+        [ProducesResponseType(typeof(ImageModel), 200)]
+        [ProducesResponseType(typeof(Nullable), 404)]
         public async Task<ActionResult<ImageModel>> GetImageInfo([FromRoute] Guid uid)
         {
             var image = await database.Get<ImageModel>(uid);
@@ -265,8 +265,8 @@ namespace RESTAPI.Controllers
         // --- DELETE /api/images/:uid/info ---
 
         [HttpDelete("{uid}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(404)]
+        [ProducesResponseType(typeof(Nullable), 204)]
+        [ProducesResponseType(typeof(Nullable), 404)]
         public async Task<ActionResult<ImageModel>> DeleteImage([FromRoute] Guid uid)
         {
             var image = await database.Get<ImageModel>(uid);
@@ -276,7 +276,7 @@ namespace RESTAPI.Controllers
             await database.Delete<ImageModel>(uid);
             await storage.Delete(image.Bucket, image.BlobName);
 
-            return Ok();
+            return NoContent();
         }
 
         // -------------------------------------------------------------------------

@@ -1,8 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using RESTAPI.Cache;
 using RESTAPI.Database;
+using RESTAPI.Extensions;
 using RESTAPI.Filter;
+using RESTAPI.Mailing;
 using RESTAPI.Models;
+using RESTAPI.Models.Requests;
+using RESTAPI.Util;
 using System;
 using System.Net.Mime;
 using System.Threading.Tasks;
@@ -28,12 +33,18 @@ namespace RESTAPI.Controllers
         // --- Injected by DI ---------------------
         private readonly IDatabaseAccess database;
         private readonly ICacheProvider cache;
+        private readonly IMailService mailService;
         // ----------------------------------------
 
-        public MailConfirmController(IDatabaseAccess _database, ICacheProvider _cache)
+        private readonly string publicAddress;
+
+        public MailConfirmController(
+            IDatabaseAccess _database, ICacheProvider _cache, IMailService _mailService, IConfiguration _config)
         {
             database = _database;
             cache = _cache;
+            mailService = _mailService;
+            publicAddress = _config.GetValue<string>("WebServer:PublicURL", null);
         }
 
         // -------------------------------------------------------------------------
@@ -54,6 +65,45 @@ namespace RESTAPI.Controllers
             cache.Delete(key);
 
             return Ok();
+        }
+
+        // -------------------------------------------------------------------------
+        // --- POST /api/mailconfirm/passwordreset ---
+
+        [HttpPost("[action]")]
+        public async Task<ActionResult> PasswordReset([FromBody] PasswordResetRequestModel pwReset)
+        {
+            var user = await database.GetUserByUserName(pwReset.UserName);
+            if (user.EmailAddress.IsNullOrEmpty() || user.EmailAddress != pwReset.EmailAddress)
+                return BadRequest();
+
+            await SendPasswordResetMail(user);
+
+            return Ok();
+        }
+
+        // -------------------------------------------------------------------------
+        // --- HELPERS ---
+
+        private async Task SendPasswordResetMail(UserModel user)
+        {
+            if (publicAddress.IsNullOrEmpty())
+                return;
+
+            var token = CryptoRandomUtil.GetBase64String(32);
+            cache.Put($"{Constants.MAIL_PWRESET_CACHE_KEY}:{token}", user.Uid, TimeSpan.FromHours(1));
+
+            var content =
+                $"To reset your password, please follow the link below.\n" +
+                $"\n" +
+                $"Username:  {user.UserName}\n" +
+                $"UID:  {user.Uid}\n" +
+                $"Instance Host:  {publicAddress}\n" +
+                $"\n" +
+                $"Password Reset Link:\n" +
+                $"{publicAddress}{Constants.MAIL_PWRESET_SUBDIR}?token={token}";
+
+            await mailService.SendMailAsync("voidseeker", user.EmailAddress, "Password Reset | voidseeker", content, false);
         }
     }
 }

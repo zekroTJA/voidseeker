@@ -53,8 +53,8 @@ namespace RESTAPI.Controllers
         // --- POST /api/auth/login ---
 
         [HttpPost("[action]")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(401)]
+        [ProducesResponseType(typeof(UserModel), 200)]
+        [ProducesResponseType(typeof(Nullable), 401)]
         public async Task<ActionResult<UserModel>> Login([FromBody] LoginModel login)
         {
             var user = await database.GetUserByUserName(login.Username);
@@ -97,7 +97,7 @@ namespace RESTAPI.Controllers
         // --- POST /api/auth/logout ---
 
         [HttpPost("[action]")]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(Nullable), 204)]
         public IActionResult Logout()
         {
             var cookieOptions = new CookieOptions
@@ -108,7 +108,7 @@ namespace RESTAPI.Controllers
 
             Response.Cookies.Append(Constants.SESSION_COOKIE_NAME, "", cookieOptions);
 
-            return Ok();
+            return NoContent();
         }
     }
 }
