@@ -273,6 +273,19 @@ namespace RESTAPI.Controllers
         // -------------------------------------------------------------------------
         // --- HELPERS ---
 
+        /// <summary>
+        /// Generates a secure token which will be sent to the users
+        /// e-mail address together with account and instance information.
+        /// This token is also set to cache as key together with the users
+        /// UID as value to re-identify this token.
+        /// After that, teh value for <see cref="UserModel.EmailConfirmStatus"/>
+        /// will be set to <see cref="EmailConfirmStatus.UNCONFIRMED"/>.
+        /// 
+        /// If the user has no valid e-mail address set, no mail will be sent
+        /// and this function returns nothing without an error.
+        /// </summary>
+        /// <param name="user">user model</param>
+        /// <returns></returns>
         private async Task SendMailConfirm(UserModel user)
         {
             if (publicAddress.IsNullOrEmpty())

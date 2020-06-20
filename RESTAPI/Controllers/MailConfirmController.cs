@@ -4,6 +4,7 @@ using RESTAPI.Cache;
 using RESTAPI.Database;
 using RESTAPI.Extensions;
 using RESTAPI.Filter;
+using RESTAPI.Hashing;
 using RESTAPI.Mailing;
 using RESTAPI.Models;
 using RESTAPI.Models.Requests;
@@ -34,16 +35,20 @@ namespace RESTAPI.Controllers
         private readonly IDatabaseAccess database;
         private readonly ICacheProvider cache;
         private readonly IMailService mailService;
+        private readonly IHasher hasher;
+
         // ----------------------------------------
 
         private readonly string publicAddress;
 
         public MailConfirmController(
-            IDatabaseAccess _database, ICacheProvider _cache, IMailService _mailService, IConfiguration _config)
+            IDatabaseAccess _database, ICacheProvider _cache, IMailService _mailService, 
+            IConfiguration _config, IHasher _hasher)
         {
             database = _database;
             cache = _cache;
             mailService = _mailService;
+            hasher = _hasher;
             publicAddress = _config.GetValue<string>("WebServer:PublicURL", null);
         }
 
@@ -51,6 +56,8 @@ namespace RESTAPI.Controllers
         // --- POST /api/mailconfirm/confirmset ---
 
         [HttpPost("[action]")]
+        [ProducesResponseType(typeof(Nullable), 204)]
+        [ProducesResponseType(typeof(Nullable), 401)]
         public async Task<ActionResult> ConfirmSet([FromQuery] string token)
         {
             var key = $"{Constants.MAIL_CONFIRM_CACHE_KEY}:{token}";
@@ -64,13 +71,15 @@ namespace RESTAPI.Controllers
             await database.Update(user);
             cache.Delete(key);
 
-            return Ok();
+            return NoContent();
         }
 
         // -------------------------------------------------------------------------
         // --- POST /api/mailconfirm/passwordreset ---
 
         [HttpPost("[action]")]
+        [ProducesResponseType(typeof(Nullable), 204)]
+        [ProducesResponseType(typeof(Nullable), 400)]
         public async Task<ActionResult> PasswordReset([FromBody] PasswordResetRequestModel pwReset)
         {
             var user = await database.GetUserByUserName(pwReset.UserName);
@@ -79,12 +88,41 @@ namespace RESTAPI.Controllers
 
             await SendPasswordResetMail(user);
 
-            return Ok();
+            return NoContent();
+        }
+
+        // -------------------------------------------------------------------------
+        // --- POST /api/mailconfirm/passwordresetconfirm ---
+
+        [HttpPost("[action]")]
+        [ProducesResponseType(typeof(Nullable), 204)]
+        [ProducesResponseType(typeof(Nullable), 401)]
+        public async Task<ActionResult> PasswordResetConfirm([FromBody] PasswordConfirmRequestModel pwConfirm)
+        {
+            var key = $"{Constants.MAIL_PWRESET_CACHE_KEY}:{pwConfirm.Token}";
+
+            if (!cache.TryGet<Guid>(key, out var userUid))
+                return Unauthorized();
+
+            var user = await database.Get<UserModel>(userUid);
+            if (user == null)
+                return Unauthorized();
+
+            user.PasswordHash = hasher.Create(pwConfirm.NewPassword);
+            await database.Update(user);
+            cache.Delete(key);
+
+            return NoContent();
         }
 
         // -------------------------------------------------------------------------
         // --- HELPERS ---
 
+        /// <summary>
+        /// TODO: Summary
+        /// </summary>
+        /// <param name="user">user model</param>
+        /// <returns></returns>
         private async Task SendPasswordResetMail(UserModel user)
         {
             if (publicAddress.IsNullOrEmpty())
