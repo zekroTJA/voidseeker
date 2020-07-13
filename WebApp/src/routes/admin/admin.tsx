@@ -8,11 +8,11 @@ import PageModel from '../../api/models/page';
 import { UserModel } from '../../api/models/user';
 import { RestAPI } from '../../api/restapi';
 import moment from 'moment';
-
-import './admin.scss';
 import Modal from '../../components/modal/modal';
 import SnackBarNotifier, { SnackBarType } from '../../util/snackbar-notifier';
 import Consts from '../../consts';
+
+import './admin.scss';
 
 interface AdminRouteProps extends RouteComponentProps {
   globalState: GlobalState;
@@ -68,7 +68,7 @@ class AdminRoute extends Component<AdminRouteProps> {
           title={
             <div className="admin-users-title">
               <h3>Users</h3>
-              <NavLink to="/users/new">
+              <NavLink to="/users/new/edit">
                 <button>Add User</button>
               </NavLink>
             </div>

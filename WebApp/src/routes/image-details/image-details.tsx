@@ -11,9 +11,9 @@ import moment from 'moment';
 import { byteFormatter } from 'byte-formatter';
 import Modal from '../../components/modal/modal';
 import SnackBarNotifier, { SnackBarType } from '../../util/snackbar-notifier';
+import Consts from '../../consts';
 
 import './image-details.scss';
-import Consts from '../../consts';
 
 interface ImageDetailsRouteProps extends RouteComponentProps {
   globalState: GlobalState;

@@ -19,6 +19,7 @@ import TagDetailsRoute from './routes/tag-details/tag-details';
 import TagEditRoute from './routes/tag-edit/tag-edit';
 import SettingsRoute from './routes/settings/settings';
 import MailConfirmRoute from './routes/mailconfirm/mailconfirm';
+import PasswordResetRoute from './routes/password-reset/password-reset';
 import SnackBar from './components/snackbar/snackbar';
 import Footer from './components/footer/footer';
 import SnackBarNotifier, { SnackBarType } from './util/snackbar-notifier';
@@ -64,6 +65,10 @@ export default class App extends Component {
       }
     });
 
+    if (window.location.pathname === '/passwordreset') {
+      return;
+    }
+
     this.globalState.selfUser().then((u) => {
       if (u) {
         this.setState({ loggedIn: true, selfUser: u });
@@ -103,7 +108,7 @@ export default class App extends Component {
         {this.state.loggedIn && (
           <Header
             version={this.globalState.instance?.version}
-            isAdmin={this.state.selfUser.isadmin}
+            isAdmin={this.state.selfUser?.isadmin}
             onLogout={this.onLogout.bind(this)}
             onHome={this.onHome.bind(this)}
             onUpload={this.onUpload.bind(this)}
@@ -121,6 +126,13 @@ export default class App extends Component {
               exact
               path="/confirmemail"
               render={() => <MailConfirmRoute />}
+            ></Route>
+            <Route
+              exact
+              path="/passwordreset"
+              render={() => (
+                <PasswordResetRoute globalState={this.globalState} />
+              )}
             ></Route>
             <Route
               exact
@@ -158,13 +170,6 @@ export default class App extends Component {
               )}
             />
             <Route exact path="/upload" render={() => <UploadRoute />} />
-            <Route
-              exact
-              path="/users/new"
-              render={() => (
-                <UserEditRoute globalState={this.globalState} userId="new" />
-              )}
-            />
             <Route
               exact
               path="/users/:uid"

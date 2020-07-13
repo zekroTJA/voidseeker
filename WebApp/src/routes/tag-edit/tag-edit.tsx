@@ -7,9 +7,9 @@ import { RestAPI } from '../../api/restapi';
 import Container from '../../components/container/container';
 import SnackBarNotifier, { SnackBarType } from '../../util/snackbar-notifier';
 import { TagModel } from '../../api/models/tag';
+import TagsInput from '../../components/tagsinput/tagsinput';
 
 import './tag-edit.scss';
-import TagsInput from '../../components/tagsinput/tagsinput';
 
 interface TagEditRouteProps extends RouteComponentProps {
   globalState: GlobalState;

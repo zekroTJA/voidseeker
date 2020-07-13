@@ -5,6 +5,7 @@ using RESTAPI.Export;
 using RESTAPI.Filter;
 using RESTAPI.Models;
 using RESTAPI.Models.Responses;
+using System;
 using System.IO;
 using System.Linq;
 using System.Net.Mime;
@@ -28,7 +29,7 @@ namespace RESTAPI.Controllers
     [ProxyAddress]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(401)]
+    [ProducesResponseType(typeof(Nullable), 401)]
     [TypeFilter(typeof(AuthorizationRequired))]
     public class ExportController : ControllerBase, IAuthorizedController
     {
@@ -51,8 +52,8 @@ namespace RESTAPI.Controllers
         }
 
         [HttpPost("[action]")]
-        [ProducesResponseType(201)]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(typeof(ExportWorker), 201)]
+        [ProducesResponseType(typeof(ErrorModel), 400)]
         public async Task<ActionResult<ExportWorker>> Initialize(
             [FromQuery] string filter = "",
             [FromQuery] string[] exclude = default,
@@ -76,8 +77,8 @@ namespace RESTAPI.Controllers
         }
 
         [HttpGet("[action]")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(typeof(ExportWorker), 200)]
+        [ProducesResponseType(typeof(ErrorModel), 400)]
         public ActionResult<ExportWorker> Status()
         {
             if (!workerHandler.TryGetWorker(authClaims.UserUid, out var worker))
@@ -87,8 +88,8 @@ namespace RESTAPI.Controllers
         }
 
         [HttpGet("[action]")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(typeof(FileStream), 200)]
+        [ProducesResponseType(typeof(ErrorModel), 400)]
         public ActionResult Download()
         {
             if (!workerHandler.TryGetWorker(authClaims.UserUid, out var worker))
@@ -102,15 +103,15 @@ namespace RESTAPI.Controllers
         }
 
         [HttpDelete]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(typeof(Nullable), 204)]
+        [ProducesResponseType(typeof(ErrorModel), 400)]
         public ActionResult Remove()
         {
             if (!workerHandler.TryGetWorker(authClaims.UserUid, out var worker))
                 return BadRequest(new ErrorModel(400, "not initialized"));
 
             workerHandler.DestroyWorker(authClaims.UserUid);
-            return Ok();
+            return NoContent();
         }
     }
 }

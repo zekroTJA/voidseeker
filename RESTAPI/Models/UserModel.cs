@@ -36,7 +36,7 @@ namespace RESTAPI.Models
         public bool? IsAdmin { get; set; }
 
         [StringLength(256)]
-        [RegularExpression(@"^[\w-+]+@\w+.\w+$")]
+        [RegularExpression(Constants.EMAIL_PATTERN)]
         [JsonPropertyName("emailaddress")]
         public string EmailAddress { get; set; }
 

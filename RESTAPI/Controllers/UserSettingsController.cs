@@ -4,6 +4,7 @@ using RESTAPI.Database;
 using RESTAPI.Filter;
 using RESTAPI.Models;
 using RESTAPI.Models.Responses;
+using System;
 using System.Net.Mime;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -23,7 +24,7 @@ namespace RESTAPI.Controllers
     [ProxyAddress]
     [Produces(MediaTypeNames.Application.Json)]
     [Consumes(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(401)]
+    [ProducesResponseType(typeof(Nullable), 401)]
     [TypeFilter(typeof(AuthorizationRequired))]
     [Route("api/[controller]")]
     [ApiController]
@@ -49,7 +50,7 @@ namespace RESTAPI.Controllers
         // --- GET /api/usersettings ---
 
         [HttpGet]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(UserSettingsModel), 200)]
         public ActionResult<UserSettingsModel> Get()
         {
             var userSettings = GetUserSettings();
@@ -60,9 +61,9 @@ namespace RESTAPI.Controllers
         // --- POST /api/usersettings ---
 
         [HttpPost]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        public async Task<ActionResult> Post([FromBody] UserSettingsModel newUserSettings)
+        [ProducesResponseType(typeof(UserSettingsModel), 200)]
+        [ProducesResponseType(typeof(ErrorModel), 400)]
+        public async Task<ActionResult<UserSettingsModel>> Post([FromBody] UserSettingsModel newUserSettings)
         {
             var userSettings = GetUserSettings();
 

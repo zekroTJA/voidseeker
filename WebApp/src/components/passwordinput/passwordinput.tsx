@@ -6,6 +6,7 @@ import './passwordinput.scss';
 
 interface PasswordInputProperties {
   id?: string;
+  placeholder?: string;
   value: string;
   onChange: (v: string) => void;
 }
@@ -27,6 +28,7 @@ export default class PasswordInput extends Component<PasswordInputProperties> {
           type={this.state.hide ? 'password' : 'text'}
           id={this.props.id}
           value={this.props.value}
+          placeholder={this.props.placeholder}
           onChange={(v) => this.props.onChange(v.target.value)}
         />
         <button

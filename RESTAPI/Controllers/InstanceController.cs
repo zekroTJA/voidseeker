@@ -6,6 +6,7 @@ using RESTAPI.Hashing;
 using RESTAPI.Models;
 using RESTAPI.Models.Requests;
 using RESTAPI.Models.Responses;
+using System;
 using System.Net.Mime;
 using System.Threading.Tasks;
 
@@ -43,7 +44,7 @@ namespace RESTAPI.Controllers
         // --- GET /api/instance/status ---
 
         [HttpGet("[action]")]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(InstanceStatusModel), 200)]
         public async Task<InstanceStatusModel> Status()
         {
             var usersCount = await database.Count<UserModel>();
@@ -63,9 +64,9 @@ namespace RESTAPI.Controllers
         // --- POST /api/instance/initialize ---
 
         [HttpPost("[action]")]
-        [ProducesResponseType(201)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(401)]
+        [ProducesResponseType(typeof(UserModel), 201)]
+        [ProducesResponseType(typeof(ErrorModel), 400)]
+        [ProducesResponseType(typeof(Nullable), 401)]
         public async Task<ActionResult<UserModel>> Initialize([FromBody] UserCreateRequestModel user)
         {
             var usersCount = await database.Count<UserModel>();

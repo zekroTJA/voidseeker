@@ -1,8 +1,11 @@
 /** @format */
 
 import React, { Component } from 'react';
+import { ReactComponent as Logo } from '../../assets/logo/logo.svg';
+import { ReactComponent as LogoInvert } from '../../assets/logo/logo-invert.svg';
 
 import './header.scss';
+import LocalStorage from '../../util/localstorage';
 
 interface HeaderPorps {
   version?: string;
@@ -17,6 +20,16 @@ interface HeaderPorps {
 }
 
 export default class Header extends Component<HeaderPorps> {
+  public state = {
+    darkTheme: false,
+  };
+
+  componentDidMount() {
+    this.setState({
+      darkTheme: LocalStorage.get<boolean>('dark_theme', false),
+    });
+  }
+
   public render() {
     return (
       <div className="header-container">
@@ -24,7 +37,9 @@ export default class Header extends Component<HeaderPorps> {
           onClick={() => this.props.onHome?.call(this)}
           className="header-logo"
         >
-          voidseeker
+          {(this.state.darkTheme && <Logo height="60%" />) || (
+            <LogoInvert height="60%" />
+          )}
         </div>
         {this.props.version && (
           <span className="header-version">v.{this.props.version}</span>
