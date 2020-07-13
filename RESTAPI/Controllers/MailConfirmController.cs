@@ -83,7 +83,7 @@ namespace RESTAPI.Controllers
         public async Task<ActionResult> PasswordReset([FromBody] PasswordResetRequestModel pwReset)
         {
             var user = await database.GetUserByUserName(pwReset.UserName);
-            if (user.EmailAddress.IsNullOrEmpty() || user.EmailAddress != pwReset.EmailAddress)
+            if (user == null || user.EmailAddress.IsNullOrEmpty() || user.EmailAddress != pwReset.EmailAddress)
                 return BadRequest();
 
             await SendPasswordResetMail(user);
