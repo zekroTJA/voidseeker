@@ -19,6 +19,7 @@ import TagDetailsRoute from './routes/tag-details/tag-details';
 import TagEditRoute from './routes/tag-edit/tag-edit';
 import SettingsRoute from './routes/settings/settings';
 import MailConfirmRoute from './routes/mailconfirm/mailconfirm';
+import PasswordResetRoute from './routes/password-reset/password-reset';
 import SnackBar from './components/snackbar/snackbar';
 import Footer from './components/footer/footer';
 import SnackBarNotifier, { SnackBarType } from './util/snackbar-notifier';
@@ -63,6 +64,10 @@ export default class App extends Component {
         );
       }
     });
+
+    if (window.location.pathname === '/passwordreset') {
+      return;
+    }
 
     this.globalState.selfUser().then((u) => {
       if (u) {
@@ -124,6 +129,13 @@ export default class App extends Component {
             ></Route>
             <Route
               exact
+              path="/passwordreset"
+              render={() => (
+                <PasswordResetRoute globalState={this.globalState} />
+              )}
+            ></Route>
+            <Route
+              exact
               path="/login"
               render={() => (
                 <LoginRoute
@@ -158,13 +170,6 @@ export default class App extends Component {
               )}
             />
             <Route exact path="/upload" render={() => <UploadRoute />} />
-            <Route
-              exact
-              path="/users/new"
-              render={() => (
-                <UserEditRoute globalState={this.globalState} userId="new" />
-              )}
-            />
             <Route
               exact
               path="/users/:uid"

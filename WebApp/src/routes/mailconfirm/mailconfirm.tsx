@@ -20,7 +20,6 @@ class MailConfirmRoute extends Component<RouteComponentProps> {
   public async componentDidMount() {
     const params = new URLSearchParams(this.props.location.search);
     const token = params.get('token') ?? '';
-    console.log(token);
 
     try {
       await RestAPI.mailConformSet(token, true);

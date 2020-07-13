@@ -68,7 +68,7 @@ class AdminRoute extends Component<AdminRouteProps> {
           title={
             <div className="admin-users-title">
               <h3>Users</h3>
-              <NavLink to="/users/new">
+              <NavLink to="/users/new/edit">
                 <button>Add User</button>
               </NavLink>
             </div>

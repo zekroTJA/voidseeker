@@ -223,6 +223,23 @@ export class RestAPI {
     );
   }
 
+  public static mailConfirmPasswordReset(
+    username: string,
+    emailaddress: string
+  ): Promise<any> {
+    return this.post(`mailconfirm/passwordreset`, { username, emailaddress });
+  }
+
+  public static mailConfirmPasswordResetConfirm(
+    token: string,
+    newpassword: string
+  ): Promise<any> {
+    return this.post(`mailconfirm/passwordresetconfirm`, {
+      token,
+      newpassword,
+    });
+  }
+
   // ------------------------------------------------------------
   // --- HELPERS ---
 
@@ -291,7 +308,7 @@ export class RestAPI {
       throw new Error(res.statusText);
     }
 
-    if (res.headers.get('content-length') === '0') {
+    if (res.status === 204 || res.headers.get('content-length') === '0') {
       return {} as T;
     }
 

@@ -2,7 +2,7 @@
 
 import React, { Component } from 'react';
 import { RestAPI } from '../../api/restapi';
-import { withRouter, RouteComponentProps } from 'react-router-dom';
+import { withRouter, RouteComponentProps, NavLink } from 'react-router-dom';
 import Container from '../../components/container/container';
 import GlobalState from '../../util/globalstate';
 import SnackBarNotifier, { SnackBarType } from '../../util/snackbar-notifier';
@@ -48,7 +48,7 @@ class LoginRoute extends Component<LoginRouteProps> {
             onChange={(e) => this.setState({ password: e.target.value })}
             onKeyPress={this.onKeyPress.bind(this)}
           />
-          <div className="cb-container mb-10">
+          <div className="cb-container mb-5">
             <input
               id="input-remember"
               type="checkbox"
@@ -56,6 +56,9 @@ class LoginRoute extends Component<LoginRouteProps> {
               onChange={() => this.setState({ remember: !this.state.remember })}
             />
             <label htmlFor="input-remember">Remember for 30 Days</label>
+          </div>
+          <div className="mb-10">
+            <NavLink to="/passwordreset">Forgot password?</NavLink>
           </div>
           <button
             disabled={!this.state.username || !this.state.password}
