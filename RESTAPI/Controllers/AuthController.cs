@@ -3,10 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using RESTAPI.Authorization;
 using RESTAPI.Database;
+using RESTAPI.Extensions;
 using RESTAPI.Filter;
 using RESTAPI.Hashing;
 using RESTAPI.Models;
 using RESTAPI.Models.Requests;
+using RESTAPI.Models.Responses;
 using System;
 using System.Net.Mime;
 using System.Threading.Tasks;
@@ -30,7 +32,8 @@ namespace RESTAPI.Controllers
     public class AuthController : ControllerBase
     {
         // --- Injected by DI -------------------------
-        private readonly IAuthorization authorization;
+        private readonly IRefreshTokenHandler refreshTokenHandler;
+        private readonly IAccessTokenHandler accessTokenHandler;
         private readonly IDatabaseAccess database;
         private readonly IHasher hasher;
         // --------------------------------------------
@@ -40,9 +43,14 @@ namespace RESTAPI.Controllers
         private static readonly TimeSpan DEFAULT_SESSION_EXPIRATION = TimeSpan.FromDays(1);
         private static readonly TimeSpan EXTENDED_SESSION_EXPIRATION = TimeSpan.FromDays(30);
 
-        public AuthController(IAuthorization _authorization, IDatabaseAccess _database, IHasher _hasher, IConfiguration configuration)
+        public AuthController(
+            IRefreshTokenHandler _refreshTokenHandler,
+            IAccessTokenHandler _accessTokenHandler,
+            IDatabaseAccess _database, IHasher _hasher, 
+            IConfiguration configuration)
         {
-            authorization = _authorization;
+            refreshTokenHandler = _refreshTokenHandler;
+            accessTokenHandler = _accessTokenHandler;
             database = _database;
             hasher = _hasher;
 
@@ -53,9 +61,9 @@ namespace RESTAPI.Controllers
         // --- POST /api/auth/login ---
 
         [HttpPost("[action]")]
-        [ProducesResponseType(typeof(UserModel), 200)]
+        [ProducesResponseType(typeof(LoginResponseModel), 200)]
         [ProducesResponseType(typeof(Nullable), 401)]
-        public async Task<ActionResult<UserModel>> Login([FromBody] LoginModel login)
+        public async Task<ActionResult<LoginResponseModel>> Login([FromBody] LoginModel login)
         {
             var user = await database.GetUserByUserName(login.Username);
 
@@ -68,7 +76,7 @@ namespace RESTAPI.Controllers
             user.LastLogin = DateTime.Now;
             await database.Update(user);
 
-            var expies = login.Remember ? EXTENDED_SESSION_EXPIRATION : DEFAULT_SESSION_EXPIRATION;
+            var expires = login.Remember ? EXTENDED_SESSION_EXPIRATION : DEFAULT_SESSION_EXPIRATION;
 
             var claims = new AuthClaims()
             {
@@ -76,11 +84,12 @@ namespace RESTAPI.Controllers
                 UserName = user.UserName,
             };
 
-            var jwt = authorization.GetSessionKey(claims, expies);
+            var refreshToken = await refreshTokenHandler.GenerateAsync(claims, expires);
+            var accessToken = accessTokenHandler.Generate(claims);
 
             var cookieOptions = new CookieOptions
             {
-                Expires = DateTime.Now.Add(expies),
+                Expires = refreshToken.Deadline,
                 HttpOnly = true,
 #if !DEBUG
                 SameSite = SameSiteMode.Strict,
@@ -88,9 +97,27 @@ namespace RESTAPI.Controllers
 #endif
             };
 
-            Response.Cookies.Append(Constants.SESSION_COOKIE_NAME, jwt, cookieOptions);
+            Response.Cookies.Append(Constants.REFRESH_TOKEN_COOKIE, refreshToken.Token, cookieOptions);
 
-            return Ok(user);
+            return Ok(new LoginResponseModel(user, accessToken));
+        }
+
+        // -------------------------------------------------------------------------
+        // --- GET /api/auth/accesstoken ---
+
+        [HttpGet("[action]")]
+        [ProducesResponseType(typeof(DeadlinedToken), 200)]
+        [ProducesResponseType(typeof(Nullable), 401)]
+        public async Task<ActionResult<DeadlinedToken>> AccessToken()
+        {
+            if (!HttpContext.Request.ExtractRefreshToken(out var refreshToken))
+                return Unauthorized();
+
+            var identity = await refreshTokenHandler.ValidateAndRestoreAsync<AuthClaims>(refreshToken);
+            if (identity == null)
+                return Unauthorized();
+
+            return accessTokenHandler.Generate(identity);
         }
 
         // -------------------------------------------------------------------------
@@ -98,15 +125,23 @@ namespace RESTAPI.Controllers
 
         [HttpPost("[action]")]
         [ProducesResponseType(typeof(Nullable), 204)]
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout()
         {
+            if (!HttpContext.Request.ExtractAccessToken(out var accessToken)
+                || !accessTokenHandler.ValidateAndRestore<AuthClaims>(accessToken, out var identity))
+                return Unauthorized(Constants.INVALID_ACCESS_TOKEN);
+
+            var refreshToken = await database.GetRefreshTokenByUserUid(identity.UserUid);
+            if (refreshToken != null)
+                await database.Delete<RefreshTokenModel>(refreshToken.Uid);
+
             var cookieOptions = new CookieOptions
             {
                 Expires = DateTime.Now,
                 HttpOnly = true,
             };
 
-            Response.Cookies.Append(Constants.SESSION_COOKIE_NAME, "", cookieOptions);
+            Response.Cookies.Append(Constants.REFRESH_TOKEN_COOKIE, "", cookieOptions);
 
             return NoContent();
         }

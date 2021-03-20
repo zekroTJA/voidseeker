@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using RESTAPI.Authorization;
 using RESTAPI.Controllers;
 using RESTAPI.Database;
+using RESTAPI.Extensions;
 using RESTAPI.Models;
 using System.Threading.Tasks;
 
@@ -19,12 +20,12 @@ namespace RESTAPI.Filter
     /// </summary>
     public class AuthorizationRequired : ActionFilterAttribute
     {
-        private readonly IAuthorization authorization; // Gets injected by DI
+        private readonly IAccessTokenHandler accessTokenhandler; // Gets injected by DI
         private readonly IDatabaseAccess database;     // Gets injected by DI
 
-        public AuthorizationRequired(IAuthorization _authorization, IDatabaseAccess _database)
+        public AuthorizationRequired(IAccessTokenHandler _accessTokenHandler, IDatabaseAccess _database)
         {
-            authorization = _authorization;
+            accessTokenhandler = _accessTokenHandler;
             database = _database;
         }
 
@@ -32,34 +33,21 @@ namespace RESTAPI.Filter
         {
             var controller = ctx.Controller as IAuthorizedController;
 
-            var ok = ctx.HttpContext.Request.Cookies.TryGetValue(Constants.SESSION_COOKIE_NAME, out var token);
-            if (controller == null || !ok || token == null)
+            if (controller == null
+                || !ctx.HttpContext.Request.ExtractAccessToken(out var accessToken)
+                || !accessTokenhandler.ValidateAndRestore<AuthClaims>(accessToken, out var identity))
             {
                 SetUnauthorized(ctx);
                 return;
             }
 
-            try
-            {
-                var claims = authorization.ValidateSessionKey(token);
-                claims.User = await database.Get<UserModel>(claims.UserUid);
-                controller.SetAuthClaims(claims);
-            }
-            catch
-            {
-                SetUnauthorized(ctx);
-                return;
-            }
+            controller.SetAuthClaims(identity);
 
             await base.OnActionExecutionAsync(ctx, next);
         }
 
-        private void SetUnauthorized(ActionExecutingContext ctx)
-        {
-            var result = new ObjectResult(null);
-            result.StatusCode = 401;
-            ctx.Result = result;
-        }
+        private static void SetUnauthorized(ActionExecutingContext ctx) =>
+            ctx.Result = (ctx.Controller as Controller).Unauthorized(Constants.INVALID_ACCESS_TOKEN);
     }
 
 }

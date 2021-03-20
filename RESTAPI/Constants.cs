@@ -7,7 +7,7 @@ namespace RESTAPI
     /// </summary>
     public static class Constants
     {
-        public const string SESSION_COOKIE_NAME =       "void_session_key";
+        public const string REFRESH_TOKEN_COOKIE =       "void_refresh_token";
         public const string IMAGE_STORAGE_BUCKET =      "void-images";
         public const string THUMBNAIL_STORAGE_BUCKET =  "void-images-thumbnails";
         public const string MAIL_CONFIRM_SUBDIR =       "/confirmemail";
@@ -18,6 +18,8 @@ namespace RESTAPI
         public const string TAG_PATTERN =               @"^[a-z0-9_\-']{1,64}$";
         public const string USERNAME_PATTERN =          @"^[a-z0-9-_\.]{1,32}$";
         public const string EMAIL_PATTERN =             @"^[\w-+]+@\w+.\w+$";
+
+        public const string INVALID_ACCESS_TOKEN =      "invalid access token";
 
         public static readonly string[] ALLOWED_CONTENT_TYPES = {
             "image/bmp",

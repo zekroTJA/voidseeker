@@ -8,7 +8,7 @@ namespace RESTAPI.Models
     /// request body model containing an Uid,
     /// an Index and a Created date.
     /// </summary>
-    public class UniqueModel
+    public class EntityModel
     {
         [JsonPropertyName("uid")]
         public Guid Uid { get; set; }
@@ -20,12 +20,12 @@ namespace RESTAPI.Models
         public DateTime Created { get; set; }
 
         /// <summary>
-        /// Create new <see cref="UniqueModel"/> with
+        /// Create new <see cref="EntityModel"/> with
         /// generated Uid and Created date and passed
         /// Index string.
         /// </summary>
         /// <param name="index"></param>
-        public UniqueModel(string index)
+        public EntityModel(string index)
         {
             Uid = Guid.NewGuid();
             Created = DateTime.Now;
@@ -36,7 +36,7 @@ namespace RESTAPI.Models
         /// Re-generate and set Uid and Created date.
         /// </summary>
         /// <returns></returns>
-        public UniqueModel AfterCreate()
+        public EntityModel AfterCreate()
         {
             Uid = Guid.NewGuid();
             Created = DateTime.Now;

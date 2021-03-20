@@ -7,7 +7,7 @@ namespace RESTAPI.Models
     /// <summary>
     /// Tag model
     /// </summary>
-    public class TagModel : UniqueModel
+    public class TagModel : EntityModel
     {
         [JsonPropertyName("name")]
         [RegularExpression(Constants.TAG_PATTERN)]
