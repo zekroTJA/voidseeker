@@ -2,12 +2,13 @@
 
 import EventEmitter from '../util/eventemitter';
 import { InstanceStatusModel } from './models/instancestatus';
-import { UserCreateModel, UserModel } from './models/user';
+import { UserCreateModel, UserLoginModel, UserModel } from './models/user';
 import PageModel from './models/page';
 import ImageModel from './models/image';
 import { TagModel } from './models/tag';
 import { WorkerStatus } from './models/worker';
 import UserSettingsModel from './models/usersettings';
+import { DeadlinedToken } from './models/deadlinedtoken';
 
 const PREFIX =
   process.env.NODE_ENV === 'development'
@@ -23,6 +24,8 @@ export class AuthenticationError extends Error {
 export class RestAPI {
   public static readonly events = new EventEmitter();
 
+  private static accessToken = (null as any) as DeadlinedToken;
+
   // ------------------------------------------------------------
   // --- INSTANCE ---
 
@@ -37,20 +40,26 @@ export class RestAPI {
   // ------------------------------------------------------------
   // --- AUTH ---
 
-  public static authLogin(
+  public static async authLogin(
     username: string,
     password: string,
     remember: boolean = false
-  ): Promise<any> {
-    return this.post('auth/login', {
+  ): Promise<UserLoginModel> {
+    const login = await this.post<UserLoginModel>('auth/login', {
       username,
       password,
       remember,
     });
+    this.accessToken = login.accesstoken;
+    return login;
   }
 
   public static authLogout(): Promise<any> {
     return this.post('auth/logout');
+  }
+
+  public static getAccessToken(): Promise<DeadlinedToken> {
+    return this.get('auth/accesstoken');
   }
 
   // ------------------------------------------------------------
@@ -277,6 +286,10 @@ export class RestAPI {
     contentType: string | undefined = 'application/json',
     emitError: boolean = true
   ): Promise<T> {
+    if (this.accessToken && new Date(this.accessToken.deadline) <= new Date()) {
+      this.accessToken = await this.getAccessToken();
+    }
+
     let reqBody = undefined;
     if (body) {
       if (typeof body !== 'string' && contentType === 'application/json') {
@@ -288,7 +301,10 @@ export class RestAPI {
 
     const headers: { [key: string]: string } = {};
     if (contentType !== 'multipart/form-data') {
-      headers['content-type'] = contentType;
+      headers['Content-Type'] = contentType;
+    }
+    if (this.accessToken) {
+      headers['Authorization'] = `accessToken ${this.accessToken.token}`;
     }
 
     const res = await window.fetch(`${PREFIX}/${path}`, {
@@ -299,6 +315,14 @@ export class RestAPI {
     });
 
     if (res.status === 401) {
+      try {
+        const resBody = await res.json();
+        console.log(resBody);
+        if (resBody === 'invalid access token') {
+          this.accessToken = await this.getAccessToken();
+          return this.req(method, path, body, contentType, emitError);
+        }
+      } catch {}
       if (emitError) this.events.emit('authentication-error', res);
       throw new AuthenticationError();
     }
