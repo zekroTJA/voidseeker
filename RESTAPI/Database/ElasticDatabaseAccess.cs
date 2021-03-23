@@ -265,21 +265,23 @@ namespace RESTAPI.Database
         public async Task<RefreshTokenModel> GetRefreshTokenByToken(string token)
         {
             var res = await SearchOrNullAsync<RefreshTokenModel>(s => s
-                .Index(new RefreshTokenModel().Index)
-                .Query(q =>
-                    q.Term(t => t.Field(f => f.Token).Value(token))));
+                    .Index(new RefreshTokenModel().Index)
+                    .Size(1)
+                    .Query(q =>
+                        q.MatchPhrase(t => t.Field(f => f.Token).Query(token))));
 
-            return res.Hits.FirstOrDefault()?.Source;
+            return res?.Hits.DefaultIfEmpty(null).First()?.Source;
         }
 
         public async Task<RefreshTokenModel> GetRefreshTokenByUserUid(Guid userUid)
         {
             var res = await SearchOrNullAsync<RefreshTokenModel>(s => s
-                .Index(new RefreshTokenModel().Index)
-                .Query(q =>
-                    q.Term(t => t.Field(f => f.UserUid).Value(userUid))));
+                    .Index(new RefreshTokenModel().Index)
+                    .Size(1)
+                    .Query(q =>
+                        q.Term(t => t.Field(f => f.UserUid).Value(userUid))));
 
-            return res.Hits.FirstOrDefault()?.Source;
+            return res?.Hits.DefaultIfEmpty(null).First()?.Source;
         }
 
         // ------------------------------------------------------------------------------

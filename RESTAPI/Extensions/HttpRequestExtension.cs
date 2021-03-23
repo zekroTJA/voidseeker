@@ -28,7 +28,7 @@ namespace RESTAPI.Extensions
 
             if (!request.Headers.TryGetValue("Authorization", out var headerValue)
                 || headerValue.ToString().Length <= VALUE_PREFIX.Length
-                || !headerValue.ToString().StartsWith(VALUE_PREFIX))
+                || !headerValue.ToString().ToLower().StartsWith(VALUE_PREFIX))
                 return false;
 
             token = headerValue.ToString()[VALUE_PREFIX.Length..];

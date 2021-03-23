@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using RESTAPI.Authorization;
+using RESTAPI.Cache;
 using RESTAPI.Controllers;
 using RESTAPI.Database;
 using RESTAPI.Extensions;
 using RESTAPI.Models;
+using System;
 using System.Threading.Tasks;
 
 namespace RESTAPI.Filter
@@ -20,13 +22,20 @@ namespace RESTAPI.Filter
     /// </summary>
     public class AuthorizationRequired : ActionFilterAttribute
     {
-        private readonly IAccessTokenHandler accessTokenhandler; // Gets injected by DI
-        private readonly IDatabaseAccess database;     // Gets injected by DI
+        private static readonly TimeSpan USER_CACHE_TIME = TimeSpan.FromHours(1);
 
-        public AuthorizationRequired(IAccessTokenHandler _accessTokenHandler, IDatabaseAccess _database)
+        private readonly IAccessTokenHandler accessTokenhandler; // Gets injected by DI
+        private readonly IDatabaseAccess database;
+        private readonly ICacheProvider cache;
+
+        public AuthorizationRequired(
+            IAccessTokenHandler _accessTokenHandler, 
+            IDatabaseAccess _database,
+            ICacheProvider _cache)
         {
             accessTokenhandler = _accessTokenHandler;
             database = _database;
+            cache = _cache;
         }
 
         public override async Task OnActionExecutionAsync(ActionExecutingContext ctx, ActionExecutionDelegate next)
@@ -41,13 +50,25 @@ namespace RESTAPI.Filter
                 return;
             }
 
+            if (!cache.TryGet<UserModel>(identity.UserUid, out var user))
+            {
+                user = await database.Get<UserModel>(identity.UserUid);
+                if (user == null)
+                {
+                    SetUnauthorized(ctx);
+                    return;
+                }
+                cache.Put(user, USER_CACHE_TIME);
+            }
+
+            identity.User = user;
             controller.SetAuthClaims(identity);
 
             await base.OnActionExecutionAsync(ctx, next);
         }
 
         private static void SetUnauthorized(ActionExecutingContext ctx) =>
-            ctx.Result = (ctx.Controller as Controller).Unauthorized(Constants.INVALID_ACCESS_TOKEN);
+            ctx.Result = (ctx.Controller as ControllerBase)?.Unauthorized(Constants.INVALID_ACCESS_TOKEN);
     }
 
 }
