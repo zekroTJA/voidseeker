@@ -26,13 +26,22 @@ namespace RESTAPI.Extensions
         {
             token = null;
 
-            if (!request.Headers.TryGetValue("Authorization", out var headerValue)
-                || headerValue.ToString().Length <= VALUE_PREFIX.Length
-                || !headerValue.ToString().ToLower().StartsWith(VALUE_PREFIX))
-                return false;
+            if (request.Headers.TryGetValue("Authorization", out var headerValue)
+                && headerValue.ToString().Length > VALUE_PREFIX.Length
+                && headerValue.ToString().ToLower().StartsWith(VALUE_PREFIX))
+            {
+                token = headerValue.ToString()[VALUE_PREFIX.Length..];
+                return true;
+            }
 
-            token = headerValue.ToString()[VALUE_PREFIX.Length..];
-            return true;
+            if (request.Query.TryGetValue("accessToken", out headerValue)
+                && !string.IsNullOrWhiteSpace(headerValue))
+            {
+                token = headerValue.ToString();
+                return true;
+            }
+
+            return false;
         }
     }
 }

@@ -61,6 +61,7 @@ class UploadRoute extends Component<UploadRouteProps> {
     if (files.length <= 0) return;
 
     const file = files[0];
+    console.log(file);
     await this.uploadFile(file);
   }
 

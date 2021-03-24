@@ -62,6 +62,10 @@ export class RestAPI {
     return this.get('auth/accesstoken');
   }
 
+  public static get storedAccessToken(): string {
+    return this.accessToken.token;
+  }
+
   // ------------------------------------------------------------
   // --- USERS ---
 
@@ -152,11 +156,11 @@ export class RestAPI {
   }
 
   public static imageUrl(uid: string): string {
-    return `${PREFIX}/images/${uid}`;
+    return `${PREFIX}/images/${uid}?accessToken=${this.storedAccessToken}`;
   }
 
   public static imageThumbnailUrl(uid: string, size = 180): string {
-    return `${PREFIX}/images/${uid}/thumbnail?size=${size}`;
+    return `${PREFIX}/images/${uid}/thumbnail?size=${size}&accessToken=${this.storedAccessToken}`;
   }
 
   public static imageUploadUrl(uid: string): string {
@@ -279,6 +283,12 @@ export class RestAPI {
     return this.req<T>('DELETE', path, undefined, undefined, emitError);
   }
 
+  private static get isAccessTokenExpired(): boolean {
+    return (
+      !this.accessToken || new Date(this.accessToken.deadline) <= new Date()
+    );
+  }
+
   private static async req<T>(
     method: string,
     path: string,
@@ -286,7 +296,7 @@ export class RestAPI {
     contentType: string | undefined = 'application/json',
     emitError: boolean = true
   ): Promise<T> {
-    if (this.accessToken && new Date(this.accessToken.deadline) <= new Date()) {
+    if (this.accessToken && this.isAccessTokenExpired) {
       this.accessToken = await this.getAccessToken();
     }
 
