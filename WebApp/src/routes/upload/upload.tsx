@@ -6,6 +6,7 @@ import ImageModel from '../../api/models/image';
 import { RestAPI } from '../../api/restapi';
 import ImageEditor from '../../components/imageeditor/imageeditor';
 import ProgressBar from '../../components/progressbar/progressbar';
+import SnackBarNotifier, { SnackBarType } from '../../util/snackbar-notifier';
 
 import './upload.scss';
 
@@ -19,7 +20,7 @@ class UploadRoute extends Component<UploadRouteProps> {
     status: 0,
     nToProcess: 0,
     nProcessed: 0,
-    nErrors: 0,
+    errors: [] as Error[],
     processing: false,
     stack: [] as ImageModel[],
   };
@@ -123,7 +124,7 @@ class UploadRoute extends Component<UploadRouteProps> {
       status: 1,
       nToProcess: files.length,
       nProcessed: 0,
-      nErrors: 0,
+      errors: [],
     });
     for (let i = 0; i < files.length; ++i) {
       const file = files[i];
@@ -136,17 +137,28 @@ class UploadRoute extends Component<UploadRouteProps> {
       } catch (err) {
         this.setState({
           nProcessed: i + 1,
-          nErrors: this.state.nErrors + 1,
+          errors: this.state.errors.concat(err),
         });
       }
     }
 
-    if (files.length === 1) {
+    const nErrors = this.state.errors?.length ?? 0;
+    if (nErrors > 0) {
+      this.state.errors.forEach((err) => console.error(err));
+      SnackBarNotifier.show(
+        `${nErrors} image${
+          nErrors ? 's' : ''
+        } failed to upload. See web console for more info.`,
+        SnackBarType.ERROR
+      );
+    }
+
+    if (files.length === 1 && nErrors === 0) {
       this.props.history.replace(`/images/${lastRes?.uid}/edit`);
       return;
     }
 
-    this.setState({ status: 2 });
+    this.setState({ status: files.length === nErrors ? 0 : 2 });
   }
 
   private onClick() {
@@ -191,7 +203,7 @@ class UploadRoute extends Component<UploadRouteProps> {
     this.setState({
       processing: true,
       nProcessed: 0,
-      nErrors: 0,
+      errors: [],
     });
 
     for await (const image of this.state.stack) {
@@ -207,11 +219,22 @@ class UploadRoute extends Component<UploadRouteProps> {
         this.setState({
           nProcessed: this.state.nProcessed + 1,
         });
-      } catch {
+      } catch (err) {
         this.setState({
-          nErrors: this.state.nErrors + 1,
+          errors: this.state.errors.concat(err),
         });
       }
+    }
+
+    const nErrors = this.state.errors?.length ?? 0;
+    if (nErrors > 0) {
+      this.state.errors.forEach((err) => console.error(err));
+      SnackBarNotifier.show(
+        `${nErrors} image${
+          nErrors ? 's' : ''
+        } failed to update. See web console for more info.`,
+        SnackBarType.ERROR
+      );
     }
 
     this.setState({
