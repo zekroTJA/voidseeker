@@ -23,7 +23,7 @@ namespace RESTAPI.Models
     /// <summary>
     /// Image metadata model.
     /// </summary>
-    public class ImageModel : UniqueModel
+    public class ImageModel : EntityModel
     {
         [JsonPropertyName("owneruid")]
         public Guid OwnerUid { get; set; }

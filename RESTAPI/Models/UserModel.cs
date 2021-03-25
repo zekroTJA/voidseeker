@@ -14,7 +14,7 @@ namespace RESTAPI.Models
     /// <summary>
     /// User model.
     /// </summary>
-    public class UserModel : UniqueModel
+    public class UserModel : EntityModel
     {
         [RegularExpression(Constants.USERNAME_PATTERN, ErrorMessage = "invalid characters in username")]
         [StringLength(64, MinimumLength = 2, ErrorMessage = "invalid username length")]

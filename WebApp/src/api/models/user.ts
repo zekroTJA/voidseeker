@@ -1,5 +1,6 @@
 /** @format */
 
+import { DeadlinedToken } from './deadlinedtoken';
 import { UniqueModel } from './unique';
 
 export enum EmailConfirmStatus {
@@ -22,4 +23,8 @@ export interface UserModel extends UniqueModel {
 export interface UserCreateModel extends UserModel {
   password?: string;
   oldpassword?: string;
+}
+
+export interface UserLoginModel extends UserModel {
+  accesstoken: DeadlinedToken;
 }

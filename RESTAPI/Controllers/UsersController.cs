@@ -150,7 +150,7 @@ namespace RESTAPI.Controllers
         [ProducesResponseType(typeof(UserDetailsModel), 200)]
         [ProducesResponseType(typeof(Nullable), 404)]
         public Task<ActionResult<UserDetailsModel>> GetSelfUser() =>
-            GetUser(authClaims.User?.Uid.ToString());
+            GetUser(authClaims.UserUid.ToString());
 
         // -------------------------------------------------------------------------
         // --- POST /api/users/:uid ---

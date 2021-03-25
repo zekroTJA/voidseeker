@@ -1,0 +1,11 @@
+@import '../../styles/colors.scss';
+
+.progress-bar {
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.1);
+
+  > div {
+    background-color: $c-accent;
+    height: 100%;
+  }
+}

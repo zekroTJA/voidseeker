@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Minio.Exceptions;
 using RESTAPI.Authorization;
+using RESTAPI.Cache;
 using RESTAPI.Database;
 using RESTAPI.Extensions;
 using RESTAPI.Filter;
@@ -42,14 +43,20 @@ namespace RESTAPI.Controllers
         // --- Injected by DI ---------------------
         private readonly IDatabaseAccess database;
         private readonly IStorageProvider storage;
+        private readonly ICacheWrapper cache;
+
         // ----------------------------------------
-        
+
         private AuthClaims authClaims;
 
-        public ImagesController(IDatabaseAccess _database, IStorageProvider _storage)
+        public ImagesController(
+            IDatabaseAccess _database, 
+            IStorageProvider _storage,
+            ICacheWrapper _cache)
         {
             database = _database;
             storage = _storage;
+            cache = _cache;
         }
 
         public AuthClaims GetAuthClaims() => authClaims;
@@ -286,9 +293,9 @@ namespace RESTAPI.Controllers
         {
             foreach (var t in image.TagsArray)
             {
-                if ((await database.GetTagByName(t)) == null)
+                if ((await cache.GetTagByName(t)) == null)
                 {
-                    await database.Put(new TagModel() { Name = t, CreatorUid = creator });
+                    await cache.PutTag(new TagModel() { Name = t, CreatorUid = creator });
                 }
             }
         }

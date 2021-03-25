@@ -36,25 +36,25 @@ namespace RESTAPI.Database
                 
         }
 
-        public Task Put<T>(T obj) where T : UniqueModel => 
+        public Task Put<T>(T obj) where T : EntityModel => 
             client.IndexAsync(obj, idx => idx.Index(obj.Index).Id(obj.Uid));
 
-        public async Task<T> Get<T>(Guid uid) where T : UniqueModel, new()
+        public async Task<T> Get<T>(Guid uid) where T : EntityModel, new()
         {
             var res = await client.GetAsync<T>(uid, idx => idx.Index(new T().Index));
             return res.Source;
         }
 
-        public Task Delete<T>(Guid uid) where T : UniqueModel, new() =>
+        public Task Delete<T>(Guid uid) where T : EntityModel, new() =>
             client.DeleteAsync<T>(uid, idx => idx.Index(new T().Index));
 
-        public async Task<long> Count<T>() where T : UniqueModel, new()
+        public async Task<long> Count<T>() where T : EntityModel, new()
         {
             var res = await client.CountAsync<T>(idx => idx.Index(new T().Index));
             return res.Count;
         }
 
-        public async Task<long> Count<T>(string field, string value) where T : UniqueModel, new()
+        public async Task<long> Count<T>(string field, string value) where T : EntityModel, new()
         {
             var res = await client.CountAsync<T>(idx => idx
                 .Index(new T().Index).Query(q => q.
@@ -62,7 +62,7 @@ namespace RESTAPI.Database
             return res.Count;
         }
 
-        public Task Update<T>(T obj) where T : UniqueModel =>
+        public Task Update<T>(T obj) where T : EntityModel =>
             client.UpdateAsync<T, object>(obj.Uid, s => s
                 .Index(obj.Index)
                 .Doc(obj)
@@ -262,6 +262,28 @@ namespace RESTAPI.Database
             return res.Hits.Select(x => x.Source).ToList();
         }
 
+        public async Task<RefreshTokenModel> GetRefreshTokenByToken(string token)
+        {
+            var res = await SearchOrNullAsync<RefreshTokenModel>(s => s
+                    .Index(new RefreshTokenModel().Index)
+                    .Size(1)
+                    .Query(q =>
+                        q.MatchPhrase(t => t.Field(f => f.Token).Query(token))));
+
+            return res?.Hits.DefaultIfEmpty(null).First()?.Source;
+        }
+
+        public async Task<RefreshTokenModel> GetRefreshTokenByUserUid(Guid userUid)
+        {
+            var res = await SearchOrNullAsync<RefreshTokenModel>(s => s
+                    .Index(new RefreshTokenModel().Index)
+                    .Size(1)
+                    .Query(q =>
+                        q.Term(t => t.Field(f => f.UserUid).Value(userUid))));
+
+            return res?.Hits.DefaultIfEmpty(null).First()?.Source;
+        }
+
         // ------------------------------------------------------------------------------
         // --- HELPER FUNCTIONS ---
 
@@ -293,7 +315,7 @@ namespace RESTAPI.Database
         /// <param name="offset">results offset</param>
         /// <param name="size">results size</param>
         /// <returns></returns>
-        private Task<ISearchResponse<T>?> SearchMatchAll<T>(int offset, int size) where T : UniqueModel, new() =>
+        private Task<ISearchResponse<T>?> SearchMatchAll<T>(int offset, int size) where T : EntityModel, new() =>
             SearchOrNullAsync<T>(s => s
                 .Index(new T().Index)
                 .Skip(offset)

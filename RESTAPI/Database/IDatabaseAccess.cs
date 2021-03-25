@@ -16,7 +16,7 @@ namespace RESTAPI.Database
         /// <typeparam name="T">object type</typeparam>
         /// <param name="obj">object instance</param>
         /// <returns></returns>
-        Task Put<T>(T obj) where T : UniqueModel;
+        Task Put<T>(T obj) where T : EntityModel;
 
         /// <summary>
         /// Fetch an object from database by its uid.
@@ -24,7 +24,7 @@ namespace RESTAPI.Database
         /// <typeparam name="T">object type</typeparam>
         /// <param name="uid">object uid</param>
         /// <returns></returns>
-        Task<T> Get<T>(Guid uid) where T : UniqueModel, new();
+        Task<T> Get<T>(Guid uid) where T : EntityModel, new();
 
         /// <summary>
         /// Removes an object from the database by its uid.
@@ -32,7 +32,7 @@ namespace RESTAPI.Database
         /// <typeparam name="T">object type</typeparam>
         /// <param name="uid">object uid</param>
         /// <returns></returns>
-        Task Delete<T>(Guid uid) where T : UniqueModel, new();
+        Task Delete<T>(Guid uid) where T : EntityModel, new();
 
         /// <summary>
         /// Fully updates the object in the database by
@@ -41,7 +41,7 @@ namespace RESTAPI.Database
         /// <typeparam name="T">object type</typeparam>
         /// <param name="obj">object instance</param>
         /// <returns></returns>
-        Task Update<T>(T obj) where T : UniqueModel;
+        Task Update<T>(T obj) where T : EntityModel;
 
         /// <summary>
         /// Fetches the count of objects in the database
@@ -49,7 +49,7 @@ namespace RESTAPI.Database
         /// </summary>
         /// <typeparam name="T">object type</typeparam>
         /// <returns></returns>
-        Task<long> Count<T>() where T : UniqueModel, new();
+        Task<long> Count<T>() where T : EntityModel, new();
 
         /// <summary>
         /// Fetches the count of objects in the database
@@ -60,7 +60,7 @@ namespace RESTAPI.Database
         /// <param name="field">field name</param>
         /// <param name="value">field value</param>
         /// <returns></returns>
-        Task<long> Count<T>(string field, string value) where T : UniqueModel, new();
+        Task<long> Count<T>(string field, string value) where T : EntityModel, new();
 
 
         /// <summary>
@@ -136,5 +136,20 @@ namespace RESTAPI.Database
         /// <param name="fuzziness">fuzziness value</param>
         /// <returns></returns>
         Task<List<TagModel>> SearchTags(int offset, int size, string filter, int fuzziness = -1);
+
+        /// <summary>
+        /// Fetches a refresh token by the token value.
+        /// </summary>
+        /// <param name="token">the refresh token value</param>
+        /// <returns></returns>
+        Task<RefreshTokenModel> GetRefreshTokenByToken(string token);
+
+        /// <summary>
+        /// Fetches a refresh token by the users ID it
+        /// is linked to.
+        /// </summary>
+        /// <param name="userUid">linked users ID</param>
+        /// <returns></returns>
+        Task<RefreshTokenModel> GetRefreshTokenByUserUid(Guid userUid);
     }
 }

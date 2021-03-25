@@ -32,9 +32,11 @@ namespace RESTAPI
             services
                 .AddSingleton<IDatabaseAccess, ElasticDatabaseAccess>()
                 .AddSingleton<IStorageProvider, MinioStorageProvider>()
-                .AddSingleton<IAuthorization, JWTAuthorization>()
+                .AddSingleton<IRefreshTokenHandler, RefreshTokenHandler>()
+                .AddSingleton<IAccessTokenHandler, JwtAccessTokenHandler>()
                 .AddSingleton<IHasher, Argon2Hasher>()
                 .AddSingleton<ICacheProvider>(new InternalCacheProvider(TimeSpan.FromMinutes(10)))
+                .AddSingleton<ICacheWrapper, CacheWrapper>()
                 .AddSingleton<IExportWorkerHandler, ExportWorkerHandler>()
                 .AddSingleton<IMailService, MailService>()
                 ;
