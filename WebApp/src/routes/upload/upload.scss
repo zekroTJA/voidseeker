@@ -1,3 +1,5 @@
+@import '../../styles/colors.scss';
+
 .upload-file-input {
   margin-top: 10px;
 }
@@ -7,20 +9,55 @@
   width: 100%;
 }
 
-.upload-drop-zone {
+.upload-body {
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
   height: calc(100vh - 120px);
-  border: dashed 5px gray;
-  cursor: pointer;
 
-  > p {
+
+  p {
     font-size: 2em;
   }
 }
 
+.upload-drop-zone {
+  border: dashed 5px gray;
+  cursor: pointer;
+}
+
 .upload-drop-zone-over {
   background-color: rgba(0, 0, 0, 0.05);
+}
+
+.upload-image-grid {
+  display: flex;
+  width: 100%;
+  overflow-x: auto;
+  margin-bottom: 20px;
+
+  > span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 5px;
+
+    > img {
+      height: 100px;
+    }
+  }
+}
+
+.upload-uploading {
+  > div {
+    width: 80vw;
+  }
+}
+
+.upload-afteredit {
+  > button {
+    width: 100%;
+    margin-top: 20px;
+  }
 }
