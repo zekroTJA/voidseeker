@@ -36,6 +36,7 @@ namespace RESTAPI
                 .AddSingleton<IAccessTokenHandler, JwtAccessTokenHandler>()
                 .AddSingleton<IHasher, Argon2Hasher>()
                 .AddSingleton<ICacheProvider>(new InternalCacheProvider(TimeSpan.FromMinutes(10)))
+                .AddSingleton<ICacheWrapper, CacheWrapper>()
                 .AddSingleton<IExportWorkerHandler, ExportWorkerHandler>()
                 .AddSingleton<IMailService, MailService>()
                 ;
