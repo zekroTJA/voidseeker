@@ -10,7 +10,7 @@ FROM build AS publish
 RUN dotnet publish "RESTAPI.csproj" -c Release -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:5.0-alpine AS final
-RUN apk add libgdiplus
+RUN apk update && apk add libgdiplus
 WORKDIR /app
 COPY --from=publish /app/publish .
 EXPOSE 80
