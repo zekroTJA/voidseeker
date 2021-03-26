@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:5.0-alpine AS build
 WORKDIR /src
 COPY ["RESTAPI/RESTAPI.csproj", "RESTAPI/"]
 RUN dotnet restore "RESTAPI/RESTAPI.csproj"
@@ -9,8 +9,11 @@ RUN dotnet build "RESTAPI.csproj" -c Release -o /app/build
 FROM build AS publish
 RUN dotnet publish "RESTAPI.csproj" -c Release -o /app/publish
 
-FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS final
-RUN apt-get update && apt-get install -y libgdiplus
+FROM mcr.microsoft.com/dotnet/aspnet:5.0-alpine AS final
+RUN apk add libgdiplus \
+      --update-cache \
+      --repository http://dl-3.alpinelinux.org/alpine/edge/testing/ \
+      --allow-untrusted
 WORKDIR /app
 COPY --from=publish /app/publish .
 EXPOSE 80
