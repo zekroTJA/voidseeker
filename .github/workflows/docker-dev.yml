@@ -1,0 +1,42 @@
+name: Docker CD Dev
+
+on:
+  push:
+    branches: [ dev ]
+
+jobs:
+
+  build-backend:
+    
+    runs-on: ubuntu-latest
+    name: Build Back End Image
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build Image
+        run: |
+          docker build . \
+            --file ./RESTAPI/Dockerfile \
+            --tag zekro/voidseeker-backend:canary
+      - name: Push Image
+        run: |
+          docker login -u zekro -p ${{ secrets.DOCKER_PASSWORD }}
+          docker push zekro/voidseeker-backend:canary
+          
+  build-frontend:
+    
+    runs-on: ubuntu-latest
+    name: Build Front End Image
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build Image
+        run: |
+          docker build ./WebApp \
+            --tag zekro/voidseeker-frontend:canary
+      - name: Push Image
+        run: |
+          docker login -u zekro -p ${{ secrets.DOCKER_PASSWORD }}
+          docker push zekro/voidseeker-frontend:canary
